@@ -1,0 +1,35 @@
+<!-- pacientes/_fila_paciente.html -->
+<!-- Fragmento: una fila de la tabla de pacientes.
+     Se incluye desde lista.html y se reutiliza en refrescos AJAX de la tabla. -->
+
+<tr class="hover:bg-slate-50 transition-colors duration-150">
+    <td class="px-5 py-3.5">
+        <button onclick="openModalDetalle({{ paciente.pk }})" class="font-medium text-slate-800 hover:text-teal-600 transition-colors text-left">
+            {{ paciente.nombre_completo }}
+        </button>
+        {% if paciente.sexo %}
+        <span class="text-xs text-slate-400 ml-1">({{ paciente.get_sexo_display }})</span>
+        {% endif %}
+    </td>
+    <td class="px-5 py-3.5 text-slate-600">{{ paciente.telefono }}</td>
+    <td class="px-5 py-3.5 text-slate-600 hidden sm:table-cell">
+        {{ paciente.email|default:"—" }}
+    </td>
+    <td class="px-5 py-3.5">
+        {% include "components/badge_estado.html" with activo=paciente.estado %}
+    </td>
+    <td class="px-5 py-3.5 text-right">
+        <div class="flex items-center justify-end gap-1">
+            <button onclick="openModalDetalle({{ paciente.pk }})"
+               class="text-slate-400 hover:text-teal-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
+               title="Ver ficha">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+            <button onclick="openModalEditar({{ paciente.pk }})"
+               class="text-slate-400 hover:text-amber-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
+               title="Editar">
+                <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </td>
+</tr>

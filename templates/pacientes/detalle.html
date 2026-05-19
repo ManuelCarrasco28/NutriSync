@@ -1,0 +1,11 @@
+<!-- templates/pacientes/detalle.html -->
+<!-- Detalle de paciente (página completa) -->
+
+{% extends "base.html" %}
+
+{% block title %}{{ paciente.nombre_completo }}{% endblock %}
+{% block page_title %}Ficha de Paciente{% endblock %}
+
+{% block content %}
+{% include "pacientes/_detalle_content.html" %}
+{% endblock %}

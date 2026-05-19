@@ -11,8 +11,9 @@ urlpatterns = [
     # App core: login, logout, dashboard, perfil
     path("", include("core.urls")),
 
+    # Gestión de pacientes (Parte 2)
+    path("pacientes/", include("pacientes.urls")),
     # Las demás apps se integrarán en las partes siguientes
-    # path("", include("pacientes.urls")),
     # path("", include("citas.urls")),
     # path("", include("nutricion.urls")),
     # path("", include("seguimiento.urls")),

@@ -24,9 +24,8 @@
             <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
         </a>
 
-        <a href="#"
-           class="sidebar-link text-slate-500 cursor-not-allowed opacity-60"
-           title="Disponible en Parte 2">
+        <a href="{% url 'pacientes:lista' %}"
+           class="sidebar-link {% if request.resolver_match.namespace and 'pacientes' in request.resolver_match.namespace %}active{% endif %}">
             <i data-lucide="users" class="w-5 h-5"></i> Pacientes
         </a>
 

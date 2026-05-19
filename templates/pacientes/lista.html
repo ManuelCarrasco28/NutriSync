@@ -1,0 +1,132 @@
+<!-- templates/pacientes/lista.html -->
+<!-- Lista paginada de pacientes con búsqueda, filtros y modales para crear/ver/editar. -->
+
+{% extends "base.html" %}
+
+{% block title %}Pacientes{% endblock %}
+{% block page_title %}Pacientes{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+    <!-- Acciones: búsqueda + filtro + botón nuevo -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <form method="get" action="{% url 'pacientes:lista' %}" class="flex items-center gap-2 flex-1 w-full" id="filtros-form">
+            <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o teléfono..."
+                    class="w-full border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800
+                           focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
+                           placeholder-slate-300">
+            </div>
+            <select name="estado" onchange="this.form.submit()"
+                id="pacientes-counts"
+                class="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 bg-white
+                       focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <option value="" {% if not filtro_estado %}selected{% endif %}>Todos ({{ total_activos|add:total_inactivos }})</option>
+                <option value="activo" {% if filtro_estado == 'activo' %}selected{% endif %}>Activos ({{ total_activos }})</option>
+                <option value="inactivo" {% if filtro_estado == 'inactivo' %}selected{% endif %}>Inactivos ({{ total_inactivos }})</option>
+            </select>
+            {% if q or filtro_estado %}
+            <a href="{% url 'pacientes:lista' %}" class="text-sm text-slate-400 hover:text-slate-600 transition-colors">
+                Limpiar
+            </a>
+            {% endif %}
+        </form>
+        <button onclick="openModalNuevo()"
+           class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-4 py-2 text-sm
+                  transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 whitespace-nowrap">
+            <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Paciente
+        </button>
+    </div>
+
+    <!-- Tabla de pacientes -->
+    {% if pacientes %}
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50">
+                        <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wider text-xs">Nombre</th>
+                        <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wider text-xs">Teléfono</th>
+                        <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wider text-xs hidden sm:table-cell">Email</th>
+                        <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wider text-xs">Estado</th>
+                        <th class="text-right px-5 py-3 font-medium text-slate-500 uppercase tracking-wider text-xs">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100" id="pacientes-table-body">
+                    {% for paciente in pacientes %}
+                    {% include "pacientes/_fila_paciente.html" %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div class="flex items-center justify-between text-sm" id="pacientes-pagination">
+        <p class="text-slate-500">
+            Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }} pacientes
+        </p>
+        <div class="flex items-center gap-1">
+            {% if page_obj.has_previous %}
+            <a href="?{% if q %}q={{ q }}&{% endif %}{% if filtro_estado %}estado={{ filtro_estado }}&{% endif %}page={{ page_obj.previous_page_number }}"
+               class="px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                Anterior
+            </a>
+            {% endif %}
+            <span class="px-3 py-1.5 text-slate-500">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+            {% if page_obj.has_next %}
+            <a href="?{% if q %}q={{ q }}&{% endif %}{% if filtro_estado %}estado={{ filtro_estado }}&{% endif %}page={{ page_obj.next_page_number }}"
+               class="px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                Siguiente
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+        <i data-lucide="users" class="w-12 h-12 text-slate-200 mx-auto mb-4"></i>
+        <h3 class="text-lg font-semibold text-slate-700 mb-1">
+            {% if q or filtro_estado %}
+                No se encontraron pacientes
+            {% else %}
+                No hay pacientes registrados aún
+            {% endif %}
+        </h3>
+        <p class="text-slate-400 text-sm mb-6">
+            {% if q or filtro_estado %}
+                Intenta con otros términos de búsqueda o limpia los filtros.
+            {% else %}
+                Comienza registrando tu primer paciente para gestionar su plan nutricional.
+            {% endif %}
+        </p>
+        {% if not q and not filtro_estado %}
+        <button onclick="openModalNuevo()"
+           class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-5 py-2 text-sm
+                  transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i> Registrar primer paciente
+        </button>
+        {% else %}
+        <a href="{% url 'pacientes:lista' %}"
+           class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-5 py-2 text-sm
+                  transition-all duration-200 inline-flex items-center gap-2">
+            Limpiar filtros
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- CSRF token para peticiones AJAX -->
+<script>
+    window.CSRF_TOKEN = '{{ csrf_token }}';
+</script>
+{% endblock %}

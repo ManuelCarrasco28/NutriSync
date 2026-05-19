@@ -1,11 +1,25 @@
+# Python
 venv/
 .venv/
 __pycache__/
 *.pyc
+*.pyo
+
+# Django
 db.sqlite3
-.DS_Store
 staticfiles/
-**/*.md
-database/
-**/*.sql
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Documentación de partes (se generan localmente por cada integrante)
+Documentacion-parte*.md
 docs/
+
+# Entorno local
+.env.local

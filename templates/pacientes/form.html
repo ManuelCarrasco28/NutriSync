@@ -1,0 +1,16 @@
+<!-- templates/pacientes/form.html -->
+<!-- Formulario de paciente (página completa) -->
+
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}Editar — {{ form.instance.nombre_completo }}{% else %}Nuevo Paciente{% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if form.instance.pk %}Editar Paciente{% else %}Nuevo Paciente{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include "pacientes/_form_content.html" %}
+{% endblock %}

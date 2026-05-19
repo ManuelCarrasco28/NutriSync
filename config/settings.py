@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Apps del proyecto NutriSync — orden según dependencias
-    "core",  # Auth, dashboard, perfil del nutricionista
+    "core.apps.CoreConfig",  # Auth, dashboard, perfil del nutricionista (CoreConfig para signals)
     "pacientes",  # Gestión de pacientes
     "citas",  # Agenda de citas
     "nutricion",  # Base de alimentos y planes nutricionales
@@ -115,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ─── Internacionalización ─────────────────────────────────────────────────────
 
 # Español para que el admin, mensajes de validación y errores estén en español
-LANGUAGE_CODE = "es-pe"
+LANGUAGE_CODE = "es"
 
 TIME_ZONE = "America/Lima"
 

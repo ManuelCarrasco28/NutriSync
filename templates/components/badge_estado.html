@@ -1,0 +1,16 @@
+<!-- templates/components/badge_estado.html -->
+<!-- Componente reutilizable: muestra un badge verde (activo) o gris (inactivo).
+     Se usa en la lista de pacientes, ficha de detalle y futuras listas.
+     Parámetro: activo (bool) -->
+
+{% if activo %}
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+    Activo
+</span>
+{% else %}
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+    Inactivo
+</span>
+{% endif %}
