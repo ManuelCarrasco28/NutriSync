@@ -25,7 +25,7 @@
         </a>
 
         <a href="{% url 'pacientes:lista' %}"
-           class="sidebar-link {% if 'pacientes' in request.resolver_match.namespace %}active{% endif %}">
+           class="sidebar-link {% if request.resolver_match.namespace and 'pacientes' in request.resolver_match.namespace %}active{% endif %}">
             <i data-lucide="users" class="w-5 h-5"></i> Pacientes
         </a>
 

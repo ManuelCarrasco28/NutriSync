@@ -5,6 +5,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.urls import reverse_lazy
@@ -182,6 +183,7 @@ class PacienteUpdateView(FormFragmentMixin, NutricionistaPacienteMixin, UpdateVi
 # ─── Activar / Desactivar paciente (soft-delete) ─────────────────────────────
 
 
+@require_POST
 @login_required
 def paciente_toggle_estado(request, pk):
     """
