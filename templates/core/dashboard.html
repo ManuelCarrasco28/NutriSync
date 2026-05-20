@@ -1,7 +1,4 @@
 <!-- templates/core/dashboard.html -->
-<!-- Dashboard principal — Parte 1: placeholder con cards vacías. -->
-<!-- La Parte 6 reemplazará las cards con datos reales. -->
-
 {% extends "base.html" %}
 
 {% block title %}Dashboard{% endblock %}
@@ -11,43 +8,171 @@
 <div class="space-y-6">
 
     <!-- Bienvenida -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-            Bienvenido, {{ perfil.nombre_completo|default:user.username }} 
-            <i data-lucide="hand" class="w-5 h-5 text-amber-500"></i>
-        </h2>
-        <p class="text-slate-500 text-sm mt-1">
-            Este es tu panel de control. Aquí verás el resumen del día cuando el sistema esté completo.
-        </p>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                Bienvenido, {{ perfil.nombre_completo|default:user.username }} 
+                <i data-lucide="hand" class="w-5 h-5 text-amber-500"></i>
+            </h2>
+            <p class="text-slate-500 text-sm mt-1">
+                Este es tu panel de control central. Aquí tienes el resumen y la agenda de tus pacientes para hoy.
+            </p>
+        </div>
+        
+        <!-- Enlace rápido para agendar -->
+        <div class="flex items-center gap-2">
+            <a href="{% url 'citas:nueva' %}" class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-4 py-2 text-xs transition-colors shadow-sm flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Agendar Cita
+            </a>
+            <a href="{% url 'pacientes:lista' %}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium rounded-lg px-4 py-2 text-xs transition-colors flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-slate-500"></i> Ver Pacientes
+            </a>
+        </div>
     </div>
 
-    <!-- Cards de métricas — placeholder -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <!-- Cards de métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Pacientes activos</p>
-            <p class="text-3xl font-semibold text-slate-800 mt-2">—</p>
-            <p class="text-xs text-slate-400 mt-1">Disponible en Parte 2</p>
+        <!-- Pacientes Activos -->
+        <a href="{% url 'pacientes:lista' %}" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md hover:border-teal-500 transition-all duration-200 block group">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Pacientes activos</p>
+                    <p class="text-3xl font-bold text-slate-800 mt-2">{{ pacientes_activos_count }}</p>
+                </div>
+                <div class="p-2.5 bg-teal-50 text-teal-600 rounded-lg group-hover:bg-teal-100 transition-colors">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                <span>Gestionar cartera</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
+            </p>
+        </a>
+
+        <!-- Citas Hoy -->
+        <a href="{% url 'citas:agenda' %}?vista=dia" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md hover:border-teal-500 transition-all duration-200 block group">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Citas hoy</p>
+                    <p class="text-3xl font-bold text-slate-800 mt-2">{{ citas_hoy_count }}</p>
+                </div>
+                <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                <span>Ver cronograma</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"></i>
+            </p>
+        </a>
+
+        <!-- Planes Activos -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 opacity-85">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Planes activos</p>
+                    <p class="text-3xl font-semibold text-slate-300 mt-2">—</p>
+                </div>
+                <div class="p-2.5 bg-slate-50 text-slate-300 rounded-lg">
+                    <i data-lucide="utensils" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3">Disponible en Parte 4</p>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Citas hoy</p>
-            <p class="text-3xl font-semibold text-slate-800 mt-2">—</p>
-            <p class="text-xs text-slate-400 mt-1">Disponible en Parte 3</p>
+        <!-- Seguimientos -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 opacity-85">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Seguimientos</p>
+                    <p class="text-3xl font-semibold text-slate-300 mt-2">—</p>
+                </div>
+                <div class="p-2.5 bg-slate-50 text-slate-300 rounded-lg">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3">Disponible en Parte 5</p>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Planes activos</p>
-            <p class="text-3xl font-semibold text-slate-800 mt-2">—</p>
-            <p class="text-xs text-slate-400 mt-1">Disponible en Parte 4</p>
-        </div>
+    </div>
 
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <p class="text-xs font-medium text-slate-400 uppercase tracking-wide">Seguimientos</p>
-            <p class="text-3xl font-semibold text-slate-800 mt-2">—</p>
-            <p class="text-xs text-slate-400 mt-1">Disponible en Parte 5</p>
-        </div>
+    <!-- Sección de Próximas Citas -->
+    <div class="grid grid-cols-1 gap-6">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    <i data-lucide="calendar-clock" class="w-4 h-4 text-teal-600"></i>
+                    Próximas Citas de tu Agenda
+                </h3>
+                <a href="{% url 'citas:agenda' %}" class="text-xs text-teal-600 hover:text-teal-700 font-semibold hover:underline flex items-center gap-0.5">
+                    <span>Ver agenda completa</span>
+                    <i data-lucide="chevrons-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
 
+            {% if proximas_citas %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-slate-400 text-left font-medium">
+                            <th class="pb-2 font-semibold uppercase tracking-wider text-[10px]">Paciente</th>
+                            <th class="pb-2 font-semibold uppercase tracking-wider text-[10px]">Fecha y Hora</th>
+                            <th class="pb-2 font-semibold uppercase tracking-wider text-[10px]">Tipo</th>
+                            <th class="pb-2 font-semibold uppercase tracking-wider text-[10px]">Estado</th>
+                            <th class="pb-2 text-right font-semibold uppercase tracking-wider text-[10px]">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        {% for cita in proximas_citas %}
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="py-3 pr-4 font-semibold text-slate-800">
+                                <a href="{% url 'pacientes:detalle' cita.paciente.pk %}" class="hover:text-teal-600 transition-colors">
+                                    {{ cita.paciente.nombre_completo }}
+                                </a>
+                            </td>
+                            <td class="py-3 pr-4 text-slate-500">
+                                <span class="font-medium text-slate-700">{{ cita.fecha_hora|date:"d/m/Y" }}</span> 
+                                <span class="text-slate-400 ml-1">({{ cita.fecha_hora|date:"H:i" }})</span>
+                            </td>
+                            <td class="py-3 pr-4 text-slate-600">{{ cita.get_tipo_display }}</td>
+                            <td class="py-3 pr-4">
+                                {% if cita.estado == 'programada' %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-teal-200 bg-teal-50 text-teal-700">
+                                        {{ cita.get_estado_display }}
+                                    </span>
+                                {% elif cita.estado == 'completada' %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-emerald-200 bg-emerald-50 text-emerald-700">
+                                        {{ cita.get_estado_display }}
+                                    </span>
+                                {% elif cita.estado == 'cancelada' %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-red-200 bg-red-50 text-red-700">
+                                        {{ cita.get_estado_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-slate-200 bg-slate-50 text-slate-700">
+                                        {{ cita.get_estado_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 text-right">
+                                <a href="{% url 'citas:detalle' cita.pk %}" class="inline-flex items-center justify-center p-1 text-slate-400 hover:text-teal-600 hover:bg-slate-100 rounded transition-colors" title="Ver detalle">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-slate-400 text-sm">
+                <i data-lucide="calendar" class="w-8 h-8 text-slate-200 mx-auto mb-2"></i>
+                <p>No tienes citas programadas en los próximos días.</p>
+                <a href="{% url 'citas:nueva' %}" class="text-teal-600 font-semibold hover:underline text-xs mt-1 block">Programar tu primera cita</a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
 </div>

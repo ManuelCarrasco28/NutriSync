@@ -1,0 +1,199 @@
+# citas/tests.py
+# Pruebas unitarias de integridad de datos y lógica de solapamiento en NutriSync.
+
+from django.test import TestCase
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
+from pacientes.models import Paciente
+from citas.models import Cita
+from config.choices import TipoCita, EstadoCita
+
+
+class CitaModelTestCase(TestCase):
+    """
+    Pruebas unitarias para validar las reglas de negocio del modelo Cita:
+    1. Bloqueo de citas a pacientes inactivos.
+    2. Bloqueo de solapamiento de horarios del mismo nutricionista.
+    3. Permiso de solapamiento en nutricionistas diferentes.
+    4. Permiso de solapamiento con citas canceladas.
+    """
+
+    def setUp(self):
+        # 1. Crear usuarios nutricionistas
+        self.nutricionista_a = User.objects.create_user(
+            username="nutri_a", email="nutri_a@gmail.com", password="password123"
+        )
+        self.nutricionista_b = User.objects.create_user(
+            username="nutri_b", email="nutri_b@gmail.com", password="password123"
+        )
+
+        # 2. Crear pacientes para el nutricionista A
+        self.paciente_activo_a = Paciente.objects.create(
+            nutricionista=self.nutricionista_a,
+            nombre="Juan",
+            apellido="Pérez",
+            telefono="987654321",
+            estado=True,  # Activo
+        )
+        self.paciente_inactivo_a = Paciente.objects.create(
+            nutricionista=self.nutricionista_a,
+            nombre="María",
+            apellido="Gómez",
+            telefono="912345678",
+            estado=False,  # Inactivo
+        )
+
+        # 3. Crear paciente para el nutricionista B
+        self.paciente_activo_b = Paciente.objects.create(
+            nutricionista=self.nutricionista_b,
+            nombre="Carlos",
+            apellido="López",
+            telefono="954321678",
+            estado=True,  # Activo
+        )
+
+        # Usar una fecha futura fija para las pruebas
+        self.fecha_base = timezone.localtime(timezone.now()) + timedelta(days=5)
+
+    def test_crear_cita_paciente_activo_exitoso(self):
+        """Valida que se pueda programar correctamente una cita a un paciente activo."""
+        cita = Cita.objects.create(
+            paciente=self.paciente_activo_a,
+            fecha_hora=self.fecha_base,
+            duracion_minutos=45,
+            tipo=TipoCita.EVALUACION,
+            estado=EstadoCita.PROGRAMADA,
+        )
+        self.assertIsNotNone(cita.pk)
+        self.assertEqual(cita.paciente, self.paciente_activo_a)
+
+    def test_error_cita_paciente_inactivo(self):
+        """Valida que no se permita agendar citas a pacientes inactivos."""
+        cita = Cita(
+            paciente=self.paciente_inactivo_a,
+            fecha_hora=self.fecha_base,
+            duracion_minutos=45,
+        )
+        # Debe lanzar una ValidationError
+        with self.assertRaises(ValidationError) as context:
+            cita.save()
+        
+        self.assertIn("No se pueden programar citas para un paciente inactivo.", str(context.exception))
+
+    def test_error_solapamiento_mismo_nutricionista(self):
+        """Valida que no se permitan dos citas solapadas para el mismo nutricionista."""
+        # Programar la primera cita: 10:00 - 10:45
+        hora_cita = self.fecha_base.replace(hour=10, minute=0, second=0, microsecond=0)
+        Cita.objects.create(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+
+        # Intento 1: Solapamiento exacto (10:00 - 10:45)
+        cita_solapada_1 = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+        with self.assertRaises(ValidationError):
+            cita_solapada_1.save()
+
+        # Intento 2: Solapamiento parcial al inicio (09:45 - 10:30)
+        cita_solapada_2 = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita - timedelta(minutes=15),
+            duracion_minutos=45,
+        )
+        with self.assertRaises(ValidationError):
+            cita_solapada_2.save()
+
+        # Intento 3: Solapamiento parcial al final (10:15 - 11:00)
+        cita_solapada_3 = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita + timedelta(minutes=15),
+            duracion_minutos=45,
+        )
+        with self.assertRaises(ValidationError):
+            cita_solapada_3.save()
+
+        # Intento 4: Totalmente contenida dentro (10:10 - 10:30)
+        cita_solapada_4 = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita + timedelta(minutes=10),
+            duracion_minutos=20,
+        )
+        with self.assertRaises(ValidationError):
+            cita_solapada_4.save()
+
+    def test_exito_citas_consecutivas_sin_solapamiento(self):
+        """Valida que se puedan registrar citas inmediatamente consecutivas sin error."""
+        hora_cita_1 = self.fecha_base.replace(hour=10, minute=0, second=0, microsecond=0)
+        # Cita 1: 10:00 - 10:45
+        Cita.objects.create(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita_1,
+            duracion_minutos=45,
+        )
+
+        # Cita 2: 10:45 - 11:30 (Consecutiva exacta)
+        cita_consecutiva = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita_1 + timedelta(minutes=45),
+            duracion_minutos=45,
+        )
+        # No debe lanzar error
+        try:
+            cita_consecutiva.save()
+        except ValidationError:
+            self.fail("ValidationError lanzada en cita consecutiva no solapada.")
+
+    def test_exito_solapamiento_nutricionistas_diferentes(self):
+        """Valida que dos nutricionistas diferentes sí puedan programar citas a la misma hora."""
+        hora_cita = self.fecha_base.replace(hour=10, minute=0, second=0, microsecond=0)
+        # Nutricionista A programa cita de 10:00 a 10:45
+        Cita.objects.create(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+
+        # Nutricionista B programa cita de 10:00 a 10:45 para su propio paciente
+        cita_nutri_b = Cita(
+            paciente=self.paciente_activo_b,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+        
+        # No debe lanzar error
+        try:
+            cita_nutri_b.save()
+        except ValidationError:
+            self.fail("ValidationError lanzada indebidamente al solaparse citas de distintos nutricionistas.")
+
+    def test_exito_solapamiento_con_cita_cancelada(self):
+        """Valida que se pueda agendar en el mismo horario si la cita preexistente fue cancelada."""
+        hora_cita = self.fecha_base.replace(hour=10, minute=0, second=0, microsecond=0)
+        # Programar cita de 10:00 a 10:45 y luego cancelarla
+        cita_cancelada = Cita.objects.create(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+        cita_cancelada.estado = EstadoCita.CANCELADA
+        cita_cancelada.save()
+
+        # Programar nueva cita en el mismo horario
+        nueva_cita = Cita(
+            paciente=self.paciente_activo_a,
+            fecha_hora=hora_cita,
+            duracion_minutos=45,
+        )
+        
+        # No debe lanzar error
+        try:
+            nueva_cita.save()
+        except ValidationError:
+            self.fail("ValidationError lanzada al solapar con cita cancelada.")

@@ -5,8 +5,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from config.choices import EstadoNutricionista
 from .forms import PerfilNutricionistaForm
+from citas.models import Cita
+from pacientes.models import Paciente
 
 
 def login_view(request):
@@ -60,10 +63,39 @@ def logout_view(request):
 @login_required
 def dashboard_view(request):
     """
-    Dashboard principal — placeholder para la Parte 1.
-    La Parte 6 poblará esta vista con métricas reales.
+    Dashboard principal con métricas reales de pacientes y citas.
+    Muestra el total de pacientes activos, las citas de hoy y las próximas consultas de la agenda.
     """
-    return render(request, "core/dashboard.html")
+    hoy = timezone.localtime(timezone.now())
+    fecha_hoy = hoy.date()
+    inicio_hoy = hoy.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # 1. Total pacientes activos
+    pacientes_activos_count = Paciente.objects.filter(
+        nutricionista=request.user, 
+        estado=True
+    ).count()
+
+    # 2. Citas programadas para hoy (excluyendo canceladas)
+    citas_hoy_count = Cita.objects.filter(
+        paciente__nutricionista=request.user,
+        fecha_hora__date=fecha_hoy
+    ).exclude(estado='cancelada').count()
+
+    # 3. Próximas 5 citas a partir del inicio del día de hoy
+    proximas_citas = Cita.objects.filter(
+        paciente__nutricionista=request.user,
+        fecha_hora__gte=inicio_hoy
+    ).exclude(
+        estado='cancelada'
+    ).select_related('paciente').order_by('fecha_hora')[:5]
+
+    context = {
+        "pacientes_activos_count": pacientes_activos_count,
+        "citas_hoy_count": citas_hoy_count,
+        "proximas_citas": proximas_citas,
+    }
+    return render(request, "core/dashboard.html", context)
 
 
 @login_required

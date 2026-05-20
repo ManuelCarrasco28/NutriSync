@@ -99,3 +99,13 @@ class Paciente(models.Model):
     def esta_activo(self):
         """Devuelve True si el paciente está activo."""
         return self.estado
+        
+    @property
+    def edad(self):
+        """Calcula la edad actual del paciente en base a su fecha de nacimiento."""
+        if self.fecha_nacimiento:
+            from datetime import date
+            hoy = date.today()
+            cumplio_este_ano = (hoy.month, hoy.day) >= (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            return hoy.year - self.fecha_nacimiento.year - (0 if cumplio_este_ano else 1)
+        return None
