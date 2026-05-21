@@ -1,0 +1,370 @@
+[
+  {
+    "model": "nutricion.alimento",
+    "pk": 1,
+    "fields": {
+      "nombre": "Arroz blanco cocido",
+      "categoria": "cereales",
+      "calorias_100g": "130.00",
+      "proteinas_100g": "2.70",
+      "carbohidratos_100g": "28.20",
+      "grasas_100g": "0.30",
+      "fibra_100g": "0.40",
+      "porcion_referencia": "1 taza (186g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 2,
+    "fields": {
+      "nombre": "Avena cocida",
+      "categoria": "cereales",
+      "calorias_100g": "71.00",
+      "proteinas_100g": "2.50",
+      "carbohidratos_100g": "12.00",
+      "grasas_100g": "1.50",
+      "fibra_100g": "1.70",
+      "porcion_referencia": "1 taza (234g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 3,
+    "fields": {
+      "nombre": "Pan integral",
+      "categoria": "cereales",
+      "calorias_100g": "247.00",
+      "proteinas_100g": "9.00",
+      "carbohidratos_100g": "47.00",
+      "grasas_100g": "3.40",
+      "fibra_100g": "6.40",
+      "porcion_referencia": "1 rebanada (28g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 4,
+    "fields": {
+      "nombre": "Quinoa cocida",
+      "categoria": "cereales",
+      "calorias_100g": "120.00",
+      "proteinas_100g": "4.40",
+      "carbohidratos_100g": "21.30",
+      "grasas_100g": "1.90",
+      "fibra_100g": "2.80",
+      "porcion_referencia": "1 taza (185g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 5,
+    "fields": {
+      "nombre": "Leche descremada",
+      "categoria": "lacteos",
+      "calorias_100g": "35.00",
+      "proteinas_100g": "3.40",
+      "carbohidratos_100g": "4.90",
+      "grasas_100g": "0.10",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 vaso (240ml)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 6,
+    "fields": {
+      "nombre": "Yogur natural sin azúcar",
+      "categoria": "lacteos",
+      "calorias_100g": "59.00",
+      "proteinas_100g": "3.50",
+      "carbohidratos_100g": "4.70",
+      "grasas_100g": "3.30",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 porción (150g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 7,
+    "fields": {
+      "nombre": "Queso fresco",
+      "categoria": "lacteos",
+      "calorias_100g": "98.00",
+      "proteinas_100g": "11.00",
+      "carbohidratos_100g": "2.00",
+      "grasas_100g": "5.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 rebanada (30g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 8,
+    "fields": {
+      "nombre": "Pechuga de pollo cocida",
+      "categoria": "carnes",
+      "calorias_100g": "165.00",
+      "proteinas_100g": "31.00",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "3.60",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 porción (120g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 9,
+    "fields": {
+      "nombre": "Carne de res magra",
+      "categoria": "carnes",
+      "calorias_100g": "218.00",
+      "proteinas_100g": "26.00",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "12.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 porción (100g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 10,
+    "fields": {
+      "nombre": "Pavo molido cocido",
+      "categoria": "carnes",
+      "calorias_100g": "189.00",
+      "proteinas_100g": "27.00",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "8.50",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 porción (100g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 11,
+    "fields": {
+      "nombre": "Salmón cocido",
+      "categoria": "pescados",
+      "calorias_100g": "208.00",
+      "proteinas_100g": "20.00",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "13.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 filete (180g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 12,
+    "fields": {
+      "nombre": "Atún en agua (lata)",
+      "categoria": "pescados",
+      "calorias_100g": "116.00",
+      "proteinas_100g": "25.50",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "1.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 lata (140g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 13,
+    "fields": {
+      "nombre": "Huevo entero cocido",
+      "categoria": "huevos",
+      "calorias_100g": "155.00",
+      "proteinas_100g": "13.00",
+      "carbohidratos_100g": "1.10",
+      "grasas_100g": "11.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 unidad grande (50g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 14,
+    "fields": {
+      "nombre": "Lentejas cocidas",
+      "categoria": "legumbres",
+      "calorias_100g": "116.00",
+      "proteinas_100g": "9.00",
+      "carbohidratos_100g": "20.00",
+      "grasas_100g": "0.40",
+      "fibra_100g": "7.90",
+      "porcion_referencia": "1 taza (198g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 15,
+    "fields": {
+      "nombre": "Garbanzos cocidos",
+      "categoria": "legumbres",
+      "calorias_100g": "164.00",
+      "proteinas_100g": "8.90",
+      "carbohidratos_100g": "27.00",
+      "grasas_100g": "2.60",
+      "fibra_100g": "7.60",
+      "porcion_referencia": "1 taza (164g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 16,
+    "fields": {
+      "nombre": "Brócoli cocido",
+      "categoria": "verduras",
+      "calorias_100g": "35.00",
+      "proteinas_100g": "2.40",
+      "carbohidratos_100g": "7.20",
+      "grasas_100g": "0.40",
+      "fibra_100g": "3.30",
+      "porcion_referencia": "1 taza (156g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 17,
+    "fields": {
+      "nombre": "Espinaca cruda",
+      "categoria": "verduras",
+      "calorias_100g": "23.00",
+      "proteinas_100g": "2.90",
+      "carbohidratos_100g": "3.60",
+      "grasas_100g": "0.40",
+      "fibra_100g": "2.20",
+      "porcion_referencia": "1 taza (30g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 18,
+    "fields": {
+      "nombre": "Zanahoria cruda",
+      "categoria": "verduras",
+      "calorias_100g": "41.00",
+      "proteinas_100g": "0.90",
+      "carbohidratos_100g": "9.60",
+      "grasas_100g": "0.20",
+      "fibra_100g": "2.80",
+      "porcion_referencia": "1 unidad mediana (61g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 19,
+    "fields": {
+      "nombre": "Plátano",
+      "categoria": "frutas",
+      "calorias_100g": "89.00",
+      "proteinas_100g": "1.10",
+      "carbohidratos_100g": "23.00",
+      "grasas_100g": "0.30",
+      "fibra_100g": "2.60",
+      "porcion_referencia": "1 unidad mediana (118g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 20,
+    "fields": {
+      "nombre": "Manzana",
+      "categoria": "frutas",
+      "calorias_100g": "52.00",
+      "proteinas_100g": "0.30",
+      "carbohidratos_100g": "14.00",
+      "grasas_100g": "0.20",
+      "fibra_100g": "2.40",
+      "porcion_referencia": "1 unidad mediana (182g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 21,
+    "fields": {
+      "nombre": "Naranja",
+      "categoria": "frutas",
+      "calorias_100g": "47.00",
+      "proteinas_100g": "0.90",
+      "carbohidratos_100g": "12.00",
+      "grasas_100g": "0.10",
+      "fibra_100g": "2.40",
+      "porcion_referencia": "1 unidad mediana (131g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 22,
+    "fields": {
+      "nombre": "Aceite de oliva",
+      "categoria": "grasas",
+      "calorias_100g": "884.00",
+      "proteinas_100g": "0.00",
+      "carbohidratos_100g": "0.00",
+      "grasas_100g": "100.00",
+      "fibra_100g": "0.00",
+      "porcion_referencia": "1 cucharada (14g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "nutricion.alimento",
+    "pk": 23,
+    "fields": {
+      "nombre": "Palta / Aguacate",
+      "categoria": "grasas",
+      "calorias_100g": "160.00",
+      "proteinas_100g": "2.00",
+      "carbohidratos_100g": "9.00",
+      "grasas_100g": "15.00",
+      "fibra_100g": "7.00",
+      "porcion_referencia": "1/2 unidad (100g)",
+      "estado": true,
+      "fecha_registro": "2025-01-01T00:00:00Z"
+    }
+  }
+]

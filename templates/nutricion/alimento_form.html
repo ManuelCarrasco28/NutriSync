@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-slate-400">
+    <a href="{% url 'nutricion:alimentos' %}" class="hover:text-teal-600 transition-colors flex items-center gap-1">
+      <i data-lucide="apple" class="w-4 h-4"></i> Catálogo de Alimentos
+    </a>
+    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    <span class="text-slate-600">{{ titulo }}</span>
+  </nav>
+
+  <!-- Formulario -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+    <h2 class="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2">
+      <i data-lucide="{% if form.instance.pk %}pencil{% else %}plus-circle{% endif %}" class="w-5 h-5 text-teal-600"></i>
+      {{ titulo }}
+    </h2>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <!-- Información general -->
+      <div class="space-y-5">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-100">
+          Información general
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Nombre -->
+          <div class="sm:col-span-2">
+            <label for="{{ form.nombre.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Nombre del alimento <span class="text-red-500">*</span>
+            </label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.nombre.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Categoría -->
+          <div>
+            <label for="{{ form.categoria.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Categoría <span class="text-red-500">*</span>
+            </label>
+            {{ form.categoria }}
+            {% if form.categoria.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.categoria.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Porción de referencia -->
+          <div>
+            <label for="{{ form.porcion_referencia.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Porción de referencia
+            </label>
+            {{ form.porcion_referencia }}
+            <p class="text-xs text-slate-400 mt-1">Ej: 1 taza (240ml), 1 unidad (150g)</p>
+            {% if form.porcion_referencia.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.porcion_referencia.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Valores nutricionales -->
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-100 mt-6">
+          Valores nutricionales por 100g
+        </h3>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <!-- Calorías -->
+          <div>
+            <label for="{{ form.calorias_100g.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Calorías (kcal) <span class="text-red-500">*</span>
+            </label>
+            {{ form.calorias_100g }}
+            {% if form.calorias_100g.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.calorias_100g.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Proteínas -->
+          <div>
+            <label for="{{ form.proteinas_100g.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Proteínas (g)
+            </label>
+            {{ form.proteinas_100g }}
+          </div>
+
+          <!-- Carbohidratos -->
+          <div>
+            <label for="{{ form.carbohidratos_100g.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Carbohidratos (g)
+            </label>
+            {{ form.carbohidratos_100g }}
+          </div>
+
+          <!-- Grasas -->
+          <div>
+            <label for="{{ form.grasas_100g.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Grasas (g)
+            </label>
+            {{ form.grasas_100g }}
+          </div>
+
+          <!-- Fibra -->
+          <div>
+            <label for="{{ form.fibra_100g.id_for_label }}"
+                   class="block text-sm font-medium text-slate-700 mb-1">
+              Fibra (g)
+            </label>
+            {{ form.fibra_100g }}
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="flex items-center gap-3 pt-2">
+          {{ form.estado }}
+          <label for="{{ form.estado.id_for_label }}" class="text-sm text-slate-700 cursor-pointer">
+            Alimento activo en el catálogo
+          </label>
+        </div>
+
+        <!-- Errores generales del formulario -->
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+          {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex items-center justify-between pt-6 mt-6 border-t border-slate-100">
+        <a href="{% url 'nutricion:alimentos' %}"
+           class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm
+                  transition-all duration-200 flex items-center gap-2">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al catálogo
+        </a>
+        <button type="submit"
+                class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-6 py-2 text-sm font-medium
+                       transition-all duration-200 flex items-center gap-2">
+          <i data-lucide="save" class="w-4 h-4"></i> {{ accion }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}
