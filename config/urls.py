@@ -13,9 +13,10 @@ urlpatterns = [
 
     # Gestión de pacientes (Parte 2)
     path("pacientes/", include("pacientes.urls")),
-    # Las demás apps se integrarán en las partes siguientes
+    # Agenda de citas (Parte 3)
     path("", include("citas.urls")),
-    # path("", include("nutricion.urls")),
+    # Planes nutricionales y alimentos (Parte 4)
+    path("", include("nutricion.urls")),
     # path("", include("seguimiento.urls")),
 ]
 

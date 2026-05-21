@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de Alimentos{% endblock %}
+{% block page_title %}Catálogo de Alimentos{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- ─── Header con acciones ─────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <p class="text-sm text-slate-500 mt-1">
+        <span class="font-semibold text-slate-700">{{ total_alimentos }}</span> alimentos activos en el catálogo
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      {% if request.user.is_superuser %}
+      <a href="{% url 'nutricion:cargar_ejemplos' %}"
+         onclick="return confirm('¿Cargar los alimentos de ejemplo en el catálogo?')"
+         class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm
+                transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="database" class="w-4 h-4"></i> Cargar ejemplos
+      </a>
+      {% endif %}
+      <a href="{% url 'nutricion:alimento_nuevo' %}"
+         class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm
+                transition-all duration-200 flex items-center gap-2 font-medium">
+        <i data-lucide="plus" class="w-4 h-4"></i> Agregar alimento
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── Filtros ──────────────────────────────────────────────────────────── -->
+  <form method="get" class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <!-- Búsqueda por nombre -->
+      <div class="flex-1 relative">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" name="q" value="{{ q }}"
+               placeholder="Buscar alimento..."
+               class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm
+                      focus:outline-none focus:ring-2 focus:ring-teal-500">
+      </div>
+      <!-- Filtro por categoría -->
+      <select name="categoria"
+              class="border border-slate-200 rounded-lg px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <option value="">Todas las categorías</option>
+        {% for value, label in categorias %}
+        <option value="{{ value }}" {% if filtro_categoria == value %}selected{% endif %}>
+          {{ label }}
+        </option>
+        {% endfor %}
+      </select>
+      <!-- Filtro por estado -->
+      <select name="estado"
+              class="border border-slate-200 rounded-lg px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <option value="activo" {% if filtro_estado == "activo" %}selected{% endif %}>Activos</option>
+        <option value="inactivo" {% if filtro_estado == "inactivo" %}selected{% endif %}>Dados de baja</option>
+        <option value="" {% if filtro_estado == "" %}selected{% endif %}>Todos</option>
+      </select>
+      <button type="submit"
+              class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm
+                     transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="filter" class="w-4 h-4"></i> Filtrar
+      </button>
+      {% if q or filtro_categoria or filtro_estado != "activo" %}
+      <a href="{% url 'nutricion:alimentos' %}"
+         class="border border-slate-300 text-slate-500 hover:bg-slate-50 rounded-lg px-4 py-2
+                text-sm transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="x" class="w-4 h-4"></i> Limpiar
+      </a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- ─── Tabla de alimentos ───────────────────────────────────────────────── -->
+  {% if alimentos %}
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200">
+            <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Alimento</th>
+            <th class="text-left px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Categoría</th>
+            <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Cal (100g)</th>
+            <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Prot (g)</th>
+            <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Carb (g)</th>
+            <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Grasa (g)</th>
+            <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Fibra (g)</th>
+            <th class="text-center px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Estado</th>
+            <th class="text-right px-5 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for alimento in alimentos %}
+          <tr class="hover:bg-slate-50 transition-colors duration-150">
+            <td class="px-5 py-3">
+              <div>
+                <span class="font-medium text-slate-800">{{ alimento.nombre }}</span>
+                {% if alimento.porcion_referencia %}
+                <span class="block text-xs text-slate-400 mt-0.5">{{ alimento.porcion_referencia }}</span>
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                {{ alimento.get_categoria_display }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right font-semibold text-amber-600">{{ alimento.calorias_100g }}</td>
+            <td class="px-4 py-3 text-right text-slate-700">{{ alimento.proteinas_100g }}</td>
+            <td class="px-4 py-3 text-right text-slate-700">{{ alimento.carbohidratos_100g }}</td>
+            <td class="px-4 py-3 text-right text-slate-700">{{ alimento.grasas_100g }}</td>
+            <td class="px-4 py-3 text-right text-slate-700">{{ alimento.fibra_100g }}</td>
+            <td class="px-4 py-3 text-center">
+              {% if alimento.estado %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                <i data-lucide="check-circle" class="w-3 h-3"></i> Activo
+              </span>
+              {% else %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                <i data-lucide="minus-circle" class="w-3 h-3"></i> Baja
+              </span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3 text-right">
+              <a href="{% url 'nutricion:alimento_editar' alimento.pk %}"
+                 class="inline-flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800 font-medium
+                        transition-colors duration-150">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Editar
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  {% if is_paginated %}
+  <div class="flex items-center justify-center gap-2">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&categoria={{ filtro_categoria }}&estado={{ filtro_estado }}"
+       class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+    </a>
+    {% endif %}
+    <span class="text-sm text-slate-500">
+      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&categoria={{ filtro_categoria }}&estado={{ filtro_estado }}"
+       class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 text-center">
+    <div class="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="apple" class="w-8 h-8 text-teal-400"></i>
+    </div>
+    <h3 class="text-lg font-semibold text-slate-700 mb-2">No hay alimentos en el catálogo</h3>
+    {% if q or filtro_categoria %}
+    <p class="text-slate-400 text-sm mb-6">No se encontraron alimentos con los filtros aplicados.</p>
+    <a href="{% url 'nutricion:alimentos' %}"
+       class="text-teal-600 hover:text-teal-700 text-sm font-medium">
+      Limpiar filtros
+    </a>
+    {% else %}
+    <p class="text-slate-400 text-sm mb-6">
+      Agrega alimentos al catálogo o carga los datos de ejemplo para comenzar.
+    </p>
+    <div class="flex items-center justify-center gap-3">
+      {% if request.user.is_superuser %}
+      <a href="{% url 'nutricion:cargar_ejemplos' %}"
+         onclick="return confirm('¿Cargar 20+ alimentos de ejemplo?')"
+         class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm
+                transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="database" class="w-4 h-4"></i> Cargar ejemplos
+      </a>
+      {% endif %}
+      <a href="{% url 'nutricion:alimento_nuevo' %}"
+         class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm
+                transition-all duration-200 flex items-center gap-2">
+        <i data-lucide="plus" class="w-4 h-4"></i> Agregar alimento
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

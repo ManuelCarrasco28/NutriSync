@@ -161,6 +161,21 @@ class PacienteDetailView(NutricionistaPacienteMixin, DetailView):
     template_name = "pacientes/detalle.html"
     context_object_name = "paciente"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Importación local para evitar importación circular entre apps.
+        # nutricion importa Paciente, así que Paciente no puede importar nutricion en el nivel de módulo.
+        try:
+            from nutricion.models import PlanNutricional
+            planes = PlanNutricional.objects.filter(paciente=self.object)
+            context["plan_activo"] = planes.filter(estado=True).first()
+            context["planes_count"] = planes.count()
+        except Exception:
+            # Si la app nutricion aún no tiene migraciones aplicadas, no rompemos la vista
+            context["plan_activo"] = None
+            context["planes_count"] = 0
+        return context
+
 
 # ─── Editar paciente ─────────────────────────────────────────────────────────
 
