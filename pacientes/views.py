@@ -109,7 +109,11 @@ class FormFragmentMixin:
         response = super().form_valid(form)
         # Si es petición AJAX (modal), devolvemos un marcador de éxito en lugar de redirect.
         # El JS del modal detecta este marcador y cierra el modal + refresca la lista.
-        if self.request.GET.get("fragment") or self.request.POST.get("_modal"):
+        is_ajax = (
+            self.request.headers.get("X-Requested-With") == "XMLHttpRequest"
+            or self.request.GET.get("fragment")
+        )
+        if is_ajax:
             return HttpResponse(
                 '<div id="paciente-form-success" data-success="true" data-pk="{}"></div>'.format(
                     self.object.pk
@@ -119,7 +123,11 @@ class FormFragmentMixin:
 
     def form_invalid(self, form):
         # Si el formulario tiene errores en modal, re-renderizamos el fragmento
-        if self.request.GET.get("fragment") or self.request.POST.get("_modal"):
+        is_ajax = (
+            self.request.headers.get("X-Requested-With") == "XMLHttpRequest"
+            or self.request.GET.get("fragment")
+        )
+        if is_ajax:
             return render(
                 self.request,
                 FORM_FRAGMENT_TEMPLATE,
@@ -165,14 +173,15 @@ class PacienteDetailView(NutricionistaPacienteMixin, DetailView):
         context = super().get_context_data(**kwargs)
         paciente = self.object
 
-        # ─── Medida Corporal (Último peso) ───
+        # ─── Medidas Corporales ───
         try:
             from seguimiento.models import MedidaCorporal
-            context['ultima_medida'] = MedidaCorporal.objects.filter(
-                paciente=paciente
-            ).order_by('-fecha').first()
+            medidas_qs = MedidaCorporal.objects.filter(paciente=paciente).order_by('-fecha', '-fecha_registro')
+            context['ultima_medida'] = medidas_qs.first()
+            context['medidas_recientes'] = list(medidas_qs[:5])
         except Exception:
             context['ultima_medida'] = None
+            context['medidas_recientes'] = []
 
         # ─── Plan Nutricional Activo ───
         try:

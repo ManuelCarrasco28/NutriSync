@@ -5,6 +5,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from config.choices import Sexo
+from pacientes.validators import (
+    validate_dni,
+    validate_telefono,
+    validate_peso,
+    validate_fecha_nacimiento_edad,
+    validate_nombre_apellido,
+)
 
 
 class Paciente(models.Model):
@@ -24,23 +31,47 @@ class Paciente(models.Model):
     )
 
     # ─── Datos personales ────────────────────────────────────────────────────
-    nombre = models.CharField(max_length=100, verbose_name="Nombre")
-    apellido = models.CharField(max_length=100, verbose_name="Apellido")
+    nombre = models.CharField(
+        max_length=100,
+        validators=[validate_nombre_apellido],
+        verbose_name="Nombre",
+    )
+    apellido = models.CharField(
+        max_length=100,
+        validators=[validate_nombre_apellido],
+        verbose_name="Apellido",
+    )
+    dni = models.CharField(
+        max_length=8,
+        validators=[validate_dni],
+        verbose_name="DNI",
+    )
     fecha_nacimiento = models.DateField(
-        blank=True, null=True, verbose_name="Fecha de nacimiento"
+        validators=[validate_fecha_nacimiento_edad],
+        verbose_name="Fecha de nacimiento",
     )
     sexo = models.CharField(
         max_length=1,
         choices=Sexo.CHOICES,
-        blank=True,
         verbose_name="Sexo",
     )
     ocupacion = models.CharField(
         max_length=100, blank=True, verbose_name="Ocupación"
     )
+    peso = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[validate_peso],
+        verbose_name="Peso (kg)",
+        help_text="Peso inicial o de referencia del paciente",
+    )
 
     # ─── Contacto ────────────────────────────────────────────────────────────
-    telefono = models.CharField(max_length=20, verbose_name="Teléfono")
+    telefono = models.CharField(
+        max_length=20,
+        validators=[validate_telefono],
+        verbose_name="Teléfono",
+    )
     email = models.EmailField(blank=True, verbose_name="Email")
     direccion = models.TextField(blank=True, verbose_name="Dirección")
 
@@ -79,6 +110,7 @@ class Paciente(models.Model):
         ordering = ["-fecha_registro"]
         verbose_name = "Paciente"
         verbose_name_plural = "Pacientes"
+        unique_together = [["nutricionista", "dni"]]
         # Índices para acelerar las búsquedas más frecuentes:
         # - nombre/apellido: búsqueda de pacientes por nombre
         # - telefono: búsqueda por teléfono (común en consultorios)
@@ -86,6 +118,11 @@ class Paciente(models.Model):
             models.Index(fields=["nombre", "apellido"]),
             models.Index(fields=["telefono"]),
         ]
+
+    def save(self, *args, **kwargs):
+        # Forzar validaciones completas antes de persistir en base de datos
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"

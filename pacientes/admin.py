@@ -37,6 +37,7 @@ class PacienteAdmin(admin.ModelAdmin):
                     "apellido",
                     "fecha_nacimiento",
                     "sexo",
+                    "peso",
                     "ocupacion",
                 )
             },

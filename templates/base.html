@@ -30,7 +30,10 @@
 
     <!-- CSS personalizado -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={% now 'U' %}">
+
+    <!-- CSRF Token para llamadas AJAX seguras -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -76,7 +79,7 @@
     {% include "components/modal.html" %}
 
     <!-- ─── JS ──────────────────────────────────────── -->
-    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/app.js' %}?v={% now 'U' %}"></script>
     <script>
       lucide.createIcons();
     </script>

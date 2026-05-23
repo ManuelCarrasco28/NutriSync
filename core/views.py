@@ -12,7 +12,6 @@ from .forms import PerfilNutricionistaForm
 from citas.models import Cita
 from pacientes.models import Paciente
 from nutricion.models import PlanNutricional
-from seguimiento.models import MedidaCorporal
 
 
 def login_view(request):
@@ -45,7 +44,9 @@ def login_view(request):
                 pass
 
             login(request, user)
-            messages.success(request, f"Bienvenido, {user.first_name or user.username}.")
+            messages.success(
+                request, f"Bienvenido, {user.first_name or user.username}."
+            )
             # Respeta el parámetro 'next' para redirigir a la página que intentaba acceder
             next_url = request.GET.get("next", "/")
             return redirect(next_url)
@@ -70,50 +71,42 @@ def dashboard_view(request):
     fin_semana = hoy + timedelta(days=7)
 
     # Aislamiento por nutricionista
-    pacientes_activos = Paciente.objects.filter(
-        nutricionista=request.user,
-        estado=True
-    )
+    pacientes_activos = Paciente.objects.filter(nutricionista=request.user, estado=True)
 
     total_pacientes = pacientes_activos.count()
 
-    citas_hoy = Cita.objects.select_related('paciente').filter(
-        paciente__nutricionista=request.user,
-        fecha_hora__date=hoy
-    ).order_by('fecha_hora')
-
-    proximas_citas = Cita.objects.select_related('paciente').filter(
-        paciente__nutricionista=request.user,
-        fecha_hora__date__range=[inicio_semana, fin_semana],
-        estado='programada'
-    ).order_by('fecha_hora')
-
-    pacientes_con_plan = PlanNutricional.objects.filter(
-        paciente__nutricionista=request.user,
-        estado=True
+    # Optimizamos: solo contamos las citas de hoy sin cargar objetos a memoria
+    cantidad_citas_hoy = Cita.objects.filter(
+        paciente__nutricionista=request.user, fecha_hora__date=hoy
     ).count()
 
-    ultimos_seguimientos = MedidaCorporal.objects.select_related(
-        'paciente'
-    ).filter(
-        paciente__nutricionista=request.user
-    ).order_by('-fecha')[:5]
+    proximas_citas = (
+        Cita.objects.select_related("paciente")
+        .filter(
+            paciente__nutricionista=request.user,
+            fecha_hora__date__range=[inicio_semana, fin_semana],
+            estado="programada",
+        )
+        .order_by("fecha_hora")
+    )
 
-    ultimos_pacientes = Paciente.objects.filter(
-        nutricionista=request.user
-    ).order_by('-fecha_registro')[:5]
+    pacientes_con_plan = PlanNutricional.objects.filter(
+        paciente__nutricionista=request.user, estado=True
+    ).count()
+
+    ultimos_pacientes = Paciente.objects.filter(nutricionista=request.user).order_by(
+        "-fecha_registro"
+    )[:5]
 
     context = {
-        'total_pacientes': total_pacientes,
-        'citas_hoy': citas_hoy,
-        'cantidad_citas_hoy': citas_hoy.count(),
-        'proximas_citas': proximas_citas[:5],
-        'pacientes_con_plan': pacientes_con_plan,
-        'ultimos_seguimientos': ultimos_seguimientos,
-        'ultimos_pacientes': ultimos_pacientes,
+        "total_pacientes": total_pacientes,
+        "cantidad_citas_hoy": cantidad_citas_hoy,
+        "proximas_citas": proximas_citas[:5],
+        "pacientes_con_plan": pacientes_con_plan,
+        "ultimos_pacientes": ultimos_pacientes,
     }
 
-    return render(request, 'core/dashboard.html', context)
+    return render(request, "core/dashboard.html", context)
 
 
 @login_required
@@ -140,6 +133,7 @@ def perfil_view(request):
 
 
 # ─── Handlers de error personalizados ────────────────────────────────────────
+
 
 def error_404(request, exception):
     """Página 404 personalizada con diseño consistente al sistema."""

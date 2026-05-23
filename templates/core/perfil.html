@@ -27,7 +27,7 @@
                 <div>
                     <label for="{{ form.nombre_completo.id_for_label }}"
                            class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                        Nombre completo *
+                        Nombre completo <span class="text-red-500">*</span>
                     </label>
                     {{ form.nombre_completo }}
                     {% if form.nombre_completo.errors %}

@@ -1,7 +1,5 @@
 // static/js/app.js
 // Funciones globales de NutriSync: modales, carga AJAX de formularios/detalles.
-// Todas las operaciones DOM usan métodos seguros (createElement, replaceChildren,
-// cloneNode, importNode, replaceWith) para prevenir XSS.
 
 // ─── Modal ──────────────────────────────────────────────────────────────────
 
@@ -74,7 +72,7 @@ function setModalContent(htmlOrElement) {
             content.appendChild(document.importNode(node, true));
         });
     } else if (htmlOrElement instanceof Element) {
-        content.appendChild(htmlOrElement.cloneNode(true));
+        content.appendChild(document.importNode(htmlOrElement, true));
     }
 
     if (typeof lucide !== 'undefined') {
@@ -105,9 +103,6 @@ async function loadFormContent(url) {
 
         if (formContent) {
             setModalContent(formContent);
-            const actionUrl = url.split('?')[0];
-            const form = document.getElementById('paciente-form');
-            if (form) form.dataset.actionUrl = actionUrl;
             bindFormSubmit();
         } else {
             _showError('Error al cargar el formulario.');
@@ -121,8 +116,20 @@ function bindFormSubmit() {
     const form = document.getElementById('paciente-form');
     if (!form) return;
 
+    // Extraer la URL directamente del atributo action nativo del formulario
+    let targetUrl = form.getAttribute('action');
+    if (!targetUrl || targetUrl === 'undefined' || targetUrl.includes('undefined')) {
+        targetUrl = '/pacientes/nuevo/';
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Evitar doble envío concurrente
+        if (form.dataset.submitting === 'true') {
+            return;
+        }
+        form.dataset.submitting = 'true';
 
         const submitBtn = form.querySelector('button[type="submit"]');
         const savedChildren = [];
@@ -140,8 +147,11 @@ function bindFormSubmit() {
 
         try {
             const formData = new FormData(form);
-            const actionUrl = form.dataset.actionUrl;
-            const resp = await fetch(actionUrl, {
+            let currentActionUrl = form.getAttribute('action') || targetUrl;
+            if (!currentActionUrl || currentActionUrl === 'undefined' || currentActionUrl.includes('undefined')) {
+                currentActionUrl = targetUrl;
+            }
+            const resp = await fetch(currentActionUrl, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -171,6 +181,7 @@ function bindFormSubmit() {
             submitBtn.replaceChildren();
             savedChildren.forEach(child => submitBtn.appendChild(child));
             submitBtn.disabled = false;
+            delete form.dataset.submitting;
         }
     });
 }
@@ -201,12 +212,12 @@ async function openModalDetalle(pk) {
 
 async function toggleEstado(pk) {
     try {
-        const csrfToken = window.CSRF_TOKEN || '';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.CSRF_TOKEN || '';
 
         const resp = await fetch(`/pacientes/${pk}/toggle/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrfToken || '',
+                'X-CSRFToken': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest',
             },
         });
@@ -215,9 +226,8 @@ async function toggleEstado(pk) {
             const overlay = document.getElementById('modal-overlay');
             if (!overlay.classList.contains('hidden')) {
                 await openModalDetalle(pk);
-            } else {
-                refreshListaPacientes();
             }
+            refreshListaPacientes();
         }
     } catch (err) {
         console.error('Error al cambiar estado:', err);
@@ -228,6 +238,16 @@ async function toggleEstado(pk) {
 
 let refreshCounter = 0;
 async function refreshListaPacientes() {
+    const oldContainer = document.getElementById('pacientes-list-container');
+    const oldTable = document.getElementById('pacientes-table-body');
+
+    // Si no estamos en la página de lista de pacientes (por ejemplo, en el Dashboard), 
+    // recargamos la página completa para reflejar los cambios.
+    if (!oldContainer && !oldTable) {
+        location.reload();
+        return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     refreshCounter++;
     urlParams.set('_refresh', refreshCounter);
@@ -239,17 +259,27 @@ async function refreshListaPacientes() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
+        const newContainer = doc.querySelector('#pacientes-list-container');
         const newTable = doc.querySelector('#pacientes-table-body');
         const newPagination = doc.querySelector('#pacientes-pagination');
         const newCounts = doc.querySelector('#pacientes-counts');
 
-        const oldTable = document.getElementById('pacientes-table-body');
         const oldPagination = document.getElementById('pacientes-pagination');
         const oldCounts = document.getElementById('pacientes-counts');
 
-        if (oldTable && newTable) oldTable.replaceWith(newTable.cloneNode(true));
-        if (oldPagination && newPagination) oldPagination.replaceWith(newPagination.cloneNode(true));
-        if (oldCounts && newCounts) oldCounts.replaceWith(newCounts.cloneNode(true));
+        // Reemplazar el contenedor completo (maneja la transición vacío <-> con datos de forma robusta)
+        if (oldContainer && newContainer) {
+            oldContainer.replaceWith(document.importNode(newContainer, true));
+        } else {
+            // Fallback en caso de que solo exista la tabla
+            if (oldTable && newTable) oldTable.replaceWith(document.importNode(newTable, true));
+            if (oldPagination && newPagination) oldPagination.replaceWith(document.importNode(newPagination, true));
+        }
+
+        // Reemplazar los conteos/filtros
+        if (oldCounts && newCounts) {
+            oldCounts.replaceWith(document.importNode(newCounts, true));
+        }
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (err) {

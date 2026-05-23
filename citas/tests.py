@@ -34,15 +34,23 @@ class CitaModelTestCase(TestCase):
             nutricionista=self.nutricionista_a,
             nombre="Juan",
             apellido="Pérez",
+            dni="12345678",
             telefono="987654321",
             estado=True,  # Activo
+            fecha_nacimiento="1990-01-01",
+            sexo="M",
+            peso=70.0,
         )
         self.paciente_inactivo_a = Paciente.objects.create(
             nutricionista=self.nutricionista_a,
             nombre="María",
             apellido="Gómez",
+            dni="87654321",
             telefono="912345678",
             estado=False,  # Inactivo
+            fecha_nacimiento="1992-05-10",
+            sexo="F",
+            peso=60.0,
         )
 
         # 3. Crear paciente para el nutricionista B
@@ -50,8 +58,12 @@ class CitaModelTestCase(TestCase):
             nutricionista=self.nutricionista_b,
             nombre="Carlos",
             apellido="López",
+            dni="11223344",
             telefono="954321678",
             estado=True,  # Activo
+            fecha_nacimiento="1988-11-20",
+            sexo="M",
+            peso=80.0,
         )
 
         # Usar una fecha futura fija para las pruebas

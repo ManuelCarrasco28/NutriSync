@@ -3,6 +3,7 @@
 # Usa widgets Tailwind para mantener la consistencia visual del sistema.
 
 from django import forms
+from config.choices import Sexo
 from .models import Paciente
 
 
@@ -15,8 +16,10 @@ class PacienteForm(forms.ModelForm):
         fields = [
             "nombre",
             "apellido",
+            "dni",
             "fecha_nacimiento",
             "sexo",
+            "peso",
             "ocupacion",
             "telefono",
             "email",
@@ -38,6 +41,13 @@ class PacienteForm(forms.ModelForm):
                     "placeholder": "Apellido del paciente",
                 }
             ),
+            "dni": forms.TextInput(
+                attrs={
+                    "class": "w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
+                    "placeholder": "DNI del paciente (8 dígitos)",
+                    "maxlength": "8",
+                }
+            ),
             "fecha_nacimiento": forms.DateInput(
                 attrs={
                     "type": "date",
@@ -50,6 +60,13 @@ class PacienteForm(forms.ModelForm):
                     "class": "w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white",
                 }
             ),
+            "peso": forms.NumberInput(
+                attrs={
+                    "class": "w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
+                    "placeholder": "Ej: 70.5",
+                    "step": "0.1",
+                }
+            ),
             "ocupacion": forms.TextInput(
                 attrs={
                     "class": "w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
@@ -59,7 +76,7 @@ class PacienteForm(forms.ModelForm):
             "telefono": forms.TextInput(
                 attrs={
                     "class": "w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
-                    "placeholder": "Ej: +51 999 000 000",
+                    "placeholder": "Ej: 999000000",
                 }
             ),
             "email": forms.EmailInput(
@@ -97,6 +114,17 @@ class PacienteForm(forms.ModelForm):
                 }
             ),
         }
+        error_messages = {
+            "sexo": {
+                "required": "Debe seleccionar un género (Masculino o Femenino).",
+                "invalid_choice": "Seleccione una opción válida (Masculino o Femenino).",
+            }
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Reemplazar la opción por defecto --------- por una indicación clara
+        self.fields["sexo"].choices = [("", "Seleccione género...")] + Sexo.CHOICES
 
     def clean_nombre(self):
         """Normaliza el nombre: primera letra mayúscula, sin espacios extra."""
@@ -108,33 +136,60 @@ class PacienteForm(forms.ModelForm):
         apellido = self.cleaned_data.get("apellido", "")
         return apellido.strip().title()
 
-    def clean_telefono(self):
-        """Valida que el teléfono contenga solo dígitos, espacios y guiones básicos."""
-        telefono = self.cleaned_data.get("telefono", "")
-        if telefono:
-            # Permite números, espacios, +, -, paréntesis
-            import re
+    def clean_dni(self):
+        """Normaliza el DNI quitando espacios en blanco."""
+        dni = self.cleaned_data.get("dni", "")
+        return dni.strip() if dni else ""
 
-            if not re.match(r"^[+\d\s\-()]+$", telefono):
-                raise forms.ValidationError(
-                    "El teléfono solo puede contener números, espacios, +, - y paréntesis."
+    # Nota: clean_telefono y clean_fecha_nacimiento fueron eliminados porque Django ejecuta
+    # automáticamente los validadores del modelo (validate_telefono y validate_fecha_nacimiento_edad)
+    # durante la validación del formulario.
+
+    def clean(self):
+        cleaned_data = super().clean()
+        nombre = cleaned_data.get("nombre")
+        apellido = cleaned_data.get("apellido")
+        dni = cleaned_data.get("dni")
+        email = cleaned_data.get("email")
+
+        # 1. Validación cruzada: Nombre y Apellido no pueden ser idénticos
+        if nombre and apellido and nombre.strip().lower() == apellido.strip().lower():
+            raise forms.ValidationError(
+                "El nombre y el apellido del paciente no pueden ser idénticos."
+            )
+
+        # 2. Validación de unicidad de DNI y Email por Nutricionista (multi-tenant)
+        nutricionista = getattr(self.instance, "nutricionista", None)
+        if not nutricionista:
+            try:
+                from core.middleware import get_current_user
+
+                nutricionista = get_current_user()
+            except ImportError:
+                pass
+
+        if nutricionista:
+            # Unicidad de DNI por nutricionista
+            if dni:
+                qs_dni = Paciente.objects.filter(nutricionista=nutricionista, dni=dni)
+                if self.instance.pk:
+                    qs_dni = qs_dni.exclude(pk=self.instance.pk)
+                if qs_dni.exists():
+                    self.add_error(
+                        "dni", "Ya tienes registrado un paciente con este DNI."
+                    )
+
+            # Unicidad de Email por nutricionista (si se provee)
+            if email:
+                qs_email = Paciente.objects.filter(
+                    nutricionista=nutricionista, email=email
                 )
-        return telefono
+                if self.instance.pk:
+                    qs_email = qs_email.exclude(pk=self.instance.pk)
+                if qs_email.exists():
+                    self.add_error(
+                        "email",
+                        "Ya tienes registrado un paciente con este correo electrónico.",
+                    )
 
-    def clean_fecha_nacimiento(self):
-        """Valida que la fecha sea razonable: año >= 1900 y no futura."""
-        fecha = self.cleaned_data.get("fecha_nacimiento")
-        if fecha:
-            from datetime import date
-
-            today = date.today()
-            # No puede ser una fecha futura
-            if fecha > today:
-                raise forms.ValidationError("La fecha de nacimiento no puede ser futura.")
-            # El año debe ser razonable (evita valores como 200900)
-            if fecha.year < 1900:
-                raise forms.ValidationError("El año debe ser posterior a 1900.")
-            # Edad máxima razonable: 120 años
-            if fecha.year < today.year - 120:
-                raise forms.ValidationError("La fecha de nacimiento no es válida.")
-        return fecha
+        return cleaned_data

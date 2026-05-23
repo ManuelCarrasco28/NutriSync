@@ -4,9 +4,22 @@
 
 <div id="paciente-form-content" class="max-w-4xl mx-auto">
 
-    <form method="post" action="" novalidate id="paciente-form" class="space-y-5">
+    <form method="post" action="{% if form.instance.pk %}{% url 'pacientes:editar' form.instance.pk %}{% else %}{% url 'pacientes:nuevo' %}{% endif %}" novalidate id="paciente-form" class="space-y-5">
         {% csrf_token %}
-        <input type="hidden" name="_modal" value="1">
+
+        {% if form.non_field_errors %}
+        <div class="p-4 text-sm text-red-800 rounded-xl bg-red-50 border border-red-200 flex flex-col gap-1" role="alert">
+            <div class="flex items-center gap-2 font-semibold text-red-900">
+                <i data-lucide="alert-circle" class="w-4.5 h-4.5 text-red-600"></i>
+                Errores en el formulario
+            </div>
+            <ul class="list-disc list-inside pl-1 text-xs text-red-700 space-y-0.5">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
         <!-- Fila 1: Datos Personales (3/5) + Contacto (2/5) -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -40,11 +53,21 @@
                         <p class="text-red-500 text-xs mt-1">{{ form.apellido.errors|join:", " }}</p>
                         {% endif %}
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="{{ form.dni.id_for_label }}"
+                               class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                            DNI <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.dni }}
+                        {% if form.dni.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.dni.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label for="{{ form.fecha_nacimiento.id_for_label }}"
                                    class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                                Fecha Nac.
+                                Fecha Nac. <span class="text-red-500">*</span>
                             </label>
                             {{ form.fecha_nacimiento }}
                             {% if form.fecha_nacimiento.errors %}
@@ -54,11 +77,21 @@
                         <div>
                             <label for="{{ form.sexo.id_for_label }}"
                                    class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                                Sexo
+                                Sexo <span class="text-red-500">*</span>
                             </label>
                             {{ form.sexo }}
                             {% if form.sexo.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.sexo.errors|join:", " }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.peso.id_for_label }}"
+                                   class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                                Peso (kg) <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.peso }}
+                            {% if form.peso.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.peso.errors|join:", " }}</p>
                             {% endif %}
                         </div>
                     </div>

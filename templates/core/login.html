@@ -21,7 +21,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={% now 'U' %}">
 </head>
 
 <body class="bg-slate-50 font-sans min-h-screen flex items-center justify-center">

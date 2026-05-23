@@ -92,36 +92,48 @@
           <div>
             <label for="{{ form.proteinas_100g.id_for_label }}"
                    class="block text-sm font-medium text-slate-700 mb-1">
-              Proteínas (g)
+              Proteínas (g) <span class="text-red-500">*</span>
             </label>
             {{ form.proteinas_100g }}
+            {% if form.proteinas_100g.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.proteinas_100g.errors|join:", " }}</p>
+            {% endif %}
           </div>
 
           <!-- Carbohidratos -->
           <div>
             <label for="{{ form.carbohidratos_100g.id_for_label }}"
                    class="block text-sm font-medium text-slate-700 mb-1">
-              Carbohidratos (g)
+              Carbohidratos (g) <span class="text-red-500">*</span>
             </label>
             {{ form.carbohidratos_100g }}
+            {% if form.carbohidratos_100g.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.carbohidratos_100g.errors|join:", " }}</p>
+            {% endif %}
           </div>
 
           <!-- Grasas -->
           <div>
             <label for="{{ form.grasas_100g.id_for_label }}"
                    class="block text-sm font-medium text-slate-700 mb-1">
-              Grasas (g)
+              Grasas (g) <span class="text-red-500">*</span>
             </label>
             {{ form.grasas_100g }}
+            {% if form.grasas_100g.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.grasas_100g.errors|join:", " }}</p>
+            {% endif %}
           </div>
 
           <!-- Fibra -->
           <div>
             <label for="{{ form.fibra_100g.id_for_label }}"
                    class="block text-sm font-medium text-slate-700 mb-1">
-              Fibra (g)
+              Fibra (g) <span class="text-red-500">*</span>
             </label>
             {{ form.fibra_100g }}
+            {% if form.fibra_100g.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ form.fibra_100g.errors|join:", " }}</p>
+            {% endif %}
           </div>
         </div>
 
