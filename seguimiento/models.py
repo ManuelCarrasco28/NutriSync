@@ -234,7 +234,11 @@ class NotaClinica(models.Model):
     )
     fecha = models.DateField(verbose_name="Fecha")
     titulo = models.CharField(max_length=200, verbose_name="Título")
-    contenido = models.TextField(verbose_name="Contenido")
+    motivo_consulta = models.TextField(blank=True, verbose_name="Motivo de la consulta")
+    resumen_consulta = models.TextField(blank=True, verbose_name="Resumen de la consulta")
+    objetivos_acordados = models.TextField(blank=True, verbose_name="Objetivos acordados")
+    plan_accion = models.TextField(blank=True, verbose_name="Plan de acción / Acuerdos")
+    observaciones_clinicas = models.TextField(blank=True, verbose_name="Observaciones clínicas")
     tipo = models.CharField(
         max_length=20,
         choices=TipoNota.CHOICES,
