@@ -651,35 +651,8 @@
             <!-- Panel 2: Mediciones -->
             <div id="tab-mediciones" class="tab-panel hidden space-y-6">
                 <!-- Script de Chart.js cargado localmente para el panel -->
-                <script src="https://cdn.jsdelivr.net/npm/chart.js">
-    
-    // Auto-activar pestaña basada en query param '?tab=...'
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab) {
-            const btn = document.querySelector(`button[onclick*="tab-${tab}"]`);
-            if (btn) {
-                btn.click();
-            }
-        }
-    });
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    // Filtrar recetas globales (plantillas) en el modal de importación
-    function filterTemplates() {
-        const query = document.getElementById("search-templates-input").value.toLowerCase().trim();
-        const items = document.querySelectorAll(".template-item");
-        items.forEach(item => {
-            const name = item.getAttribute("data-name");
-            if (name.includes(query)) {
-                item.style.display = "flex";
-            } else {
-                item.style.display = "none";
-            }
-        });
-    }
-
-</script>
 
                 <!-- Barra de Acciones Superior -->
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
@@ -8831,6 +8804,83 @@
     window.addEventListener('load', function() {
         setTimeout(lockFinalizedFields, 100);
     });
+
+    // Lógica para logros custom
+    function renderCustomLogrosList() {
+        const container = document.getElementById('modal-logros-custom-list');
+        container.innerHTML = '';
+        
+        customLogros.forEach((l, idx) => {
+            const div = document.createElement('div');
+            div.className = "flex justify-between items-center bg-emerald-50 border border-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-xs";
+            div.innerHTML = `
+                <span class="font-semibold">${l}</span>
+                <button type="button" onclick="removeCustomLogro(${idx})" class="text-emerald-500 hover:text-emerald-700 transition-colors"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function addNewLogroRow() {
+        const input = document.getElementById('input-new-logro');
+        const val = input.value.trim();
+        if (val && !logrosCatalogo.includes(val) && !customLogros.includes(val)) {
+            customLogros.push(val);
+            renderCustomLogrosList();
+            input.value = '';
+        }
+    }
+
+    function removeCustomLogro(idx) {
+        customLogros.splice(idx, 1);
+        renderCustomLogrosList();
+    }
+
+    function saveLogrosForm(event) {
+        event.preventDefault();
+        const selected = [];
+        
+        // Obtener seleccionados
+        const checkBoxes = document.querySelectorAll('#modal-seg-logros-checkboxes input[name="logro_cat"]:checked');
+        checkBoxes.forEach(cb => selected.push(cb.value));
+        
+        const finalLogros = [...selected, ...customLogros];
+        
+        const payload = {
+            section: 'logros',
+            logros: finalLogros
+        };
+        sendSeguimientoData(payload, 'modal-seg-logros');
+    }
+
+    
+    // Auto-activar pestaña basada en query param '?tab=...'
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab) {
+            const btn = document.querySelector(`button[onclick*="tab-${tab}"]`);
+            if (btn) {
+                btn.click();
+            }
+        }
+    });
+
+    // Filtrar recetas globales (plantillas) en el modal de importación
+    function filterTemplates() {
+        const query = document.getElementById("search-templates-input").value.toLowerCase().trim();
+        const items = document.querySelectorAll(".template-item");
+        items.forEach(item => {
+            const name = item.getAttribute("data-name");
+            if (name.includes(query)) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
 </script>
 
 
