@@ -73,7 +73,7 @@
                             {{ nota.titulo }}
                         </a>
                     </h3>
-                    <p class="text-sm text-slate-600 mt-1 line-clamp-2">{{ nota.contenido|truncatewords:40 }}</p>
+                    <p class="text-sm text-slate-600 mt-1 line-clamp-2">{{ nota.motivo_consulta|default:nota.observaciones_clinicas|truncatewords:40 }}</p>
                     {% if nota.cita %}
                     <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
                         <i data-lucide="calendar" class="w-3 h-3"></i>
