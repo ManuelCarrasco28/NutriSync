@@ -626,7 +626,7 @@
                                                 Ver Detalles
                                             </a>
                                             {% if c.estado == "finalizada" %}
-                                                <a href="{% url 'pacientes:resumen_imprimir' paciente.pk %}?consulta_id={{ c.id }}" target="_blank" class="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-650 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5">
+                                                <a href="{% url 'pacientes:resumen_imprimir' paciente.pk c.id %}" target="_blank" class="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-650 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5">
                                                     <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                                                     Imprimir
                                                 </a>
