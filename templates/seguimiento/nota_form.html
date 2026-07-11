@@ -84,14 +84,62 @@
                 {% endif %}
             </div>
 
-            <!-- Contenido -->
+            <!-- Motivo de consulta -->
             <div class="mt-5">
                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
-                    {{ form.contenido.label }} <span class="text-red-500">*</span>
+                    {{ form.motivo_consulta.label }}
                 </label>
-                {{ form.contenido }}
-                {% if form.contenido.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ form.contenido.errors.0 }}</p>
+                {{ form.motivo_consulta }}
+                {% if form.motivo_consulta.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.motivo_consulta.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Resumen de la consulta -->
+            <div class="mt-5">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex justify-between items-center">
+                    <span>{{ form.resumen_consulta.label }}</span>
+                    <span class="text-[10px] bg-teal-50 text-teal-600 px-2 py-0.5 rounded-full border border-teal-100">Autogenerado</span>
+                </label>
+                {{ form.resumen_consulta }}
+                {% if form.resumen_consulta.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.resumen_consulta.errors.0 }}</p>
+                {% endif %}
+                <p class="text-[10px] text-slate-400 mt-1">Este resumen se ha generado tomando los datos actuales del paciente, pero puedes editarlo libremente.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                <!-- Objetivos acordados -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                        {{ form.objetivos_acordados.label }}
+                    </label>
+                    {{ form.objetivos_acordados }}
+                    {% if form.objetivos_acordados.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.objetivos_acordados.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Plan de acción / Acuerdos -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                        {{ form.plan_accion.label }}
+                    </label>
+                    {{ form.plan_accion }}
+                    {% if form.plan_accion.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.plan_accion.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Observaciones clínicas -->
+            <div class="mt-5">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                    {{ form.observaciones_clinicas.label }}
+                </label>
+                {{ form.observaciones_clinicas }}
+                {% if form.observaciones_clinicas.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.observaciones_clinicas.errors.0 }}</p>
                 {% endif %}
             </div>
 
