@@ -110,7 +110,17 @@ class MedidaCorporalForm(forms.ModelForm):
 class NotaClinicaForm(forms.ModelForm):
     class Meta:
         model = NotaClinica
-        fields = ["fecha", "titulo", "tipo", "cita", "contenido"]
+        fields = [
+            "fecha",
+            "titulo",
+            "tipo",
+            "cita",
+            "motivo_consulta",
+            "resumen_consulta",
+            "objetivos_acordados",
+            "plan_accion",
+            "observaciones_clinicas",
+        ]
         widgets = {
             "fecha": forms.DateInput(
                 attrs={
@@ -126,11 +136,39 @@ class NotaClinicaForm(forms.ModelForm):
             ),
             "tipo": forms.Select(attrs={"class": SELECT_CLASSES}),
             "cita": forms.Select(attrs={"class": SELECT_CLASSES}),
-            "contenido": forms.Textarea(
+            "motivo_consulta": forms.Textarea(
                 attrs={
                     "class": TEXTAREA_CLASSES,
-                    "rows": 8,
-                    "placeholder": "Escribe el contenido de la nota clínica...",
+                    "rows": 2,
+                    "placeholder": "Motivo por el que asiste el paciente...",
+                }
+            ),
+            "resumen_consulta": forms.Textarea(
+                attrs={
+                    "class": TEXTAREA_CLASSES,
+                    "rows": 4,
+                    "placeholder": "Resumen de la valoración, mediciones y plan...",
+                }
+            ),
+            "objetivos_acordados": forms.Textarea(
+                attrs={
+                    "class": TEXTAREA_CLASSES,
+                    "rows": 2,
+                    "placeholder": "Metas a corto y mediano plazo...",
+                }
+            ),
+            "plan_accion": forms.Textarea(
+                attrs={
+                    "class": TEXTAREA_CLASSES,
+                    "rows": 3,
+                    "placeholder": "Acuerdos, cambios y tareas para el paciente...",
+                }
+            ),
+            "observaciones_clinicas": forms.Textarea(
+                attrs={
+                    "class": TEXTAREA_CLASSES,
+                    "rows": 3,
+                    "placeholder": "Notas exclusivas para el profesional...",
                 }
             ),
         }
