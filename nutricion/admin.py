@@ -6,7 +6,7 @@ from django.contrib import admin
 from .models import Alimento, PlanNutricional, ComidaPlan
 
 
-# ─── Inline de comidas dentro del plan ───────────────────────────────────────
+# -------------Inline de comidas dentro del plan-------------
 
 class ComidaPlanInline(admin.TabularInline):
     """
@@ -20,7 +20,7 @@ class ComidaPlanInline(admin.TabularInline):
     filter_horizontal = ("alimentos_sugeridos",)
 
 
-# ─── Alimento ─────────────────────────────────────────────────────────────────
+# -------------Alimento-------------
 
 @admin.register(Alimento)
 class AlimentoAdmin(admin.ModelAdmin):
@@ -45,7 +45,7 @@ class AlimentoAdmin(admin.ModelAdmin):
     )
 
 
-# ─── PlanNutricional ──────────────────────────────────────────────────────────
+# -------------PlanNutricional-------------
 
 @admin.register(PlanNutricional)
 class PlanNutricionalAdmin(admin.ModelAdmin):
@@ -78,7 +78,7 @@ class PlanNutricionalAdmin(admin.ModelAdmin):
     )
 
 
-# ─── ComidaPlan (administración independiente) ───────────────────────────────
+# -------------ComidaPlan (administración independiente)-------------
 
 @admin.register(ComidaPlan)
 class ComidaPlanAdmin(admin.ModelAdmin):

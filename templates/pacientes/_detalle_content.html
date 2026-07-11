@@ -292,6 +292,9 @@
                 <button onclick="switchTab(event, 'tab-recomendaciones')" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 whitespace-nowrap flex items-center gap-2">
                     <i data-lucide="heart" class="w-4 h-4"></i> Recomendaciones
                 </button>
+                <button onclick="switchTab(event, 'tab-recetas')" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="chef-hat" class="w-4 h-4"></i> Recetas
+                </button>
                 <button onclick="switchTab(event, 'tab-seguimiento')" class="tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 whitespace-nowrap flex items-center gap-2">
                     <i data-lucide="activity" class="w-4 h-4"></i> Seguimiento
                 </button>
@@ -648,7 +651,35 @@
             <!-- Panel 2: Mediciones -->
             <div id="tab-mediciones" class="tab-panel hidden space-y-6">
                 <!-- Script de Chart.js cargado localmente para el panel -->
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    
+    // Auto-activar pestaña basada en query param '?tab=...'
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab) {
+            const btn = document.querySelector(`button[onclick*="tab-${tab}"]`);
+            if (btn) {
+                btn.click();
+            }
+        }
+    });
+
+    // Filtrar recetas globales (plantillas) en el modal de importación
+    function filterTemplates() {
+        const query = document.getElementById("search-templates-input").value.toLowerCase().trim();
+        const items = document.querySelectorAll(".template-item");
+        items.forEach(item => {
+            const name = item.getAttribute("data-name");
+            if (name.includes(query)) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+</script>
 
                 <!-- Barra de Acciones Superior -->
                 <div class="flex items-center justify-between bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
@@ -1837,7 +1868,9 @@
             
             <!-- Fin de Panel 4: Plan Alimentario -->
 
-            <!-- Panel 5: Seguimiento -->
+            
+
+            <!-- Panel 6: Seguimiento -->
             <div id="tab-seguimiento" class="tab-panel hidden space-y-6">
                 
                 <!-- 1. Banner de Alertas -->
