@@ -225,9 +225,14 @@
                         <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
                             <div class="flex items-center gap-3">
                                 <!-- Iniciales de avatar -->
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-sm">
-                                    {{ paciente.nombre|slice:":1" }}{{ paciente.apellido|slice:":1" }}
-                                </div>
+                                {% if paciente.informacion_clinica.foto_url %}
+                                    <img src="{{ paciente.informacion_clinica.foto_url }}" class="w-10 h-10 rounded-full object-cover shadow-sm">
+                                {% else %}
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white shadow-sm"
+                                         style="background-color: {{ paciente.informacion_clinica.avatar_color|default:'#10B981' }};">
+                                        {{ paciente.nombre|slice:":1" }}{{ paciente.apellido|slice:":1" }}
+                                    </div>
+                                {% endif %}
                                 <div class="min-w-0">
                                     <a href="{% url 'pacientes:detalle' paciente.pk %}" class="font-semibold text-slate-800 hover:text-teal-600 transition-colors truncate block">
                                         {{ paciente.nombre_completo }}
