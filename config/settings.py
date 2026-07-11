@@ -23,6 +23,8 @@ ALLOWED_HOSTS = config(
     default="localhost,127.0.0.1,0.0.0.0",
     cast=lambda v: [s.strip() for s in v.split(",")],
 )
+if DEBUG:
+    ALLOWED_HOSTS.append("*")
 
 
 # ─── Apps instaladas ──────────────────────────────────────────────────────────
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",  # Cabeceras CORS para la comunicación con la app móvil
     # Apps del proyecto NutriSync — orden según dependencias
     "core.apps.CoreConfig",  # Auth, dashboard, perfil del nutricionista (CoreConfig para signals)
     "pacientes",  # Gestión de pacientes
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # CORS Middleware (debe ir antes de CommonMiddleware)
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -141,7 +145,17 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# ─── Otros ────────────────────────────────────────────────────────────────────
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ─── Configuración CORS (Desarrollo Móvil) ────────────────────────────────────
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = config(
+        "CORS_ALLOWED_ORIGINS",
+        default="http://localhost:8081,http://127.0.0.1:8081",
+        cast=lambda v: [s.strip() for s in v.split(",")]
+    )
 
