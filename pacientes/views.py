@@ -501,7 +501,13 @@ def paciente_guardar_informacion(request, pk):
         consulta.informacion_clinica = {}
 
     if section == "datos_personales":
-        paciente.dni = request.POST.get("dni", "").strip()
+        dni = request.POST.get("dni", "").strip()
+        if not dni:
+            return JsonResponse({"success": False, "error": "El DNI es obligatorio."})
+        if not dni.isdigit() or len(dni) != 8:
+            return JsonResponse({"success": False, "error": "El DNI debe tener exactamente 8 dígitos numéricos."})
+            
+        paciente.dni = dni
         fecha_nac = request.POST.get("fecha_nacimiento", "").strip()
         if fecha_nac:
             paciente.fecha_nacimiento = fecha_nac
@@ -509,10 +515,33 @@ def paciente_guardar_informacion(request, pk):
         paciente.ocupacion = request.POST.get("ocupacion", "").strip()
         consulta.informacion_clinica["estado_civil"] = request.POST.get("estado_civil", "").strip()
         consulta.informacion_clinica["ciudad"] = request.POST.get("ciudad", "").strip()
+        
+        # Guardar DNI de sombra en el perfil del paciente para integridad de la cuenta móvil
+        if paciente.informacion_clinica is None:
+            paciente.informacion_clinica = {}
+        paciente.informacion_clinica["shadow_dni"] = dni
 
     elif section == "contacto":
-        paciente.telefono = request.POST.get("telefono", "").strip()
-        paciente.email = request.POST.get("email", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
+        email = request.POST.get("email", "").strip()
+        
+        if not telefono:
+            return JsonResponse({"success": False, "error": "El teléfono es obligatorio."})
+        if not telefono.isdigit() or len(telefono) != 9:
+            return JsonResponse({"success": False, "error": "El teléfono debe tener exactamente 9 dígitos numéricos."})
+            
+        if not email:
+            return JsonResponse({"success": False, "error": "El correo electrónico es obligatorio."})
+            
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({"success": False, "error": "El formato del correo electrónico no es válido."})
+
+        paciente.telefono = telefono
+        paciente.email = email
         paciente.direccion = request.POST.get("direccion", "").strip()
         consulta.informacion_clinica["contacto_emergencia"] = request.POST.get("contacto_emergencia", "").strip()
         consulta.informacion_clinica["relacion_contacto"] = request.POST.get("relacion_contacto", "").strip()
@@ -2149,6 +2178,40 @@ def paciente_resumen_imprimir(request, pk, cita_id):
     return render(request, "pacientes/resumen_imprimir.html", context)
 
 
+@require_POST
+def paciente_generar_vinculo(request, pk):
+    """
+    Genera o actualiza el código de vinculación único para que el paciente
+    pueda registrar su cuenta en el aplicativo móvil.
+    """
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import CodigoVinculacion
+    
+    paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
+    
+    if paciente.usuario is not None:
+        return JsonResponse({
+            "success": False, 
+            "error": f"El paciente ya tiene una cuenta móvil activa (Usuario: {paciente.usuario.username})."
+        }, status=400)
+        
+    # Obtener o crear
+    vinculo, created = CodigoVinculacion.objects.get_or_create(paciente=paciente)
+    
+    # Si ya existía, regeneramos el código y reiniciamos fecha de expiración
+    if not created:
+        vinculo.codigo = ""  # Fuerza el auto-cálculo en save()
+        vinculo.utilizado = False
+        vinculo.expira_en = timezone.now() + timezone.timedelta(hours=24)
+        vinculo.save()
+        
+    return JsonResponse({
+        "success": True,
+        "codigo": vinculo.codigo,
+        "expira_en": vinculo.expira_en.strftime("%d/%m/%Y %H:%M"),
+        "mensaje": f"Código {vinculo.codigo} generado. El paciente puede registrarse en la app móvil usando este código y su DNI ({paciente.dni})."
+    })
 
 
 

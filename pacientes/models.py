@@ -5,6 +5,8 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+import random
+import string
 from config.choices import Sexo
 from pacientes.validators import (
     validate_dni,
@@ -30,6 +32,16 @@ class Paciente(models.Model):
         on_delete=models.CASCADE,
         related_name="pacientes",
         verbose_name="Nutricionista",
+    )
+
+    # Relación opcional con el User que representa la cuenta móvil del Paciente.
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="paciente_perfil",
+        verbose_name="Usuario de Acceso Móvil",
     )
 
     # ─── Datos personales ────────────────────────────────────────────────────
@@ -480,4 +492,58 @@ class ArchivoPaciente(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.categoria}) — {self.paciente.nombre_completo}"
+
+
+class CodigoVinculacion(models.Model):
+    """
+    Código temporal generado por el nutricionista para vincular
+    el expediente de un Paciente con un usuario de Django (User) en la app móvil.
+    """
+    paciente = models.OneToOneField(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name="codigo_vinculacion",
+        verbose_name="Paciente",
+    )
+    codigo = models.CharField(
+        max_length=20,
+        unique=True,
+        verbose_name="Código de Vinculación",
+    )
+    creado_en = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Creado en",
+    )
+    expira_en = models.DateTimeField(
+        verbose_name="Expira en",
+    )
+    utilizado = models.BooleanField(
+        default=False,
+        verbose_name="Utilizado",
+    )
+
+    class Meta:
+        verbose_name = "Código de Vinculación"
+        verbose_name_plural = "Códigos de Vinculación"
+
+    def __str__(self):
+        return f"{self.codigo} — {self.paciente.nombre_completo} ({'Utilizado' if self.utilizado else 'Activo'})"
+
+    def esta_valido(self):
+        """Verifica si el código es vigente y no ha sido utilizado y el paciente está activo."""
+        return not self.utilizado and self.expira_en > timezone.now() and self.paciente.esta_activo
+
+    def save(self, *args, **kwargs):
+        if not self.codigo:
+            # Generar código de vinculación de 6 caracteres alfanuméricos
+            caracteres = string.ascii_uppercase + string.digits
+            while True:
+                nuevo_codigo = "".join(random.choices(caracteres, k=6))
+                if not CodigoVinculacion.objects.filter(codigo=nuevo_codigo).exists():
+                    self.codigo = nuevo_codigo
+                    break
+        if not self.expira_en:
+            # Expira por defecto en 24 horas
+            self.expira_en = timezone.now() + timezone.timedelta(hours=24)
+        super().save(*args, **kwargs)
 

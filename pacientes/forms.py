@@ -79,7 +79,7 @@ class PacienteForm(forms.ModelForm):
             "dni": forms.TextInput(
                 attrs={
                     "class": "w-full border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
-                    "placeholder": "DNI (Opcional - 8 dígitos)",
+                    "placeholder": "DNI (8 dígitos)",
                     "maxlength": "8",
                 }
             ),
@@ -93,7 +93,7 @@ class PacienteForm(forms.ModelForm):
             ),
             "sexo": forms.Select(
                 attrs={
-                    "class": "w-full border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white",
+                    "class": "w-full border border-slate-200 rounded-lg pl-3 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 bg-white appearance-none",
                 }
             ),
             "peso": forms.NumberInput(
@@ -121,7 +121,7 @@ class PacienteForm(forms.ModelForm):
             "email": forms.EmailInput(
                 attrs={
                     "class": "w-full border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800",
-                    "placeholder": "correo@ejemplo.com (Opcional)",
+                    "placeholder": "correo@ejemplo.com",
                 }
             ),
             "direccion": forms.TextInput(
@@ -134,9 +134,11 @@ class PacienteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sexo"].choices = [("", "Seleccione sexo biológico...")] + Sexo.CHOICES
+        self.fields["sexo"].choices = [("", "Seleccionar")] + Sexo.CHOICES
         self.fields["talla"].required = True
-        self.fields["dni"].required = False  # DNI es opcional en la interfaz
+        self.fields["dni"].required = True
+        self.fields["email"].required = True
+        self.fields["telefono"].required = True
 
         # Cargar valores guardados en notas_generales al editar
         if self.instance and self.instance.pk:
