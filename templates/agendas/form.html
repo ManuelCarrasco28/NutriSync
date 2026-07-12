@@ -1,4 +1,4 @@
-<!-- templates/citas/form.html -->
+<!-- templates/agendas/form.html -->
 {% extends "base.html" %}
 
 {% block title %}
@@ -14,7 +14,7 @@
 
     <!-- Botón Volver -->
     <div class="flex items-center justify-between">
-        <a href="{% url 'citas:agenda' %}" 
+        <a href="{% url 'agendas:agenda' %}" 
            class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Volver a la Agenda</span>
@@ -189,7 +189,7 @@
 
             <!-- Botones de Acción -->
             <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-                <a href="{% url 'citas:agenda' %}" 
+                <a href="{% url 'agendas:agenda' %}" 
                    class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors">
                     Cancelar
                 </a>

@@ -1,4 +1,4 @@
-<!-- templates/citas/agenda.html -->
+<!-- templates/agendas/agenda.html -->
 {% extends "base.html" %}
 
 {% block title %}Agenda Profesional{% endblock %}
@@ -60,10 +60,10 @@
 
         <!-- ─── 1. PANEL SUPERIOR ─── -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <form method="GET" action="{% url 'citas:agenda' %}" id="agenda-filters-form" class="flex flex-wrap items-center gap-3 flex-1">
+            <form method="GET" action="{% url 'agendas:agenda' %}" id="agenda-filters-form" class="flex flex-wrap items-center gap-3 flex-1">
                 
                 <!-- Botón Nueva Cita -->
-                <a href="{% url 'citas:nueva' %}" 
+                <a href="{% url 'agendas:nueva' %}" 
                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg px-4 py-2 text-xs transition flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap">
                     Nueva cita <span class="text-base font-medium leading-none">+</span>
                 </a>
@@ -406,7 +406,7 @@
                 <p class="text-slate-400 text-sm max-w-md mx-auto mb-6">
                     No tienes citas agendadas ni bloqueos de horario para esta fecha. Comienza agregando tu primera cita o bloqueo para ordenar tu agenda.
                 </p>
-                <a href="{% url 'citas:nueva' %}" 
+                <a href="{% url 'agendas:nueva' %}" 
                    class="bg-teal-650 hover:bg-teal-700 text-white font-medium rounded-lg px-5 py-2.5 text-sm
                           transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center gap-2">
                     <i data-lucide="plus" class="w-4.5 h-4.5"></i> Nueva cita
@@ -683,7 +683,7 @@
             </button>
         </div>
         
-        <form method="POST" action="{% url 'citas:bloquear' %}" class="p-6 space-y-4 text-xs">
+        <form method="POST" action="{% url 'agendas:bloquear' %}" class="p-6 space-y-4 text-xs">
             {% csrf_token %}
             <div>
                 <label class="block font-bold text-slate-600 mb-1">Fecha</label>

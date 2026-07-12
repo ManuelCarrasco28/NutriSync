@@ -324,7 +324,7 @@ def cobro_crear_desde_cita(request, cita_pk):
 
     if cita.costo <= 0:
         messages.warning(request, "La cita no tiene un costo definido.")
-        return redirect("citas:detalle", pk=cita.pk)
+        return redirect("agendas:detalle", pk=cita.pk)
 
     cobro = Cobro.objects.create(
         nutricionista=request.user,

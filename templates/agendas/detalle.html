@@ -1,4 +1,4 @@
-<!-- templates/citas/detalle.html -->
+<!-- templates/agendas/detalle.html -->
 {% extends "base.html" %}
 
 {% block title %}Detalle de Cita — {{ cita.paciente.nombre_completo }}{% endblock %}
@@ -9,7 +9,7 @@
 
     <!-- Acciones superiores / Navegación -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <a href="{% url 'citas:agenda' %}" 
+        <a href="{% url 'agendas:agenda' %}" 
            class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Volver a la Agenda</span>
@@ -17,7 +17,7 @@
 
         <div class="flex items-center gap-2">
             <!-- Botón de editar -->
-            <a href="{% url 'citas:editar' cita.pk %}" 
+            <a href="{% url 'agendas:editar' cita.pk %}" 
                class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-lg px-4 py-2 text-sm transition-all shadow-sm">
                 <i data-lucide="pencil" class="w-4 h-4 text-slate-500"></i>
                 <span>Editar Cita</span>
@@ -151,7 +151,7 @@
                         <div class="flex flex-col items-center justify-center text-slate-400 py-6">
                             <i data-lucide="edit-3" class="w-8 h-8 text-slate-200 mb-2"></i>
                             <span class="italic">No se han redactado notas clínicas para esta consulta.</span>
-                            <a href="{% url 'citas:editar' cita.pk %}" class="text-teal-600 hover:text-teal-700 font-semibold mt-2 text-xs hover:underline flex items-center gap-1">
+                            <a href="{% url 'agendas:editar' cita.pk %}" class="text-teal-600 hover:text-teal-700 font-semibold mt-2 text-xs hover:underline flex items-center gap-1">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar notas ahora
                             </a>
                         </div>
@@ -215,7 +215,7 @@
                 <div class="space-y-2">
                     {% if cita.estado == 'programada' %}
                         <!-- Completar -->
-                        <form method="post" action="{% url 'citas:cambiar_estado' cita.pk %}">
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="completada">
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
@@ -225,7 +225,7 @@
                         </form>
                         <!-- No asistió (Solo disponible si la cita ya inició o pasó en el tiempo) -->
                         {% if puede_marcar_no_asistio %}
-                        <form method="post" action="{% url 'citas:cambiar_estado' cita.pk %}">
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="no_asistio">
                             <button type="submit" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-slate-200 flex items-center justify-center gap-2">
@@ -235,7 +235,7 @@
                         </form>
                         {% endif %}
                         <!-- Cancelar -->
-                        <form method="post" action="{% url 'citas:cambiar_estado' cita.pk %}">
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="cancelada">
                             <button type="submit" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-red-200 flex items-center justify-center gap-2"
@@ -246,7 +246,7 @@
                         </form>
                     {% else %}
                         <!-- Re-programar o Reactivar -->
-                        <form method="post" action="{% url 'citas:cambiar_estado' cita.pk %}">
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="programada">
                             <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
@@ -257,7 +257,7 @@
                         
                         {% if cita.estado != 'cancelada' %}
                         <!-- Cancelar si está completada o no asistió -->
-                        <form method="post" action="{% url 'citas:cambiar_estado' cita.pk %}">
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="cancelada">
                             <button type="submit" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-red-200 flex items-center justify-center gap-2"

@@ -31,8 +31,8 @@
             <i data-lucide="users" class="w-5 h-5"></i> Pacientes
         </a>
 
-        <a href="{% url 'citas:agenda' %}"
-            class="sidebar-link {% if request.resolver_match.namespace and 'citas' in request.resolver_match.namespace %}active{% endif %}">
+        <a href="{% url 'agendas:agenda' %}"
+            class="sidebar-link {% if request.resolver_match.namespace and 'agendas' in request.resolver_match.namespace %}active{% endif %}">
             <i data-lucide="calendar" class="w-5 h-5"></i> Agenda
         </a>
 
