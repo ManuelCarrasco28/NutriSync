@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     # Apps del proyecto NutriSync — orden según dependencias
     "core.apps.CoreConfig",  # Auth, dashboard, perfil del nutricionista (CoreConfig para signals)
     "pacientes",  # Gestión de pacientes
-    "agendas",  # Agenda de citas
+    "agendas.apps.AgendasConfig",  # Agenda de citas
     "nutricion",  # Base de alimentos y planes nutricionales
     "seguimiento",  # Medidas corporales y notas clínicas
     "reportes",  # Reportes clínicos, operativos y financieros
