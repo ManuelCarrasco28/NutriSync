@@ -1,37 +1,48 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from pacientes.models import Paciente
+from django.contrib.auth.models import User
 from config.choices import DiaSemana, TipoComida, Objetivo
 from .alimentos import Alimento
 
 class PlanNutricional(models.Model):
     """
-    Plan de alimentación asignado a un paciente por el nutricionista.
-    Un paciente puede tener múltiples planes (histórico) pero solo uno activo.
-    La regla 'un solo plan activo' se valida en el formulario y en la vista.
+    Modelo/Plantilla de plan nutricional creado por un nutricionista.
+    No pertenece a ningún paciente y sirve como biblioteca reusable.
     """
-    paciente = models.ForeignKey(
-        Paciente,
+    ESTADOS = [
+        ('Borrador', 'Borrador'),
+        ('Activo', 'Activo'),
+        ('Archivado', 'Archivado'),
+    ]
+
+    nutricionista = models.ForeignKey(
+        User,
         on_delete=models.CASCADE,
-        related_name="planes",
-        verbose_name="Paciente",
+        null=True,
+        blank=True,
+        related_name="modelos_planes",
+        verbose_name="Nutricionista",
     )
     nombre = models.CharField(
         max_length=200,
         verbose_name="Nombre del plan",
-        help_text="Ej: Plan de pérdida de peso - Enero 2025",
+        help_text="Ej: Plan hiperproteico de definición",
     )
-    fecha_inicio = models.DateField(verbose_name="Fecha de inicio")
-    fecha_fin = models.DateField(
+    descripcion = models.TextField(
         blank=True,
-        null=True,
-        verbose_name="Fecha de fin",
-        help_text="Dejar en blanco si el plan no tiene fecha de término definida",
+        verbose_name="Descripción",
+        help_text="Breve descripción del propósito de este modelo de plan"
     )
     objetivo = models.CharField(
         max_length=30,
         choices=Objetivo.CHOICES,
         verbose_name="Objetivo",
+    )
+    tipo_paciente = models.CharField(
+        max_length=100,
+        default="General",
+        verbose_name="Tipo de paciente",
+        help_text="Ej: Adulto activo, Deportista, Sedentario"
     )
 
     # -------------Macros objetivo diario-------------
@@ -61,34 +72,39 @@ class PlanNutricional(models.Model):
         validators=[MinValueValidator(0)],
         verbose_name="Grasas diarias (g)",
     )
+    fibra_g = models.PositiveIntegerField(
+        default=25,
+        verbose_name="Fibra (g)"
+    )
+    agua_recomendada = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=2.5,
+        verbose_name="Agua recomendada (L)"
+    )
+    num_comidas = models.PositiveIntegerField(
+        default=4,
+        verbose_name="Número de comidas"
+    )
 
-    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
-
-    estado = models.BooleanField(
-        default=True,
-        verbose_name="Activo",
-        help_text="Solo puede haber un plan activo por paciente",
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADOS,
+        default='Borrador',
+        verbose_name="Estado"
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
 
     class Meta:
         ordering = ["-fecha_creacion"]
-        verbose_name = "Plan Nutricional"
-        verbose_name_plural = "Planes Nutricionales"
+        verbose_name = "Modelo de Plan"
+        verbose_name_plural = "Modelos de Planes"
         indexes = [
-            models.Index(fields=["paciente", "estado"]),
-            models.Index(fields=["fecha_inicio"]),
+            models.Index(fields=["nutricionista", "estado"]),
         ]
 
     def __str__(self):
-        return f"{self.nombre} — {self.paciente.nombre_completo}"
-
-    @property
-    def duracion_dias(self):
-        """Calcula la duración del plan en días si tiene fecha de fin definida."""
-        if self.fecha_fin:
-            return (self.fecha_fin - self.fecha_inicio).days
-        return None
+        return f"{self.nombre} — {self.objetivo_display}"
 
     @property
     def objetivo_display(self):
@@ -98,9 +114,8 @@ class PlanNutricional(models.Model):
 
 class ComidaPlan(models.Model):
     """
-    Una comida específica dentro de un plan nutricional (ej: 'Lunes - Desayuno').
-    Tiene ManyToMany con Alimento para sugerir alimentos concretos.
-    Se agrupa por día_semana al mostrar el plan organizado lunes→domingo.
+    Una comida específica dentro de un modelo de plan (ej: Desayuno, Almuerzo).
+    Se vincula a una Receta existente en el sistema.
     """
     plan = models.ForeignKey(
         PlanNutricional,
@@ -108,44 +123,33 @@ class ComidaPlan(models.Model):
         related_name="comidas",
         verbose_name="Plan nutricional",
     )
-    dia_semana = models.CharField(
-        max_length=10,
-        choices=DiaSemana.CHOICES,
-        verbose_name="Día de la semana",
-        db_index=True,
-    )
     tipo_comida = models.CharField(
-        max_length=10,
-        choices=TipoComida.CHOICES,
-        verbose_name="Tipo de comida",
+        max_length=50,
+        verbose_name="Nombre de la comida",
+        help_text="Ej: Desayuno, Merienda, Cena"
     )
-    descripcion = models.TextField(
+    hora_sugerida = models.TimeField(
+        null=True,
         blank=True,
-        verbose_name="Descripción",
-        help_text="Descripción libre de la comida para el paciente",
+        verbose_name="Horario sugerido"
     )
-    alimentos_sugeridos = models.ManyToManyField(
-        Alimento,
-        blank=True,
-        related_name="comidas_plan",
-        verbose_name="Alimentos sugeridos",
-    )
-    recetas_sugeridas = models.ManyToManyField(
+    receta = models.ForeignKey(
         "Receta",
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         related_name="comidas_plan",
-        verbose_name="Recetas sugeridas",
+        verbose_name="Receta seleccionada"
     )
-    calorias_estimadas = models.PositiveIntegerField(
-        default=0,
-        verbose_name="Calorías estimadas (kcal)",
+    observaciones = models.TextField(
+        blank=True,
+        verbose_name="Observaciones sugeridas"
     )
 
     class Meta:
-        ordering = ["dia_semana", "tipo_comida"]
+        ordering = ["hora_sugerida", "id"]
         verbose_name = "Comida del plan"
         verbose_name_plural = "Comidas del plan"
-        unique_together = [["plan", "dia_semana", "tipo_comida"]]
 
     def __str__(self):
-        return f"{self.get_dia_semana_display()} - {self.get_tipo_comida_display()} ({self.plan.nombre})"
+        return f"{self.tipo_comida} - {self.receta.nombre} ({self.plan.nombre})"

@@ -15,9 +15,7 @@ class ComidaPlanInline(admin.TabularInline):
     """
     model = ComidaPlan
     extra = 1
-    fields = ("dia_semana", "tipo_comida", "descripcion", "calorias_estimadas", "alimentos_sugeridos")
-    # filter_horizontal facilita la selección de alimentos en el ManyToMany
-    filter_horizontal = ("alimentos_sugeridos",)
+    fields = ("tipo_comida", "hora_sugerida", "receta", "observaciones")
 
 
 # -------------Alimento-------------
@@ -50,30 +48,24 @@ class AlimentoAdmin(admin.ModelAdmin):
 @admin.register(PlanNutricional)
 class PlanNutricionalAdmin(admin.ModelAdmin):
     """
-    Administración de planes nutricionales con inline de comidas.
-    Se muestra el paciente, objetivo, estado y fecha de creación en la lista.
+    Administración de modelos de planes nutricionales.
     """
-    list_display = ("nombre", "paciente", "objetivo", "calorias_diarias", "estado", "fecha_creacion")
+    list_display = ("nombre", "nutricionista", "objetivo", "tipo_paciente", "calorias_diarias", "estado", "fecha_creacion")
     list_filter = ("estado", "objetivo", "fecha_creacion")
-    search_fields = ("nombre", "paciente__nombre", "paciente__apellido")
-    # select_related evita N+1 queries al mostrar el nombre del paciente en la lista
-    list_select_related = ("paciente",)
+    search_fields = ("nombre", "tipo_paciente")
+    list_select_related = ("nutricionista",)
     ordering = ("-fecha_creacion",)
     inlines = [ComidaPlanInline]
     fieldsets = (
         ("Información del plan", {
-            "fields": ("paciente", "nombre", "objetivo", "estado")
+            "fields": ("nutricionista", "nombre", "objetivo", "tipo_paciente", "estado")
         }),
-        ("Fechas", {
-            "fields": ("fecha_inicio", "fecha_fin"),
+        ("Metas del modelo", {
+            "fields": ("calorias_diarias", "proteinas_g", "carbohidratos_g", "grasas_g", "fibra_g", "agua_recomendada", "num_comidas"),
+            "description": "Valores diarios objetivo para este modelo de plan.",
         }),
-        ("Macronutrientes objetivo", {
-            "fields": ("calorias_diarias", "proteinas_g", "carbohidratos_g", "grasas_g"),
-            "description": "Valores diarios objetivo para el paciente.",
-        }),
-        ("Observaciones", {
-            "fields": ("observaciones",),
-            "classes": ("collapse",),
+        ("Descripción", {
+            "fields": ("descripcion",),
         }),
     )
 
@@ -86,9 +78,7 @@ class ComidaPlanAdmin(admin.ModelAdmin):
     Administración independiente de comidas del plan.
     También accesible desde el inline en PlanNutricionalAdmin.
     """
-    list_display = ("__str__", "plan", "dia_semana", "tipo_comida", "calorias_estimadas")
-    list_filter = ("dia_semana", "tipo_comida")
-    search_fields = ("plan__nombre", "plan__paciente__nombre")
-    # select_related evita N+1 al mostrar el plan y paciente en la lista
-    list_select_related = ("plan", "plan__paciente")
-    filter_horizontal = ("alimentos_sugeridos",)
+    list_display = ("__str__", "plan", "tipo_comida", "hora_sugerida", "receta")
+    list_filter = ("tipo_comida",)
+    search_fields = ("plan__nombre", "tipo_comida", "receta__nombre")
+    list_select_related = ("plan", "receta")

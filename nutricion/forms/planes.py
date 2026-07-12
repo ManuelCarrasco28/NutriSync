@@ -1,8 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from ..models import PlanNutricional, ComidaPlan, Alimento, Receta
-from config.choices import DiaSemana, TipoComida, Objetivo
+from ..models import PlanNutricional, ComidaPlan, Receta
+from config.choices import Objetivo
 
 INPUT_CLASSES = (
     "w-full border border-slate-200 rounded-lg px-3 py-2 text-sm "
@@ -14,32 +14,30 @@ TEXTAREA_CLASSES = INPUT_CLASSES + " resize-none"
 
 class PlanNutricionalForm(forms.ModelForm):
     """
-    Formulario para crear y editar un plan nutricional.
-    La validación de 'un solo plan activo por paciente' se hace en clean()
-    para que funcione tanto en el form web como en el admin de Django.
+    Formulario para crear y editar un modelo/plantilla de plan nutricional.
     """
 
     class Meta:
         model = PlanNutricional
         fields = [
-            "nombre", "objetivo", "fecha_inicio", "fecha_fin",
+            "nombre", "descripcion", "objetivo", "tipo_paciente",
             "calorias_diarias", "proteinas_g", "carbohidratos_g", "grasas_g",
-            "observaciones", "estado",
+            "fibra_g", "agua_recomendada", "num_comidas", "estado",
         ]
         widgets = {
             "nombre": forms.TextInput(attrs={
                 "class": INPUT_CLASSES,
-                "placeholder": "Ej: Plan pérdida de peso — Enero 2025",
+                "placeholder": "Ej: Plan hiperproteico de definición",
+            }),
+            "descripcion": forms.Textarea(attrs={
+                "class": TEXTAREA_CLASSES, "rows": 3,
+                "placeholder": "Describe el enfoque del plan, recomendaciones generales...",
             }),
             "objetivo": forms.Select(attrs={"class": SELECT_CLASSES}),
-            "fecha_inicio": forms.DateInput(
-                attrs={"class": INPUT_CLASSES, "type": "date"},
-                format="%Y-%m-%d",
-            ),
-            "fecha_fin": forms.DateInput(
-                attrs={"class": INPUT_CLASSES, "type": "date"},
-                format="%Y-%m-%d",
-            ),
+            "tipo_paciente": forms.TextInput(attrs={
+                "class": INPUT_CLASSES,
+                "placeholder": "Ej: Deportista, Adulto activo",
+            }),
             "calorias_diarias": forms.NumberInput(attrs={
                 "class": INPUT_CLASSES, "min": "500",
             }),
@@ -52,97 +50,54 @@ class PlanNutricionalForm(forms.ModelForm):
             "grasas_g": forms.NumberInput(attrs={
                 "class": INPUT_CLASSES, "step": "0.1", "min": "0",
             }),
-            "observaciones": forms.Textarea(attrs={
-                "class": TEXTAREA_CLASSES, "rows": 3,
-                "placeholder": "Indicaciones adicionales, restricciones, observaciones clínicas...",
+            "fibra_g": forms.NumberInput(attrs={
+                "class": INPUT_CLASSES, "min": "0",
             }),
+            "agua_recomendada": forms.NumberInput(attrs={
+                "class": INPUT_CLASSES, "step": "0.1", "min": "0",
+            }),
+            "num_comidas": forms.NumberInput(attrs={
+                "class": INPUT_CLASSES, "min": "1",
+            }),
+            "estado": forms.Select(attrs={"class": SELECT_CLASSES}),
         }
 
     def __init__(self, *args, **kwargs):
-        self.paciente = kwargs.pop("paciente", None)
         super().__init__(*args, **kwargs)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        fecha_inicio = cleaned_data.get("fecha_inicio")
-        fecha_fin = cleaned_data.get("fecha_fin")
-        estado = cleaned_data.get("estado")
-
-        if fecha_inicio and fecha_fin and fecha_fin < fecha_inicio:
-            raise ValidationError(
-                "La fecha de fin debe ser posterior a la fecha de inicio del plan."
-            )
-
-        if estado and self.paciente:
-            planes_activos = PlanNutricional.objects.filter(
-                paciente=self.paciente, estado=True
-            )
-            if self.instance.pk:
-                planes_activos = planes_activos.exclude(pk=self.instance.pk)
-            if planes_activos.exists():
-                raise ValidationError(
-                    "Este paciente ya tiene un plan nutricional activo. "
-                    "Desactiva el plan actual antes de crear uno nuevo."
-                )
-
-        return cleaned_data
 
 
 class ComidaPlanForm(forms.ModelForm):
-    """Formulario para agregar o editar una comida dentro de un plan nutricional."""
+    """Formulario para agregar o editar una comida dentro de un modelo de plan nutricional."""
 
     class Meta:
         model = ComidaPlan
         fields = [
-            "dia_semana", "tipo_comida", "descripcion",
-            "alimentos_sugeridos", "recetas_sugeridas", "calorias_estimadas",
+            "tipo_comida", "hora_sugerida", "receta", "observaciones",
         ]
         widgets = {
-            "dia_semana": forms.Select(attrs={"class": SELECT_CLASSES}),
-            "tipo_comida": forms.Select(attrs={"class": SELECT_CLASSES}),
-            "descripcion": forms.Textarea(attrs={
-                "class": TEXTAREA_CLASSES, "rows": 3,
-                "placeholder": "Ej: Avena con frutas y miel, vaso de leche descremada",
+            "tipo_comida": forms.TextInput(attrs={
+                "class": INPUT_CLASSES,
+                "placeholder": "Ej: Desayuno, Merienda, Almuerzo",
             }),
-            "alimentos_sugeridos": forms.CheckboxSelectMultiple(),
-            "recetas_sugeridas": forms.CheckboxSelectMultiple(),
-            "calorias_estimadas": forms.NumberInput(attrs={
-                "class": INPUT_CLASSES, "min": "0",
+            "hora_sugerida": forms.TimeInput(attrs={
+                "class": INPUT_CLASSES, "type": "time",
+            }),
+            "receta": forms.Select(attrs={"class": SELECT_CLASSES}),
+            "observaciones": forms.Textarea(attrs={
+                "class": TEXTAREA_CLASSES, "rows": 3,
+                "placeholder": "Indicaciones adicionales para esta comida...",
             }),
         }
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
-        plan = kwargs.pop("plan", None)
         super().__init__(*args, **kwargs)
-        if plan:
-            self.plan = plan
-
-        self.fields["alimentos_sugeridos"].queryset = (
-            Alimento.objects.filter(estado=True).order_by("nombre")
-        )
         
+        # Filtrar recetas para mostrar solo las del nutricionista (que no sean de paciente específico) o de sistema
         if user:
-            self.fields["recetas_sugeridas"].queryset = (
-                Receta.objects.filter(Q(es_sistema=True) | Q(creado_por=user)).order_by("nombre")
-            )
+            self.fields["receta"].queryset = Receta.objects.filter(
+                (Q(creado_por=user) & Q(paciente__isnull=True)) | Q(es_sistema=True)
+            ).order_by("nombre")
         else:
-            self.fields["recetas_sugeridas"].queryset = (
-                Receta.objects.filter(es_sistema=True).order_by("nombre")
-            )
+            self.fields["receta"].queryset = Receta.objects.filter(es_sistema=True).order_by("nombre")
 
-    def clean(self):
-        cleaned_data = super().clean()
-        dia = cleaned_data.get("dia_semana")
-        tipo = cleaned_data.get("tipo_comida")
-
-        if dia and tipo and hasattr(self, "plan"):
-            qs = ComidaPlan.objects.filter(plan=self.plan, dia_semana=dia, tipo_comida=tipo)
-            if self.instance.pk:
-                qs = qs.exclude(pk=self.instance.pk)
-            if qs.exists():
-                raise ValidationError(
-                    f"Ya existe una entrada de {dict(TipoComida.CHOICES).get(tipo, tipo)} "
-                    f"para el {dict(DiaSemana.CHOICES).get(dia, dia)} en este plan."
-                )
-        return cleaned_data
