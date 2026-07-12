@@ -126,3 +126,38 @@ Para ver los logs del sistema en tiempo real en caso de error:
 ```bash
 docker compose logs -f web
 ```
+
+---
+
+## 📱 Aplicación Móvil (Flutter)
+
+La aplicación móvil está desarrollada con **Flutter** y se comunica directamente con el backend de Django a través del API REST expuesto.
+
+### Requisitos Previos
+
+Antes de encender la aplicación, asegúrate de contar con:
+* **Flutter SDK** instalado y configurado (`flutter doctor` limpio).
+* Un **Emulador** (Android/iOS) ejecutándose o un **Dispositivo Físico** conectado con la Depuración USB activada.
+
+### Pasos para Ejecutar
+
+1. Abre una terminal y sitúate en la carpeta del proyecto móvil:
+   ```bash
+   cd mobile
+   ```
+
+2. Descarga y actualiza los paquetes y dependencias del proyecto:
+   ```bash
+   flutter pub get
+   ```
+
+3. Lanza la aplicación en tu emulador o dispositivo conectado:
+   ```bash
+   flutter run
+   ```
+
+> [!NOTE]
+> **Dirección de la API local en Emuladores:**
+> * Si usas el **Emulador de Android**, recuerda que accede al servidor local de Django usando la IP especial de puente **`http://10.0.2.2:8000/`**.
+> * Si usas el **Simulador de iOS** o ejecutas en la web, la dirección estándar es **`http://localhost:8000/`**.
+> * Asegúrate de que el backend de Django esté corriendo antes de iniciar la app móvil.

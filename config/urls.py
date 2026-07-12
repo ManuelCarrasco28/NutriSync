@@ -25,6 +25,8 @@ urlpatterns = [
     path("", include("nutricion.urls")),
     # Seguimiento corporal y notas clínicas (Parte 5)
     path("seguimiento/", include("seguimiento.urls")),
+    # Reportes clínicos, operativos y financieros
+    path("reportes/", include("reportes.urls")),
     # Facturación, cobros y suscripciones
     path("facturacion/", include("facturacion.urls")),
 ]

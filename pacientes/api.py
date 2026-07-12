@@ -10,9 +10,9 @@ from ninja import Router, Schema
 from ninja.security import HttpBearer
 from ninja.errors import HttpError
 from django.core.cache import cache
-from pacientes.models import Paciente, CodigoVinculacion, PlanAlimentario
+from pacientes.models import Paciente, CodigoVinculacion, PlanAlimentario, ArchivoPaciente
 from citas.models import Cita
-from seguimiento.models import MedidaCorporal, NotaClinica
+from seguimiento.models import MedidaCorporal, NotaClinica, Recomendacion
 
 router = Router()
 
@@ -123,8 +123,27 @@ class NotaClinicaSchema(Schema):
     id: int
     fecha: str
     titulo: str
-    contenido: str
+    motivo_consulta: str
+    resumen_consulta: str
+    objetivos_acordados: str
+    plan_accion: str
+    observaciones_clinicas: str
     tipo: str
+
+class RecomendacionSchema(Schema):
+    id: int
+    fecha: str
+    categoria: str
+    descripcion: Dict[str, Any]
+    estado_cumplimiento: str
+
+class ArchivoPacienteSchema(Schema):
+    id: int
+    nombre: str
+    categoria: str
+    fecha_registro: str
+    archivo_url: str
+    observaciones: str
 
 
 # ─── Endpoints de Autenticación y Registro ───────────────────────────────────
@@ -327,7 +346,6 @@ def obtener_proximas_citas(request):
 def obtener_notas_compartidas(request):
     """Retorna las notas clínicas asociadas al paciente."""
     paciente = request.auth.paciente_perfil
-    # Filtramos por tipo consulta o seguimiento (evitamos recetas internas si existiesen, o mostramos las que aplican)
     notas = NotaClinica.objects.filter(paciente=paciente).order_by('-fecha')
     
     resultado = []
@@ -336,8 +354,48 @@ def obtener_notas_compartidas(request):
             "id": n.id,
             "fecha": n.fecha.strftime("%Y-%m-%d"),
             "titulo": n.titulo,
-            "contenido": n.contenido,
+            "motivo_consulta": n.motivo_consulta or "",
+            "resumen_consulta": n.resumen_consulta or "",
+            "objetivos_acordados": n.objetivos_acordados or "",
+            "plan_accion": n.plan_accion or "",
+            "observaciones_clinicas": n.observaciones_clinicas or "",
             "tipo": n.get_tipo_display()
+        })
+    return resultado
+
+
+@router.get("/recomendaciones", auth=auth_paciente, response=List[RecomendacionSchema])
+def obtener_recomendaciones_paciente(request):
+    """Retorna las recomendaciones de hábitos, hidratación, etc. entregadas al paciente."""
+    paciente = request.auth.paciente_perfil
+    recoms = Recomendacion.objects.filter(paciente=paciente).order_by('-fecha')
+    resultado = []
+    for r in recoms:
+        resultado.append({
+            "id": r.id,
+            "fecha": r.fecha.strftime("%Y-%m-%d"),
+            "categoria": r.categoria,
+            "descripcion": r.descripcion or {},
+            "estado_cumplimiento": r.get_estado_cumplimiento_display()
+        })
+    return resultado
+
+
+@router.get("/archivos", auth=auth_paciente, response=List[ArchivoPacienteSchema])
+def obtener_archivos_paciente(request):
+    """Retorna la lista de archivos (laboratorios, PDF, etc.) compartidos con el paciente."""
+    paciente = request.auth.paciente_perfil
+    archivos = ArchivoPaciente.objects.filter(paciente=paciente).order_by('-fecha_registro')
+    resultado = []
+    for a in archivos:
+        url_archivo = a.archivo.url if a.archivo else ""
+        resultado.append({
+            "id": a.id,
+            "nombre": a.nombre,
+            "categoria": a.get_categoria_display(),
+            "fecha_registro": a.fecha_registro.strftime("%Y-%m-%d"),
+            "archivo_url": url_archivo,
+            "observaciones": a.observaciones or ""
         })
     return resultado
 

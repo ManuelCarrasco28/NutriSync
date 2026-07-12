@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard de Reportes{% endblock %}
+{% block page_title %}Dashboard de Reportes{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-teal-800 to-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-md border border-slate-700/50">
+        <h2 class="text-2xl font-bold mb-2">Resumen General</h2>
+        <p class="text-teal-100/80 text-sm mb-6">Indicadores clave de tu práctica profesional</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-teal-100 text-sm mb-1">Pacientes Activos</p>
+                <p class="text-3xl font-bold text-white">{{ pacientes_activos }}</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-teal-100 text-sm mb-1">Citas este Mes</p>
+                <p class="text-3xl font-bold text-white">{{ citas_mes }}</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-teal-100 text-sm mb-1">Ingresos del Mes</p>
+                <p class="text-3xl font-bold text-white">S/ {{ ingresos_mes|floatformat:2 }}</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-teal-100 text-sm mb-1">Cumplimiento</p>
+                <p class="text-3xl font-bold text-white">{{ cumplimiento }}%</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="{% url 'reportes:clinicos' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200 border-l-4 border-teal-500">
+            <div class="flex items-center gap-4">
+                <div class="bg-teal-100 rounded-full p-3">
+                    <i data-lucide="heart-pulse" class="w-6 h-6 text-teal-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Reportes Clínicos</h3>
+                    <p class="text-sm text-slate-500">Evolución, IMC, adherencia</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'reportes:operativos' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200 border-l-4 border-blue-500">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i data-lucide="calendar-check" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Reportes Operativos</h3>
+                    <p class="text-sm text-slate-500">Ocupación, citas, productividad</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'reportes:financieros' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200 border-l-4 border-green-500">
+            <div class="flex items-center gap-4">
+                <div class="bg-green-100 rounded-full p-3">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Reportes Financieros</h3>
+                    <p class="text-sm text-slate-500">Ingresos, ticket promedio</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

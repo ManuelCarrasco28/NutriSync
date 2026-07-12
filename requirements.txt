@@ -5,8 +5,8 @@ python-decouple>=3.8
 django-ninja>=1.1.0
 django-cors-headers>=4.3.1
 
-# Facturación - Generación de PDF
+
 xhtml2pdf>=0.2.11
 
-# Facturación - Pasarela de pagos
+
 stripe>=7.0.0
