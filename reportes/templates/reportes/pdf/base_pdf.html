@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Reporte{% endblock %}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.4;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #0d9488;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 18px;
+            color: #0d9488;
+            margin: 0;
+        }
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 14px;
+            color: #0d9488;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .section h3 {
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table th {
+            background-color: #0d9488;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-size: 10px;
+        }
+        table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 10px;
+        }
+        table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .kpi-box {
+            display: inline-block;
+            width: 23%;
+            text-align: center;
+            padding: 10px;
+            margin: 1%;
+            background-color: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-radius: 4px;
+        }
+        .kpi-box .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0d9488;
+        }
+        .kpi-box .label {
+            font-size: 9px;
+            color: #666;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 8px;
+            color: #999;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 5px;
+        }
+        .text-green { color: #10b981; }
+        .text-blue { color: #3b82f6; }
+        .text-red { color: #ef4444; }
+        .text-yellow { color: #f59e0b; }
+        .text-purple { color: #8b5cf6; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>NutriSync</h1>
+        <p>{{ nutricionista.first_name|default:nutricionista.username }} — {% block subtitle %}Reporte{% endblock %}</p>
+        <p>Generado: {% now "d/m/Y H:i" %}</p>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <div class="footer">
+        NutriSync — Plataforma de Gestión Profesional para Nutricionistas
+    </div>
+</body>
+</html>

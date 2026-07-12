@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "citas",  # Agenda de citas
     "nutricion",  # Base de alimentos y planes nutricionales
     "seguimiento",  # Medidas corporales y notas clínicas
+    "reportes",  # Reportes clínicos, operativos y financieros
     "facturacion",  # Facturación, cobros y suscripciones
 ]
 

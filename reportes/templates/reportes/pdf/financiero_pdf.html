@@ -1,0 +1,120 @@
+{% extends "reportes/pdf/base_pdf.html" %}
+{% block title %}Reporte Financiero{% endblock %}
+{% block subtitle %}Reporte Financiero{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Período del Reporte</h2>
+    <p><strong>Desde:</strong> {{ fecha_inicio|date:"d/m/Y" }} — <strong>Hasta:</strong> {{ fecha_fin|date:"d/m/Y" }}</p>
+</div>
+
+{% if 'indicadores' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Indicadores Financieros</h2>
+    <div>
+        <div class="kpi-box">
+            <div class="value text-green">S/ {{ ingresos.total|floatformat:2 }}</div>
+            <div class="label">Ingresos Totales</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-blue">{{ ingresos.cantidad }}</div>
+            <div class="label">Consultas</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-purple">S/ {{ ingresos.promedio|floatformat:2 }}</div>
+            <div class="label">Ticket Promedio</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value">S/ {{ proyeccion.total|floatformat:2 }}</div>
+            <div class="label">Proyección</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if 'detalle' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Detalle de Ingresos</h2>
+    <table>
+        <tr>
+            <td><strong>Ingresos Totales:</strong></td>
+            <td class="text-green">S/ {{ ingresos.total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cantidad de Consultas:</strong></td>
+            <td>{{ ingresos.cantidad }}</td>
+        </tr>
+        <tr>
+            <td><strong>Ticket Promedio:</strong></td>
+            <td>S/ {{ ingresos.promedio|floatformat:2 }}</td>
+        </tr>
+    </table>
+</div>
+{% endif %}
+
+{% if 'ingresos_tipo' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Ingresos por Tipo de Consulta</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tipo de Consulta</th>
+                <th>Ingresos (S/)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tipo, total in ingresos_tipo.items %}
+            <tr>
+                <td>{{ tipo }}</td>
+                <td class="text-green">S/ {{ total|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" style="text-align: center;">Sin datos para el período seleccionado</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if 'ingresos_mensuales' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Ingresos Mensuales (Últimos 6 meses)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mes</th>
+                <th>Ingresos (S/)</th>
+                <th>Cantidad de Citas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in ingresos_mensuales.meses %}
+            <tr>
+                <td>{{ i }}</td>
+                <td class="text-green">S/ {{ ingresos_mensuales.totales|slice:i|floatformat:2 }}</td>
+                <td>{{ ingresos_mensuales.cantidades|slice:i }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if 'proyeccion' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Proyección de Ingresos</h2>
+    <table>
+        <tr>
+            <td><strong>Citas Programadas:</strong></td>
+            <td>{{ proyeccion.cantidad }}</td>
+        </tr>
+        <tr>
+            <td><strong>Ingresos Estimados:</strong></td>
+            <td class="text-green">S/ {{ proyeccion.total|floatformat:2 }}</td>
+        </tr>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

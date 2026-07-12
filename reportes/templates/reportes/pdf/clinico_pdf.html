@@ -1,0 +1,98 @@
+{% extends "reportes/pdf/base_pdf.html" %}
+{% block title %}Reporte Clínico{% endblock %}
+{% block subtitle %}Reporte Clínico{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Período del Reporte</h2>
+    <p><strong>Desde:</strong> {{ fecha_inicio|date:"d/m/Y" }} — <strong>Hasta:</strong> {{ fecha_fin|date:"d/m/Y" }}</p>
+    {% if paciente_seleccionado %}
+    <p><strong>Paciente:</strong> {{ paciente_seleccionado.nombre_completo }}</p>
+    {% else %}
+    <p><strong>Paciente:</strong> Todos los pacientes</p>
+    {% endif %}
+</div>
+
+{% if paciente_seleccionado and evolucion.fechas %}
+{% if 'evolucion' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Evolución Antropométrica</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Peso (kg)</th>
+                <th>IMC</th>
+                <th>Grasa Corporal (%)</th>
+                <th>Masa Muscular (kg)</th>
+                <th>Cintura (cm)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in evolucion.fechas %}
+            <tr>
+                <td>{{ i }}</td>
+                <td>{{ evolucion.peso|slice:i }}</td>
+                <td>{{ evolucion.imc|slice:i }}</td>
+                <td>{{ evolucion.grasa_corporal|slice:i }}</td>
+                <td>{{ evolucion.masa_muscular|slice:i }}</td>
+                <td>{{ evolucion.cintura|slice:i }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endif %}
+
+{% if 'imc' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Distribución por IMC</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Clasificación</th>
+                <th>Cantidad de Pacientes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for clasificacion, cantidad in distribucion_imc.items %}
+            <tr>
+                <td>{{ clasificacion }}</td>
+                <td>{{ cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if 'cumplimiento_grafico' in secciones or 'cumplimiento_resumen' in secciones or 'todas' in secciones %}
+<div class="section">
+    <h2>Cumplimiento de Recomendaciones</h2>
+    {% if 'cumplimiento_grafico' in secciones or 'todas' in secciones %}
+    <div>
+        <div class="kpi-box">
+            <div class="value">{{ cumplimiento.total }}</div>
+            <div class="label">Total</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-green">{{ cumplimiento.cumplidas }}</div>
+            <div class="label">Cumplidas</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-yellow">{{ cumplimiento.parciales }}</div>
+            <div class="label">Parciales</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-red">{{ cumplimiento.no_cumplidas }}</div>
+            <div class="label">No Cumplidas</div>
+        </div>
+    </div>
+    {% endif %}
+    {% if 'cumplimiento_resumen' in secciones or 'todas' in secciones %}
+    <p style="margin-top: 15px;"><strong>Porcentaje de Cumplimiento:</strong> {{ cumplimiento.porcentaje_cumplimiento }}%</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
