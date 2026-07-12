@@ -10,7 +10,7 @@ from datetime import timedelta
 from config.choices import EstadoNutricionista
 from .forms import PerfilNutricionistaForm
 from citas.models import Cita
-from pacientes.models import Paciente
+from pacientes.models import Paciente, PlanAlimentario
 from nutricion.models import PlanNutricional
 
 
@@ -130,10 +130,6 @@ def perfil_view(request):
         form = PerfilNutricionistaForm(instance=perfil)
 
     return render(request, "core/perfil.html", {"form": form})
-
-
-# ─── Handlers de error personalizados ────────────────────────────────────────
-
 
 def error_404(request, exception):
     """Página 404 personalizada con diseño consistente al sistema."""
