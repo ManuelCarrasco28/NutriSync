@@ -7,95 +7,218 @@
 {% block page_title %}Mi Perfil Profesional{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl">
+<div class="w-full max-w-6xl mx-auto space-y-6">
 
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Columna Izquierda: Formulario Profesional -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <div class="mb-6 border-b border-slate-100 pb-4">
+                <h2 class="text-lg font-semibold text-slate-850 flex items-center gap-2">
+                    <i data-lucide="user" class="w-5 h-5 text-teal-600"></i>
+                    Información Profesional
+                </h2>
+                <p class="text-slate-500 text-sm mt-1">
+                    Estos datos aparecen en el sistema y en tus recetas/informes.
+                </p>
+            </div>
 
-        <div class="mb-6">
-            <h2 class="text-lg font-semibold text-slate-800">Información Profesional</h2>
-            <p class="text-slate-500 text-sm mt-1">
-                Estos datos aparecen en el sistema y en las comunicaciones con pacientes.
-            </p>
+            <form method="post" action="{% url 'core:perfil' %}" novalidate>
+                {% csrf_token %}
+
+                <div class="space-y-5">
+                    <!-- Nombre completo -->
+                    <div>
+                        <label for="{{ form.nombre_completo.id_for_label }}"
+                               class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                            Nombre completo <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.nombre_completo }}
+                        {% if form.nombre_completo.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.nombre_completo.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Especialidad -->
+                    <div>
+                        <label for="{{ form.especialidad.id_for_label }}"
+                               class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                            Especialidad
+                        </label>
+                        {{ form.especialidad }}
+                    </div>
+
+                    <!-- Fila: Teléfono + Colegiatura -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="{{ form.telefono.id_for_label }}"
+                                   class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                                Teléfono
+                            </label>
+                            {{ form.telefono }}
+                        </div>
+                        <div>
+                            <label for="{{ form.numero_colegiatura.id_for_label }}"
+                                   class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                                N° de Colegiatura
+                            </label>
+                            {{ form.numero_colegiatura }}
+                        </div>
+                    </div>
+
+                    <!-- Email profesional -->
+                    <div>
+                        <label for="{{ form.email_profesional.id_for_label }}"
+                               class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                            Email profesional
+                        </label>
+                        {{ form.email_profesional }}
+                    </div>
+
+                    <!-- Dirección del consultorio -->
+                    <div>
+                        <label for="{{ form.direccion_consultorio.id_for_label }}"
+                               class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                            Dirección del consultorio
+                        </label>
+                        {{ form.direccion_consultorio }}
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
+                    <button type="submit"
+                            class="bg-teal-650 hover:bg-teal-700 bg-teal-600 text-white font-semibold rounded-xl px-5 py-2.5 text-sm
+                                   transition-all duration-200 shadow-sm hover:shadow-md">
+                        Guardar cambios
+                    </button>
+                    <a href="{% url 'core:dashboard' %}"
+                       class="border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl px-5 py-2.5 text-sm font-medium
+                              transition-all duration-200">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
 
-        <form method="post" action="{% url 'core:perfil' %}" novalidate>
-            {% csrf_token %}
+        <!-- Columna Derecha: Mi Suscripción y Facturación -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Card 1: Detalle del Plan -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+                <div class="mb-6 border-b border-slate-100 pb-4">
+                    <h2 class="text-lg font-semibold text-slate-850 flex items-center gap-2">
+                        <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+                        Mi Suscripción
+                    </h2>
+                </div>
 
-            <div class="space-y-5">
+                {% if suscripcion %}
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Plan Contratado</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ suscripcion.plan.nombre }}</h3>
+                        </div>
+                        <div>
+                            {% if suscripcion.estado == 'activa' %}
+                            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Activo
+                            </span>
+                            {% else %}
+                            <span class="bg-red-50 text-red-700 text-xs font-bold px-3 py-1 rounded-full border border-red-200">
+                                Cancelada
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
 
-                <!-- Nombre completo -->
-                <div>
-                    <label for="{{ form.nombre_completo.id_for_label }}"
-                           class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                        Nombre completo <span class="text-red-500">*</span>
-                    </label>
-                    {{ form.nombre_completo }}
-                    {% if form.nombre_completo.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ form.nombre_completo.errors|join:", " }}</p>
+                    <div class="grid grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-150">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-semibold">Costo</p>
+                            <p class="text-sm font-bold text-slate-700">S/ {{ suscripcion.precio_aplicado }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-semibold">Facturación</p>
+                            <p class="text-sm font-semibold text-slate-700 capitalize">{{ suscripcion.tipo_facturacion }}</p>
+                        </div>
+                        <div class="col-span-2 pt-2 border-t border-slate-200/60 mt-1">
+                            <p class="text-[10px] text-slate-400 uppercase font-semibold">Vencimiento</p>
+                            <p class="text-xs font-medium text-slate-650">{{ suscripcion.fecha_fin|date:"d \d\e F, Y" }}</p>
+                        </div>
+                    </div>
+
+                    {% if suscripcion.estado == 'activa' %}
+                    <form method="POST" action="{% url 'core:perfil' %}" class="pt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="cancelar_suscripcion">
+                        <button type="submit" onclick="return confirm('¿Estás seguro de que deseas cancelar tu suscripción a NutriSync? No se realizarán más cargos y mantendrás el acceso hasta la fecha de vencimiento.')" 
+                                class="w-full text-center text-xs text-red-605 text-red-650 hover:text-white hover:bg-red-600 border border-red-200 hover:border-red-600 rounded-xl py-2.5 font-semibold transition-all duration-200">
+                            Cancelar Suscripción
+                        </button>
+                    </form>
                     {% endif %}
                 </div>
-
-                <!-- Especialidad -->
-                <div>
-                    <label for="{{ form.especialidad.id_for_label }}"
-                           class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                        Especialidad
-                    </label>
-                    {{ form.especialidad }}
+                {% else %}
+                <div class="text-center py-6">
+                    <p class="text-slate-400 text-sm">No tienes una suscripción activa.</p>
+                    <a href="/#precios" class="inline-block mt-4 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all shadow-sm">
+                        Ver Planes
+                    </a>
                 </div>
-
-                <!-- Fila: Teléfono + Colegiatura -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="{{ form.telefono.id_for_label }}"
-                               class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                            Teléfono
-                        </label>
-                        {{ form.telefono }}
-                    </div>
-                    <div>
-                        <label for="{{ form.numero_colegiatura.id_for_label }}"
-                               class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                            N° de Colegiatura
-                        </label>
-                        {{ form.numero_colegiatura }}
-                    </div>
-                </div>
-
-                <!-- Email profesional -->
-                <div>
-                    <label for="{{ form.email_profesional.id_for_label }}"
-                           class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                        Email profesional
-                    </label>
-                    {{ form.email_profesional }}
-                </div>
-
-                <!-- Dirección del consultorio -->
-                <div>
-                    <label for="{{ form.direccion_consultorio.id_for_label }}"
-                           class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                        Dirección del consultorio
-                    </label>
-                    {{ form.direccion_consultorio }}
-                </div>
-
+                {% endif %}
             </div>
 
-            <!-- Acciones -->
-            <div class="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
-                <button type="submit"
-                        class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-5 py-2 text-sm
-                               transition-all duration-200 shadow-sm hover:shadow-md">
-                    Guardar cambios
-                </button>
-                <a href="{% url 'core:dashboard' %}"
-                   class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-5 py-2 text-sm
-                          transition-all duration-200">
-                    Cancelar
-                </a>
+            <!-- Card 2: Método de Pago Guardado -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+                <div class="mb-4 border-b border-slate-100 pb-4">
+                    <h2 class="text-lg font-semibold text-slate-850 flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-5 h-5 text-teal-600"></i>
+                        Método de Pago
+                    </h2>
+                </div>
+
+                {% if metodo_guardado %}
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-4 border border-slate-150">
+                        <div class="p-2.5 bg-white border border-slate-200 rounded-lg text-slate-650 flex items-center justify-center min-w-[54px] min-h-[46px]">
+                            {% if metodo_guardado.tipo == 'tarjeta' %}
+                            <i data-lucide="credit-card" class="w-6 h-6 text-teal-650 text-teal-600"></i>
+                            {% elif metodo_guardado.tipo == 'yape' %}
+                            <span class="text-[10px] bg-[#742284] text-white px-2 py-1 rounded font-extrabold tracking-wider">YAPE</span>
+                            {% elif metodo_guardado.tipo == 'paypal' %}
+                            <span class="text-[10px] bg-[#003087] text-white px-2 py-1 rounded font-extrabold tracking-wider">PayPal</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] text-slate-400 font-semibold uppercase">Método Registrado</p>
+                            <p class="text-sm font-semibold text-slate-700 truncate mt-0.5">{{ metodo_guardado.detalle }}</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{% url 'core:perfil' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quitar_metodo">
+                        <button type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar este método de pago? Deberás registrar uno nuevo antes del próximo periodo de cobro para evitar la suspensión.')" 
+                                class="w-full text-center text-xs text-slate-500 hover:text-red-650 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-xl py-2.5 font-semibold transition-all duration-200">
+                            Quitar Método de Pago
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-250 p-4">
+                    <p class="text-slate-400 text-xs font-semibold">No hay métodos de pago guardados.</p>
+                    <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        Registra una tarjeta, Yape o PayPal la próxima vez que realices una renovación de suscripción.
+                    </p>
+                </div>
+                {% endif %}
             </div>
-        </form>
+
+        </div>
+
     </div>
+
 </div>
 {% endblock %}

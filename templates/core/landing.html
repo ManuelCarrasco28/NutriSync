@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NutriSync — La plataforma definitiva para la gestión de consultorios de nutrición. Simplifica expedientes, citas, dietas y facturación.">
+    <title>NutriSync — Gestión Profesional para Nutricionistas</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #0d9488 0%, #4f46e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05), transparent 45%),
+                        #fafaf9;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-[#fafaf9] text-slate-800 font-sans selection:bg-teal-500 selection:text-white overflow-x-hidden">
+
+    <!-- Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-slate-200/50 transition-all duration-300">
+        <nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform">
+                    <i data-lucide="apple" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-heading font-bold text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">NutriSync</span>
+            </a>
+
+            <!-- Nav Links -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#caracteristicas" class="text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Características</a>
+                <a href="#precios" class="text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">Planes y Precios</a>
+                <a href="#nosotros" class="text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors">¿Por qué NutriSync?</a>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="flex items-center gap-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'core:dashboard' %}" class="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-teal-600/10 hover:shadow-teal-600/20 transition-all duration-200 flex items-center gap-2">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        Ir al Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'core:login' %}" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors px-3 py-2">
+                        Iniciar Sesión
+                    </a>
+                    <a href="{% url 'core:register' %}" class="px-5 py-2.5 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-850 hover:to-slate-800 text-white text-sm font-semibold rounded-xl transition-all duration-200">
+                        Registrarse
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-6 pt-24 pb-0 relative z-40">
+        <div class="space-y-2">
+            {% for message in messages %}
+            <div class="px-4 py-3 rounded-xl text-sm font-medium border shadow-sm
+                {% if message.tags == 'success' %}bg-emerald-50 border-emerald-250/20 text-emerald-800
+                {% elif message.tags == 'error' %}bg-red-50 border-red-250/20 text-red-800
+                {% else %}bg-blue-50 border-blue-250/20 text-blue-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-36 pb-24 md:pt-44 md:pb-32 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold tracking-wide border border-teal-200">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    La plataforma definitiva para nutricionistas
+                </span>
+                <h1 class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-slate-900 leading-tight">
+                    Gestiona tu consultorio con <span class="gradient-text">precisión</span> y estilo
+                </h1>
+                <p class="text-slate-600 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed font-light">
+                    NutriSync unifica la agenda de citas, expedientes clínicos de pacientes, diseño de planes alimentarios y facturación en un solo lugar.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                    <a href="{% url 'core:register' %}" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-xl shadow-teal-600/10 hover:shadow-teal-600/20 transition-all duration-300 text-center flex items-center justify-center gap-2">
+                        Comenzar Ahora Gratis
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#caracteristicas" class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-all duration-300 text-center flex items-center justify-center">
+                        Ver características
+                    </a>
+                </div>
+            </div>
+
+            <!-- Graphic Preview (Mockup of Dashboard) -->
+            <div class="lg:col-span-6 relative flex items-center justify-center lg:justify-end min-h-[480px]">
+                <div class="absolute -top-12 -left-12 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl -z-10"></div>
+                <div class="absolute -bottom-12 -right-12 w-64 h-64 bg-indigo-300/10 rounded-full blur-3xl -z-10"></div>
+                
+                <!-- Desktop Web Console Mockup -->
+                <div class="bg-white border border-slate-200 shadow-2xl rounded-2xl p-5 w-full max-w-[480px] mr-12 relative overflow-hidden transition-all duration-500 hover:scale-[1.01] hover:shadow-teal-500/5">
+                    <!-- Fake Top Bar -->
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-red-450"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded border border-slate-250/20">nutrisync.com/dashboard/</span>
+                    </div>
+
+                    <!-- Fake Interface Layout -->
+                    <div class="grid grid-cols-12 gap-3 pt-4">
+                        <!-- Sidebar -->
+                        <div class="col-span-3 space-y-2.5 pr-1.5 border-r border-slate-100 text-left">
+                            <div class="h-6 w-full bg-teal-50 rounded flex items-center gap-1 px-1.5"><i data-lucide="layout-dashboard" class="w-3 h-3 text-teal-600"></i><span class="text-[8px] font-bold text-teal-700">Inicio</span></div>
+                            <div class="h-6 w-full rounded flex items-center gap-1 px-1.5 text-slate-500"><i data-lucide="users" class="w-3 h-3"></i><span class="text-[8px] font-light">Pacientes</span></div>
+                            <div class="h-6 w-full rounded flex items-center gap-1 px-1.5 text-slate-500"><i data-lucide="calendar" class="w-3 h-3"></i><span class="text-[8px] font-light">Citas</span></div>
+                            <div class="h-6 w-full rounded flex items-center gap-1 px-1.5 text-slate-500"><i data-lucide="calculator" class="w-3 h-3"></i><span class="text-[8px] font-light">Dietas</span></div>
+                        </div>
+                        <!-- Main Panel -->
+                        <div class="col-span-9 space-y-3 pl-1 text-left">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-slate-800">Panel de Control</h4>
+                                    <p class="text-[8px] text-slate-400 font-light">Lic. Ana Martínez</p>
+                                </div>
+                                <span class="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">Activa</span>
+                            </div>
+                            
+                            <!-- Stat Cards -->
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-[#fafaf9] border border-slate-100 rounded p-2 text-center">
+                                    <p class="text-[8px] text-slate-400">Pacientes</p>
+                                    <p class="text-xs font-bold text-slate-800">142</p>
+                                </div>
+                                <div class="bg-[#fafaf9] border border-slate-100 rounded p-2 text-center">
+                                    <p class="text-[8px] text-slate-400">Citas Hoy</p>
+                                    <p class="text-xs font-bold text-slate-800">8</p>
+                                </div>
+                                <div class="bg-teal-50 border border-teal-100 rounded p-2 text-center">
+                                    <p class="text-[8px] text-teal-600 font-medium">Facturado</p>
+                                    <p class="text-xs font-bold text-teal-700">S/ 4,230</p>
+                                </div>
+                            </div>
+
+                            <!-- List -->
+                            <div class="border border-slate-100 rounded p-2 space-y-1.5">
+                                <p class="text-[9px] font-bold text-slate-700 flex justify-between"><span>Próximos Pacientes</span> <span class="text-[8px] text-teal-600 font-medium hover:underline cursor-pointer">Ver todos</span></p>
+                                <div class="flex items-center justify-between border-t border-slate-50 pt-1.5 text-[9px]">
+                                    <span class="font-medium text-slate-800">Alejandro Ruiz</span>
+                                    <span class="text-slate-400 font-light">10:00 AM</span>
+                                    <span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[8px] font-bold">Consulta</span>
+                                </div>
+                                <div class="flex items-center justify-between text-[9px]">
+                                    <span class="font-medium text-slate-800">Sofía Vergara</span>
+                                    <span class="text-slate-400 font-light">11:30 AM</span>
+                                    <span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded text-[8px] font-bold">Control</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Mobile App Mockup -->
+                <div class="absolute bottom-[-15px] right-2 border-4 border-slate-900 rounded-[1.8rem] bg-white w-[150px] h-[270px] shadow-2xl overflow-hidden flex flex-col justify-between p-1.5 z-10 hover:scale-105 transition-transform duration-300">
+                    <div class="w-full h-full bg-slate-50 rounded-[1.3rem] pt-3 pb-1 px-2 flex flex-col justify-between text-[8px] overflow-hidden text-left">
+                        
+                        <!-- Mini Header -->
+                        <div class="flex justify-between items-center pt-1 border-b border-slate-200/50 pb-1">
+                            <div>
+                                <p class="text-[6px] text-slate-400 font-medium">App Cliente</p>
+                                <p class="font-bold text-slate-800">¡Hola, Carlos!</p>
+                            </div>
+                            <div class="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center text-[7px]"><i data-lucide="user" class="w-2.5 h-2.5"></i></div>
+                        </div>
+
+                        <!-- Diet Section -->
+                        <div class="space-y-1 my-1.5 flex-grow">
+                            <span class="text-[6px] font-bold text-slate-400 uppercase">Dieta de Hoy</span>
+                            <div class="bg-white border border-slate-100 rounded p-1 flex items-center justify-between text-[6px]">
+                                <div>
+                                    <span class="font-bold text-slate-700 block">Desayuno</span>
+                                    <span class="text-slate-450 font-light block truncate w-[85px]">Avena con plátano 🍌</span>
+                                </div>
+                                <i data-lucide="check" class="w-2.5 h-2.5 text-teal-650 flex-shrink-0"></i>
+                            </div>
+                            <div class="bg-white border border-slate-100 rounded p-1 flex items-center justify-between text-[6px] opacity-80">
+                                <div>
+                                    <span class="font-bold text-slate-700 block">Almuerzo</span>
+                                    <span class="text-slate-450 font-light block truncate w-[85px]">Filete de pollo 🍗</span>
+                                </div>
+                                <i data-lucide="circle" class="w-2.5 h-2.5 text-slate-200 flex-shrink-0"></i>
+                            </div>
+                        </div>
+
+                        <!-- Mini Bottom Nav -->
+                        <div class="border-t border-slate-200/60 pt-1 flex items-center justify-between text-slate-400 text-[6px]">
+                            <div class="flex flex-col items-center text-teal-600"><i data-lucide="home" class="w-2.5 h-2.5"></i></div>
+                            <div class="flex flex-col items-center"><i data-lucide="chef-hat" class="w-2.5 h-2.5"></i></div>
+                            <div class="flex flex-col items-center"><i data-lucide="activity" class="w-2.5 h-2.5"></i></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Características Section -->
+    <section id="caracteristicas" class="py-24 bg-white border-t border-b border-slate-100 px-6">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="text-center max-w-2xl mx-auto space-y-4">
+                <span class="text-teal-600 text-sm font-bold uppercase tracking-wider">Módulos Inteligentes</span>
+                <h2 class="font-heading font-bold text-3xl sm:text-4xl text-slate-900">Todo lo que necesitas para tu práctica clínica</h2>
+                <p class="text-slate-500 font-light">Diseñado en colaboración con profesionales para optimizar los flujos de consulta diaria.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Pacientes -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Expedientes Clínicos</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Historial médico completo, datos de contacto, antecedentes patológicos y carga de documentos de laboratorio.</p>
+                </div>
+
+                <!-- Citas -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="calendar" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Agenda y Calendario</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Control integral de consultas y citas médicas. Visualización limpia diaria y semanal para evitar traslapes.</p>
+                </div>
+
+                <!-- Nutricion -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="calculator" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Diseño de Dietas</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Base de datos de alimentos, diseño ágil de planes nutricionales y cálculo automático de macronutrientes.</p>
+                </div>
+
+                <!-- Seguimiento -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Evolución Corporal</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Registro periódico de medidas antropométricas y visualización de progreso con gráficos dinámicos.</p>
+                </div>
+
+                <!-- Facturación -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Cobros y Boletas PDF</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Emisión de cobros automatizados, registro de pagos y generación de boletas/facturas PDF descargables.</p>
+                </div>
+
+                <!-- Reportes -->
+                <div class="p-8 rounded-2xl border border-slate-200/60 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 space-y-4 bg-[#fafaf9]/30">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading font-semibold text-xl text-slate-800">Reportes Financieros</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">Módulo estadístico avanzado que muestra las métricas de ingresos, egresos y el rendimiento general de tu negocio.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Nosotros/App Móvil -->
+    <section id="nosotros" class="py-24 bg-gradient-to-b from-white to-[#fafaf9] px-6 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Texto descriptivo -->
+            <div class="lg:col-span-6 space-y-6 text-left">
+                <span class="text-teal-650 text-sm font-bold uppercase tracking-wider text-teal-600">¿Por qué NutriSync?</span>
+                <h2 class="font-heading font-bold text-3xl sm:text-4xl text-slate-900 leading-tight">
+                    Una aplicación móvil dedicada para tus pacientes
+                </h2>
+                <p class="text-slate-655 text-base leading-relaxed font-light text-slate-500">
+                    NutriSync no es solo para ti. Tus clientes tienen acceso a una aplicación móvil gratuita (iOS y Android) diseñada especialmente para que alcancen sus objetivos.
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="smartphone" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base">Dieta en su bolsillo</h4>
+                            <p class="text-slate-500 text-sm mt-0.5 font-light">Tus pacientes consultan su plan de alimentación diario de forma ordenada e interactiva.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base">Recordatorios Automáticos</h4>
+                            <p class="text-slate-500 text-sm mt-0.5 font-light">Notificaciones push para que no olviden sus citas ni sus comidas principales.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="key-round" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-base">Vinculación por Código Único</h4>
+                            <p class="text-slate-500 text-sm mt-0.5 font-light">Genera un código desde el expediente en la web y el paciente se vincula al instante.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previsualización Visual (Phone mockup) -->
+            <div class="lg:col-span-6 flex justify-center relative">
+                <div class="absolute w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                
+                <!-- Celular Mockup -->
+                <div class="border-[8px] border-slate-900 rounded-[2.5rem] bg-white w-[280px] h-[550px] shadow-2xl relative overflow-hidden flex flex-col justify-between p-3">
+                    <!-- Speaker & Camera notch -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-20 flex items-center justify-center gap-1.5">
+                        <span class="w-8 h-1 bg-slate-700 rounded-full"></span>
+                        <span class="w-2 h-2 bg-slate-650 rounded-full"></span>
+                    </div>
+
+                    <!-- Pantalla -->
+                    <div class="w-full h-full bg-slate-50 rounded-[1.8rem] pt-6 pb-2 px-4 flex flex-col justify-between overflow-y-auto">
+                        <!-- Top header -->
+                        <div class="flex justify-between items-center pt-2">
+                            <div>
+                                <p class="text-[10px] text-slate-450 font-medium">Paciente NutriSync</p>
+                                <h4 class="text-sm font-bold text-slate-800">¡Hola, Carlos! 👋</h4>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-teal-600/10 flex items-center justify-center">
+                                <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
+                            </div>
+                        </div>
+
+                        <!-- Cita Card -->
+                        <div class="bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-xl p-3 shadow-md shadow-teal-600/10 mt-3 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] uppercase font-bold tracking-wider opacity-90">Próxima Consulta</span>
+                                <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">Mañana</span>
+                            </div>
+                            <p class="text-xs font-bold">14 de Julio, 10:00 AM</p>
+                            <p class="text-[10px] opacity-80 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> Consultorio San Borja</p>
+                        </div>
+
+                        <!-- Calories Progress -->
+                        <div class="bg-white border border-slate-150 rounded-xl p-3 mt-3 space-y-2 text-left">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-slate-750">Objetivo del Día</span>
+                                <span class="text-[10px] text-emerald-600 font-bold">75% Completado</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full w-3/4"></div>
+                            </div>
+                            <div class="flex justify-between text-[9px] text-slate-400">
+                                <span>1500 kcal consumidas</span>
+                                <span>2000 kcal</span>
+                            </div>
+                        </div>
+
+                        <!-- Dieta de hoy -->
+                        <div class="space-y-2 mt-3 flex-grow text-left">
+                            <span class="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">Tu Plan Alimenticio</span>
+                            
+                            <div class="bg-white border border-slate-100 rounded-lg p-2.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-800">Desayuno (08:00)</p>
+                                        <p class="text-[9px] text-slate-500 font-light">Avena con fresas y plátano 🍓</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-600 flex-shrink-0"></i>
+                            </div>
+
+                            <div class="bg-white border border-slate-100 rounded-lg p-2.5 flex items-center justify-between opacity-85">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-800">Almuerzo (13:00)</p>
+                                        <p class="text-[9px] text-slate-500 font-light">Filete de pollo + arroz integral 🍗</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="circle" class="w-4 h-4 text-slate-300 flex-shrink-0"></i>
+                            </div>
+                        </div>
+
+                        <!-- Tab Bar -->
+                        <div class="border-t border-slate-200/60 pt-2 flex items-center justify-between text-slate-400">
+                            <div class="flex flex-col items-center gap-0.5 text-teal-600">
+                                <i data-lucide="home" class="w-4 h-4"></i>
+                                <span class="text-[8px] font-medium">Inicio</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-0.5">
+                                <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                                <span class="text-[8px] font-light">Dietas</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-0.5">
+                                <i data-lucide="activity" class="w-4 h-4"></i>
+                                <span class="text-[8px] font-light">Progreso</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-0.5">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                                <span class="text-[8px] font-light">Chat</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Precios Section -->
+    <section id="precios" class="py-24 bg-[#fafaf9] px-6 relative">
+        <div class="max-w-7xl mx-auto space-y-12">
+            <div class="text-center max-w-2xl mx-auto space-y-4">
+                <span class="text-teal-600 text-sm font-bold uppercase tracking-wider">Membresía</span>
+                <h2 class="font-heading font-bold text-3xl sm:text-4xl text-slate-900">Elige el plan ideal para crecer</h2>
+                <p class="text-slate-500 font-light">Planes escalables según el volumen de pacientes de tu consultorio.</p>
+                
+                <!-- Billing Toggle Switch -->
+                <div class="flex items-center justify-center gap-4 pt-4">
+                    <span id="label-mensual" class="text-sm font-semibold text-teal-600 transition-colors">Facturación Mensual</span>
+                    <button id="billing-toggle" type="button" class="w-14 h-8 bg-teal-600 rounded-full p-1 transition-colors flex items-center relative" aria-label="Toggle billing cycle">
+                        <span id="billing-toggle-circle" class="w-6 h-6 bg-white rounded-full transition-transform translate-x-6 shadow-sm"></span>
+                    </button>
+                    <span id="label-anual" class="text-sm font-semibold text-slate-400 transition-colors flex items-center gap-1.5">
+                        Facturación Anual
+                        <span class="px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[10px] font-extrabold uppercase">Ahorra 15%</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Pricing Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch pt-6 max-w-7xl mx-auto">
+                {% for plan in planes %}
+                <div class="bg-white border border-slate-200 hover:border-teal-500/40 rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/5 relative {% if plan.nombre == 'Profesional' %}ring-2 ring-teal-500/30{% endif %}">
+                    {% if plan.nombre == 'Profesional' %}
+                    <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-teal-500 to-indigo-600 text-white text-xs font-bold uppercase tracking-wider shadow-md">Más Popular</span>
+                    {% endif %}
+                    
+                    <div class="space-y-6">
+                        <h3 class="font-heading font-bold text-2xl text-slate-900">{{ plan.nombre }}</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed font-light min-h-[48px]">{{ plan.descripcion }}</p>
+                        
+                        <!-- Price display -->
+                        <div>
+                            <div class="flex items-baseline">
+                                {% if plan.nombre == 'Prueba Gratis' %}
+                                <span class="text-slate-900 text-4xl font-extrabold font-heading">Gratis</span>
+                                <span class="text-slate-400 text-sm font-semibold ml-1">/ 7 días</span>
+                                {% else %}
+                                <span class="text-slate-800 text-xl font-bold">S/</span>
+                                <!-- Monthly Price -->
+                                <span class="price-monthly text-slate-900 text-5xl font-extrabold font-heading">{{ plan.precio_mensual }}</span>
+                                <!-- Annual Price (hidden by default) -->
+                                <span class="price-annual text-slate-900 text-5xl font-extrabold font-heading hidden">{{ plan.precio_anual }}</span>
+                                <span class="text-slate-400 text-sm font-semibold ml-1">/ <span class="billing-period">mes</span></span>
+                                {% endif %}
+                            </div>
+                            {% if plan.nombre == 'Prueba Gratis' %}
+                            <p class="text-[11px] text-teal-650 font-bold mt-1">Requiere tarjeta de crédito</p>
+                            {% else %}
+                            <p class="price-annual-desc text-xs text-indigo-500 font-semibold mt-1 opacity-0 transition-opacity">Pago anual único</p>
+                            {% endif %}
+                        </div>
+ 
+                        <!-- Features -->
+                        <div class="space-y-3.5 border-t border-slate-100 pt-6">
+                            <div class="flex items-center gap-3 text-slate-600 text-sm">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0"></i>
+                                <span>
+                                    {% if plan.limite_pacientes == -1 %}
+                                    Pacientes <strong>Ilimitados</strong>
+                                    {% else %}
+                                    Hasta <strong>{{ plan.limite_pacientes }}</strong> pacientes
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3 text-slate-600 text-sm">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0"></i>
+                                <span>
+                                    {% if plan.limite_citas_mes == -1 %}
+                                    Citas mensuales <strong>Ilimitadas</strong>
+                                    {% else %}
+                                    Hasta <strong>{{ plan.limite_citas_mes }}</strong> citas/mes
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3 text-slate-600 text-sm">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0"></i>
+                                <span>Comisión de cobros: <strong>{{ plan.comision_cobros }}%</strong></span>
+                            </div>
+                            <div class="flex items-center gap-3 text-slate-600 text-sm">
+                                <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0"></i>
+                                <span>Boletas PDF personalizadas</span>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="pt-8">
+                        <a href="{% url 'core:register' %}?plan={{ plan.id }}" class="w-full py-3.5 px-4 block text-center font-semibold rounded-xl text-sm transition-all duration-200 
+                            {% if plan.nombre == 'Profesional' %}
+                            bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/10 hover:shadow-teal-600/20
+                            {% elif plan.nombre == 'Prueba Gratis' %}
+                            bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-750 hover:to-indigo-700 text-white shadow-md hover:shadow-lg
+                            {% else %}
+                            bg-slate-100 hover:bg-slate-200 text-slate-800
+                            {% endif %}">
+                            {% if plan.nombre == 'Prueba Gratis' %}
+                            Probar Gratis 7 Días
+                            {% else %}
+                            Elegir Plan {{ plan.nombre }}
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-slate-500 col-span-4">No hay planes de suscripción configurados en este momento.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16 px-6 border-t border-slate-850">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div class="space-y-4">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center">
+                        <i data-lucide="apple" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-heading font-bold text-white tracking-tight">NutriSync</span>
+                </a>
+                <p class="text-sm font-light leading-relaxed">Plataforma de gestión clínica e integral para el profesional de nutrición moderno.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4">Secciones</h4>
+                <ul class="space-y-2 text-sm font-light">
+                    <li><a href="#caracteristicas" class="hover:text-white transition-colors">Características</a></li>
+                    <li><a href="#precios" class="hover:text-white transition-colors">Precios</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4">Soporte</h4>
+                <ul class="space-y-2 text-sm font-light">
+                    <li><a href="#" class="hover:text-white transition-colors">Centro de Ayuda</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Contacto</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4">Legal</h4>
+                <ul class="space-y-2 text-sm font-light">
+                    <li><a href="#" class="hover:text-white transition-colors">Términos de Servicio</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Política de Privacidad</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs font-light">
+            <p>&copy; {% now "Y" %} NutriSync. Todos los derechos reservados.</p>
+            <p>Hecho con ❤️ para nutricionistas</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Iniciar Sesión (Subpantalla) -->
+    <div id="login-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div id="login-modal-card" class="bg-white rounded-2xl shadow-2xl border border-slate-200/60 p-8 w-full max-w-md relative overflow-hidden transition-all duration-300 transform scale-95 opacity-0">
+            
+            <!-- Botón de Cerrar -->
+            <button id="btn-close-login" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Logo / Header -->
+            <div class="text-center mb-6">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20 mx-auto mb-3">
+                    <i data-lucide="apple" class="w-6 h-6 text-white"></i>
+                </div>
+                <h3 class="font-heading font-bold text-xl text-slate-900">Iniciar Sesión</h3>
+                <p class="text-slate-500 text-xs mt-1">Ingresa a tu cuenta profesional NutriSync</p>
+            </div>
+
+            <!-- Formulario -->
+            <form method="POST" action="{% url 'core:login' %}" class="space-y-4">
+                {% csrf_token %}
+                {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+
+                <!-- Usuario -->
+                <div>
+                    <label for="modal_username" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        Nombre de Usuario
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <input type="text" id="modal_username" name="username" required 
+                               class="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-855 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-350"
+                               placeholder="Tu usuario">
+                    </div>
+                </div>
+
+                <!-- Contraseña -->
+                <div>
+                    <label for="modal_password" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <input type="password" id="modal_password" name="password" required
+                               class="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-855 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-350" 
+                               placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Botón de ingreso -->
+                <button type="submit" class="w-full bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-semibold rounded-xl py-2.5 text-xs transition-all duration-200 shadow-md hover:shadow-lg mt-2 flex items-center justify-center gap-1.5">
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                    Ingresar al sistema
+                </button>
+            </form>
+
+            <!-- Enlace de registro -->
+            <div class="mt-5 pt-4 border-t border-slate-100 text-center text-[11px] text-slate-500">
+                ¿No tienes una cuenta? 
+                <a href="{% url 'core:register' %}" class="text-teal-650 hover:text-teal-700 font-bold transition-colors">
+                    Regístrate aquí
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toggle logic script -->
+    <script>
+        lucide.createIcons();
+
+        // Billing Cycle Toggle Logic
+        const billingToggle = document.getElementById('billing-toggle');
+        const toggleCircle = document.getElementById('billing-toggle-circle');
+        const labelMensual = document.getElementById('label-mensual');
+        const labelAnual = document.getElementById('label-anual');
+        
+        const monthlyPrices = document.querySelectorAll('.price-monthly');
+        const annualPrices = document.querySelectorAll('.price-annual');
+        const billingPeriods = document.querySelectorAll('.billing-period');
+        const annualDescs = document.querySelectorAll('.price-annual-desc');
+
+        let isAnnual = true; // Annual by default
+
+        // Initialize display state
+        function updateDisplay() {
+            if (isAnnual) {
+                toggleCircle.classList.add('translate-x-6');
+                toggleCircle.classList.remove('translate-x-0');
+                labelAnual.classList.add('text-teal-600');
+                labelAnual.classList.remove('text-slate-400');
+                labelMensual.classList.add('text-slate-400');
+                labelMensual.classList.remove('text-teal-600');
+
+                monthlyPrices.forEach(el => el.classList.add('hidden'));
+                annualPrices.forEach(el => el.classList.remove('hidden'));
+                billingPeriods.forEach(el => el.textContent = 'año');
+                annualDescs.forEach(el => el.classList.remove('opacity-0'));
+            } else {
+                toggleCircle.classList.add('translate-x-0');
+                toggleCircle.classList.remove('translate-x-6');
+                labelMensual.classList.add('text-teal-600');
+                labelMensual.classList.remove('text-slate-400');
+                labelAnual.classList.add('text-slate-400');
+                labelAnual.classList.remove('text-teal-600');
+
+                annualPrices.forEach(el => el.classList.add('hidden'));
+                monthlyPrices.forEach(el => el.classList.remove('hidden'));
+                billingPeriods.forEach(el => el.textContent = 'mes');
+                annualDescs.forEach(el => el.classList.add('opacity-0'));
+            }
+        }
+
+        billingToggle.addEventListener('click', () => {
+            isAnnual = !isAnnual;
+            updateDisplay();
+        });
+
+        // Set initial display
+        updateDisplay();
+
+        // --- Lógica del Modal de Login (Subpantalla) ---
+        const loginModal = document.getElementById('login-modal');
+        const loginModalCard = document.getElementById('login-modal-card');
+        const btnCloseLogin = document.getElementById('btn-close-login');
+
+        function openLoginModal() {
+            loginModal.classList.remove('hidden');
+            loginModal.classList.add('flex');
+            // Forzar reflow
+            void loginModal.offsetWidth;
+            loginModal.classList.remove('opacity-0');
+            loginModal.classList.add('opacity-100');
+            loginModalCard.classList.remove('scale-95', 'opacity-0');
+            loginModalCard.classList.add('scale-100', 'opacity-100');
+        }
+
+        function closeLoginModal() {
+            loginModal.classList.remove('opacity-100');
+            loginModal.classList.add('opacity-0');
+            loginModalCard.classList.remove('scale-100', 'opacity-100');
+            loginModalCard.classList.add('scale-95', 'opacity-0');
+            
+            // Ocultar del DOM tras la animación (300ms)
+            setTimeout(() => {
+                loginModal.classList.add('hidden');
+                loginModal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Interceptar clicks de Iniciar Sesión en la landing
+        document.querySelectorAll('a[href*="/login/"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                openLoginModal();
+            });
+        });
+
+        // Cerrar al dar click en la X
+        btnCloseLogin.addEventListener('click', closeLoginModal);
+
+        // Cerrar al dar click fuera del card del modal
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                closeLoginModal();
+            }
+        });
+
+        // Cerrar con la tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !loginModal.classList.contains('hidden')) {
+                closeLoginModal();
+            }
+        });
+
+        // Autoabrir el modal de login si existe el parámetro 'login' o hay un mensaje de error
+        const urlParamsModal = new URLSearchParams(window.location.search);
+        const hasLoginParam = urlParamsModal.has('login');
+        let hasErrorMessage = false;
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                hasErrorMessage = true;
+            {% endif %}
+        {% endfor %}
+
+        if (hasLoginParam || hasErrorMessage) {
+            openLoginModal();
+        }
+    </script>
+</body>
+</html>
