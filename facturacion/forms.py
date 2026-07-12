@@ -45,7 +45,7 @@ class CobroForm(forms.ModelForm):
             from citas.models import Cita
 
             self.fields["paciente"].queryset = Paciente.objects.filter(
-                nutricionista=nutricionista, estado="activo"
+                nutricionista=nutricionista, estado=True
             )
             self.fields["cita"].queryset = Cita.objects.filter(
                 paciente__nutricionista=nutricionista
@@ -132,7 +132,7 @@ class FacturaCrearForm(forms.ModelForm):
             from pacientes.models import Paciente
 
             self.fields["paciente"].queryset = Paciente.objects.filter(
-                nutricionista=nutricionista, estado="activo"
+                nutricionista=nutricionista, estado=True
             )
         self.fields["notas"].required = False
 

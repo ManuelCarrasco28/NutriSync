@@ -115,3 +115,64 @@ def formatear_moneda(monto):
 def formatear_numero_documento(numero):
     """Formatea un número de factura para impresión."""
     return numero.upper().replace(" ", "")
+
+
+# ─── Generación de PDF ────────────────────────────────────────────────────────
+
+def generar_pdf_factura(factura):
+    """Genera un PDF de una factura usando xhtml2pdf. Retorna el PDF como bytes."""
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    from xhtml2pdf import pisa
+
+    html_string = render_to_string(
+        "facturacion/facturas/pdf_factura.html",
+        {
+            "factura": factura,
+            "items": factura.items.all(),
+            "nutricionista": factura.nutricionista,
+            "paciente": factura.paciente,
+        },
+    )
+
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html_string.encode("utf-8")), result)
+    if pdf.err:
+        raise RuntimeError(f"Error al generar PDF: {pdf.err}")
+    return result.getvalue()
+
+
+def generar_pdf_boleta_cobro(cobro):
+    """Genera un PDF de boleta para un cobro a paciente."""
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    from xhtml2pdf import pisa
+
+    html_string = render_to_string(
+        "facturacion/cobros/pdf_boleta.html",
+        {"cobro": cobro},
+    )
+
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html_string.encode("utf-8")), result)
+    if pdf.err:
+        raise RuntimeError(f"Error al generar PDF: {pdf.err}")
+    return result.getvalue()
+
+
+def generar_pdf_boleta_suscripcion(suscripcion, pago):
+    """Genera un PDF de boleta para el pago de una suscripción."""
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    from xhtml2pdf import pisa
+
+    html_string = render_to_string(
+        "facturacion/suscripcion/pdf_boleta.html",
+        {"suscripcion": suscripcion, "pago": pago},
+    )
+
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html_string.encode("utf-8")), result)
+    if pdf.err:
+        raise RuntimeError(f"Error al generar PDF: {pdf.err}")
+    return result.getvalue()

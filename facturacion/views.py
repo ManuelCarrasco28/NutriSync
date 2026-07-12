@@ -48,6 +48,9 @@ from facturacion.utils import (
     calcular_monto_net_stripe,
     calcular_fecha_vencimiento,
     generar_referencia_pago,
+    generar_pdf_factura,
+    generar_pdf_boleta_cobro,
+    generar_pdf_boleta_suscripcion,
 )
 
 
@@ -77,15 +80,16 @@ def facturacion_dashboard(request):
     cobros_pagados = cobros_mes.filter(estado=EstadoCobro.PAGADO).count()
     cobros_pendientes = cobros_mes.filter(estado=EstadoCobro.PENDIENTE).count()
 
-    # Facturas del mes
-    facturas_mes = Factura.objects.filter(
-        nutricionista=user, fecha_emision__gte=inicio_mes
-    )
-    total_facturas_mes = facturas_mes.aggregate(total=Sum("total"))["total"] or Decimal("0")
+    # Boletas generadas (pagos completados del mes)
+    pagos_completados_mes = Pago.objects.filter(
+        Q(cobro__nutricionista=user) | Q(nutricionista=user),
+        estado=EstadoPago.COMPLETADO,
+        fecha_pago__date__gte=inicio_mes,
+    ).count()
 
     # Ingresos reales (pagos completados)
     pagos_mes = Pago.objects.filter(
-        cobro__nutricionista=user,
+        Q(cobro__nutricionista=user) | Q(nutricionista=user),
         estado=EstadoPago.COMPLETADO,
         fecha_pago__date__gte=inicio_mes,
     )
@@ -100,7 +104,7 @@ def facturacion_dashboard(request):
         mes_fin = mes_inicio.replace(day=ultimo_dia)
         ingreso = (
             Pago.objects.filter(
-                cobro__nutricionista=user,
+                Q(cobro__nutricionista=user) | Q(nutricionista=user),
                 estado=EstadoPago.COMPLETADO,
                 fecha_pago__date__range=[mes_inicio, mes_fin],
             ).aggregate(total=Sum("monto"))["total"]
@@ -134,7 +138,7 @@ def facturacion_dashboard(request):
         "total_cobros_mes": total_cobros_mes,
         "cobros_pagados": cobros_pagados,
         "cobros_pendientes": cobros_pendientes,
-        "total_facturas_mes": total_facturas_mes,
+        "pagos_completados_mes": pagos_completados_mes,
         "ingresos_mes": ingresos_mes,
         "meses_ingresos": meses_ingresos,
         "cobros_vencidos": cobros_vencidos,
@@ -219,6 +223,13 @@ class CobroCreateView(NutricionistaFacturacionMixin, CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["nutricionista"] = self.request.user
         return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        concepto = self.request.GET.get("concepto")
+        if concepto:
+            initial["concepto"] = concepto
+        return initial
 
     def form_valid(self, form):
         form.instance.nutricionista = self.request.user
@@ -420,6 +431,8 @@ class FacturaDetailView(NutricionistaFacturacionMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["items"] = self.object.items.all()
         context["item_form"] = ItemFacturaForm()
+        context["pago_form"] = CobroPagoForm()
+        context["pago_form"].fields["metodo_pago"].choices = MetodoPago.CHOICES
         context["cobros_pendientes"] = Cobro.objects.filter(
             nutricionista=self.request.user,
             paciente=self.object.paciente,
@@ -640,7 +653,7 @@ def ingresos_reporte(request):
     metodo_filtro = request.GET.get("metodo", "")
 
     pagos = Pago.objects.filter(
-        cobro__nutricionista=user,
+        Q(cobro__nutricionista=user) | Q(nutricionista=user),
         estado=EstadoPago.COMPLETADO,
         fecha_pago__date__range=[fecha_desde, fecha_hasta],
     ).select_related("cobro", "cobro__paciente", "factura")
@@ -694,7 +707,7 @@ def ingresos_reporte(request):
         mes_fin = mes_inicio.replace(day=ultimo_dia)
         ingreso = (
             Pago.objects.filter(
-                cobro__nutricionista=user,
+                Q(cobro__nutricionista=user) | Q(nutricionista=user),
                 estado=EstadoPago.COMPLETADO,
                 fecha_pago__date__range=[mes_inicio, mes_fin],
             ).aggregate(total=Sum("monto"))["total"]
@@ -782,6 +795,217 @@ def ingresos_exportar_csv(request):
     return response
 
 
+# ─── Descarga de PDF ──────────────────────────────────────────────────────────
+
+@login_required
+def factura_descargar_pdf(request, pk):
+    """Genera y descarga el PDF de una factura."""
+    factura = get_object_or_404(
+        Factura, pk=pk, nutricionista=request.user
+    )
+
+    if factura.estado == EstadoFactura.BORRADOR:
+        messages.warning(request, "No se puede descargar PDF de una factura en borrador.")
+        return redirect("facturacion:factura_detalle", pk=factura.pk)
+
+    try:
+        pdf_bytes = generar_pdf_factura(factura)
+
+        # Guardar el PDF en la factura si no existe
+        if not factura.archivo_pdf:
+            from django.core.files.base import ContentFile
+            filename = f"factura_{factura.numero_factura}.pdf"
+            factura.archivo_pdf.save(filename, ContentFile(pdf_bytes), save=True)
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'attachment; filename="factura_{factura.numero_factura}.pdf"'
+        )
+        return response
+    except Exception as e:
+        messages.error(request, f"Error al generar el PDF: {str(e)}")
+        return redirect("facturacion:factura_detalle", pk=factura.pk)
+
+
+# ─── Stripe Checkout ──────────────────────────────────────────────────────────
+
+@login_required
+def crear_checkout_cobro(request, pk):
+    """Registra el pago de un cobro (simulado, sin Stripe real)."""
+    cobro = get_object_or_404(Cobro, pk=pk, nutricionista=request.user)
+
+    if cobro.estado != EstadoCobro.PENDIENTE:
+        messages.warning(request, "Este cobro ya no está pendiente de pago.")
+        return redirect("facturacion:cobro_detalle", pk=cobro.pk)
+
+    # Marcar cobro como pagado
+    cobro.estado = EstadoCobro.PAGADO
+    cobro.fecha_pago = timezone.now()
+    cobro.metodo_pago_usado = MetodoPago.EFECTIVO
+    cobro.save()
+
+    # Crear registro de pago
+    comision = calcular_comision_stripe(cobro.total)
+    Pago.objects.create(
+        nutricionista=request.user,
+        cobro=cobro,
+        monto=cobro.total,
+        metodo_pago=MetodoPago.EFECTIVO,
+        referencia=generar_referencia_pago(MetodoPago.EFECTIVO),
+        estado=EstadoPago.COMPLETADO,
+        comision_stripe=comision,
+        monto_neto=cobro.total - comision,
+    )
+
+    messages.success(request, "Pago registrado exitosamente.")
+    return redirect("facturacion:cobro_detalle", pk=cobro.pk)
+
+
+@login_required
+def crear_checkout_suscripcion(request):
+    """Activa la suscripción del nutricionista (simulado, sin Stripe real)."""
+    if request.method != "POST":
+        return redirect("facturacion:suscripcion_cambiar")
+
+    plan_id = request.POST.get("plan")
+    tipo = request.POST.get("tipo_facturacion", "mensual")
+
+    if not plan_id:
+        messages.error(request, "Selecciona un plan.")
+        return redirect("facturacion:suscripcion_cambiar")
+
+    plan = get_object_or_404(PlanSuscripcion, pk=plan_id, activo=True)
+    precio = plan.precio_anual if tipo == "anual" else plan.precio_mensual
+
+    # Activar suscripción directamente
+    suscripcion, _ = SuscripcionNutricionista.objects.update_or_create(
+        nutricionista=request.user,
+        defaults={
+            "plan": plan,
+            "tipo_facturacion": tipo,
+            "precio_aplicado": precio,
+            "estado": EstadoSuscripcion.ACTIVA,
+            "fecha_inicio": timezone.now().date(),
+            "fecha_fin": timezone.now().date()
+            + timedelta(days=365 if tipo == "anual" else 30),
+        },
+    )
+
+    # Crear registro de pago para que aparezca en ingresos
+    Pago.objects.create(
+        nutricionista=request.user,
+        monto=precio,
+        metodo_pago=MetodoPago.EFECTIVO,
+        referencia=f"SUS-{request.user.pk}-{timezone.now().strftime('%Y%m%d%H%M%S')}",
+        estado=EstadoPago.COMPLETADO,
+        comision_stripe=Decimal("0.00"),
+        monto_neto=precio,
+        notas=f"Suscripción plan {plan.nombre} ({tipo})",
+    )
+
+    messages.success(
+        request,
+        f"Plan {plan.nombre} activado exitosamente.",
+    )
+    return redirect("facturacion:suscripcion_detalle")
+
+
+@login_required
+def checkout_exito(request):
+    """Página de éxito post-pago en Stripe Checkout."""
+    tipo = request.GET.get("type", "")
+
+    if tipo == "cobro":
+        cobro_id = request.GET.get("id")
+        if cobro_id:
+            try:
+                cobro = Cobro.objects.get(pk=cobro_id, nutricionista=request.user)
+                if cobro.estado == EstadoCobro.PENDIENTE:
+                    # Marcar como pagado (el webhook también lo hará)
+                    cobro.estado = EstadoCobro.PAGADO
+                    cobro.fecha_pago = timezone.now()
+                    cobro.metodo_pago_usado = MetodoPago.STRIPE
+                    cobro.save()
+
+                    Pago.objects.create(
+                        cobro=cobro,
+                        monto=cobro.total,
+                        metodo_pago=MetodoPago.STRIPE,
+                        referencia=f"CHECKOUT-{cobro.pk}",
+                        estado=EstadoPago.COMPLETADO,
+                        comision_stripe=calcular_comision_stripe(cobro.total),
+                        monto_neto=cobro.total - calcular_comision_stripe(cobro.total),
+                    )
+            except Cobro.DoesNotExist:
+                pass
+        messages.success(request, "Pago procesado exitosamente.")
+        return redirect("facturacion:cobro_detalle", pk=cobro_id)
+
+    elif tipo == "suscripcion":
+        plan_id = request.GET.get("plan")
+        tipo_fact = request.GET.get("tipo", "mensual")
+        if plan_id:
+            try:
+                plan = PlanSuscripcion.objects.get(pk=plan_id)
+                precio = plan.precio_anual if tipo_fact == "anual" else plan.precio_mensual
+                SuscripcionNutricionista.objects.update_or_create(
+                    nutricionista=request.user,
+                    defaults={
+                        "plan": plan,
+                        "tipo_facturacion": tipo_fact,
+                        "precio_aplicado": precio,
+                        "estado": EstadoSuscripcion.ACTIVA,
+                        "fecha_inicio": timezone.now().date(),
+                        "fecha_fin": timezone.now().date()
+                        + timedelta(days=365 if tipo_fact == "anual" else 30),
+                    },
+                )
+            except PlanSuscripcion.DoesNotExist:
+                pass
+        messages.success(request, "Suscripción activada exitosamente.")
+        return redirect("facturacion:suscripcion_detalle")
+
+    messages.success(request, "Pago procesado exitosamente.")
+    return redirect("facturacion:facturacion_dashboard")
+
+
+@login_required
+def checkout_cancelado(request):
+    """Página de cancelación del pago."""
+    tipo = request.GET.get("type", "")
+    if tipo == "cobro":
+        cobro_id = request.GET.get("id")
+        if cobro_id:
+            messages.info(request, "El pago fue cancelado. Puedes intentar de nuevo.")
+            return redirect("facturacion:cobro_detalle", pk=cobro_id)
+    elif tipo == "suscripcion":
+        messages.info(request, "El pago fue cancelado. Puedes elegir otro plan.")
+        return redirect("facturacion:suscripcion_cambiar")
+
+    messages.info(request, "El pago fue cancelado.")
+    return redirect("facturacion:facturacion_dashboard")
+
+
+# ─── AJAX para información de plan ────────────────────────────────────────────
+
+@login_required
+def ajax_info_plan(request, plan_id):
+    """Retorna la información de un plan de suscripción (AJAX)."""
+    try:
+        plan = PlanSuscripcion.objects.get(pk=plan_id, activo=True)
+        return JsonResponse({
+            "nombre": plan.nombre,
+            "descripcion": plan.descripcion,
+            "precio_mensual": float(plan.precio_mensual),
+            "precio_anual": float(plan.precio_anual),
+            "limite_pacientes": plan.limite_pacientes,
+            "limite_citas_mes": plan.limite_citas_mes,
+            "comision_cobros": float(plan.comision_cobros),
+        })
+    except PlanSuscripcion.DoesNotExist:
+        return JsonResponse({"error": "Plan no encontrado"}, status=404)
+
+
 # ─── AJAX Endpoints ───────────────────────────────────────────────────────────
 
 @login_required
@@ -813,3 +1037,46 @@ def ajax_cobros_pendientes_paciente(request, paciente_id):
     ).values("id", "concepto", "total", "fecha_creacion")
 
     return JsonResponse({"cobros": list(cobros)})
+
+
+# ─── Boletas PDF ────────────────────────────────────────────────────────────
+
+@login_required
+def cobro_descargar_boleta(request, pk):
+    """Genera y descarga una boleta PDF para un cobro."""
+    cobro = get_object_or_404(Cobro, pk=pk, nutricionista=request.user)
+
+    pdf_bytes = generar_pdf_boleta_cobro(cobro)
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    filename = f"boleta_cobro_{cobro.pk}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def suscripcion_descargar_boleta(request):
+    """Genera y descarga una boleta PDF para la suscripción."""
+    try:
+        suscripcion = SuscripcionNutricionista.objects.get(
+            nutricionista=request.user
+        )
+    except SuscripcionNutricionista.DoesNotExist:
+        messages.error(request, "No tienes una suscripción activa.")
+        return redirect("facturacion:suscripcion_detalle")
+
+    pago = Pago.objects.filter(
+        nutricionista=request.user,
+        notas__icontains="Suscripción",
+    ).order_by("-fecha_pago").first()
+
+    if not pago:
+        messages.error(request, "No se encontró un pago de suscripción para generar boleta.")
+        return redirect("facturacion:suscripcion_detalle")
+
+    pdf_bytes = generar_pdf_boleta_suscripcion(suscripcion, pago)
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    filename = f"boleta_suscripcion_{suscripcion.pk}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

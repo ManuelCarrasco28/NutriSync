@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Reportes Operativos{% endblock %}
+{% block page_title %}Reportes Operativos{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <a href="{% url 'reportes:dashboard' %}" class="inline-flex items-center gap-2 text-teal-600 hover:text-teal-800 transition-colors">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span class="text-sm font-medium">Volver a Reportes</span>
+    </a>
+    
+    <div class="bg-gradient-to-r from-teal-700 to-slate-800 rounded-2xl p-6 text-white shadow-md">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h2 class="text-xl font-bold">Filtros</h2>
+            <button type="button" id="btnExportarPDF"
+               class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors text-sm border border-white/30">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Exportar PDF
+            </button>
+        </div>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-teal-100 mb-1">Período</label>
+                <select name="vista" class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <option value="semana" class="text-slate-800" {% if vista == 'semana' %}selected{% endif %}>Última Semana</option>
+                    <option value="mes" class="text-slate-800" {% if vista == 'mes' %}selected{% endif %}>Último Mes</option>
+                    <option value="anio" class="text-slate-800" {% if vista == 'anio' %}selected{% endif %}>Último Año</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Inicio</label>
+                <input type="date" name="fecha_inicio" value="{{ fecha_inicio|date:'Y-m-d' }}"
+                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Fin</label>
+                <input type="date" name="fecha_fin" value="{{ fecha_fin|date:'Y-m-d' }}"
+                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-white text-teal-800 hover:bg-teal-50 px-4 py-2 rounded-lg transition-colors text-sm font-semibold">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <p class="text-sm text-slate-500 mb-1">Ocupación</p>
+            <p class="text-3xl font-bold text-blue-700">{{ ocupacion.ocupacion }}%</p>
+            <p class="text-xs text-slate-400">{{ ocupacion.horas_ocupadas }}h / {{ ocupacion.horas_disponibles }}h</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+            <p class="text-sm text-slate-500 mb-1">Total Citas</p>
+            <p class="text-3xl font-bold text-green-700">{{ citas_estado.total }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-teal-500">
+            <p class="text-sm text-slate-500 mb-1">Pacientes Activos</p>
+            <p class="text-3xl font-bold text-teal-700">{{ pacientes_info.activos }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <p class="text-sm text-slate-500 mb-1">Tasa Asistencia</p>
+            <p class="text-3xl font-bold text-purple-700">{{ citas_estado.tasa_asistencia }}%</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">Citas por Estado</h3>
+            <canvas id="estadoChart"></canvas>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">Citas por Tipo</h3>
+            <canvas id="tipoChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-slate-800 mb-4">Productividad</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <p class="text-2xl font-bold text-slate-800">{{ productividad.total }}</p>
+                <p class="text-sm text-slate-500">Total Citas</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-green-600">{{ productividad.completadas }}</p>
+                <p class="text-sm text-slate-500">Completadas</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-red-600">{{ productividad.canceladas }}</p>
+                <p class="text-sm text-slate-500">Canceladas</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-orange-600">{{ productividad.promedio_diario }}</p>
+                <p class="text-sm text-slate-500">Promedio Diario</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de selección de secciones para PDF -->
+<div id="pdfModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-slate-800">Seleccionar Secciones</h3>
+            <button id="btnCerrarModal" class="text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-sm text-slate-500 mb-4">Marca las secciones que deseas incluir en el PDF</p>
+        
+        <div class="space-y-3">
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="indicadores" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Indicadores Clave</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="ocupacion" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Ocupación de Agenda</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="citas_estado" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Citas por Estado</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="citas_tipo" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Citas por Tipo</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="productividad" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Productividad</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                <input type="checkbox" name="secciones" value="pacientes" checked class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-sm text-slate-700">Pacientes</span>
+            </label>
+        </div>
+        
+        <div class="flex gap-3 mt-6">
+            <button id="btnConfirmarExportar" class="flex-1 bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
+                Exportar
+            </button>
+            <button id="btnCancelar" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg hover:bg-slate-300 transition-colors font-semibold">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Modal PDF
+    const btnExportar = document.getElementById('btnExportarPDF');
+    const btnCerrar = document.getElementById('btnCerrarModal');
+    const btnCancelar = document.getElementById('btnCancelar');
+    const btnConfirmar = document.getElementById('btnConfirmarExportar');
+    const modal = document.getElementById('pdfModal');
+
+    btnExportar.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+    });
+
+    const cerrarModal = () => modal.classList.add('hidden');
+    btnCerrar.addEventListener('click', cerrarModal);
+    btnCancelar.addEventListener('click', cerrarModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) cerrarModal(); });
+
+    btnConfirmar.addEventListener('click', () => {
+        const checks = document.querySelectorAll('input[name="secciones"]:checked');
+        const secciones = Array.from(checks).map(c => c.value).join(',');
+        
+        let url = '{% url "reportes:operativos_pdf" %}?';
+        url += 'vista={{ vista }}&';
+        url += 'fecha_inicio={{ fecha_inicio|date:"Y-m-d" }}&';
+        url += 'fecha_fin={{ fecha_fin|date:"Y-m-d" }}&';
+        url += 'secciones=' + secciones;
+        
+        window.location.href = url;
+        cerrarModal();
+    });
+
+    new Chart(document.getElementById('estadoChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Completadas', 'Programadas', 'Canceladas', 'No Asistió'],
+            datasets: [{
+                data: [{{ citas_estado.completadas }}, {{ citas_estado.programadas }}, {{ citas_estado.canceladas }}, {{ citas_estado.no_asistio }}],
+                backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    new Chart(document.getElementById('tipoChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ citas_tipo_labels|safe }},
+            datasets: [{
+                label: 'Cantidad',
+                data: {{ citas_tipo_values|safe }},
+                backgroundColor: '#0d9488',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

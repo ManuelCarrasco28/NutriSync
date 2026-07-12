@@ -44,12 +44,12 @@ class PlanSuscripcion(models.Model):
         verbose_name="Precio anual (S/)",
         help_text="Precio con descuento por facturación anual",
     )
-    limite_pacientes = models.PositiveIntegerField(
+    limite_pacientes = models.IntegerField(
         verbose_name="Límite de pacientes",
         help_text="Número máximo de pacientes (-1 = ilimitado)",
         default=-1,
     )
-    limite_citas_mes = models.PositiveIntegerField(
+    limite_citas_mes = models.IntegerField(
         verbose_name="Límite de citas por mes",
         help_text="Número máximo de citas al mes (-1 = ilimitado)",
         default=-1,
@@ -419,9 +419,10 @@ class Factura(models.Model):
 
     def calcular_totales(self):
         """Recalcula los totales basándose en los items de la factura."""
+        from facturacion.utils import IGV_PORCENTAJE
         items = self.items.all()
         self.subtotal = sum(item.subtotal for item in items)
-        self.igv = self.subtotal * Decimal("0.18")
+        self.igv = self.subtotal * IGV_PORCENTAJE
         self.total = self.subtotal + self.igv
         self.save(update_fields=["subtotal", "igv", "total"])
 
@@ -484,6 +485,14 @@ class Pago(models.Model):
     Puede estar vinculado a un cobro o factura específica.
     """
 
+    nutricionista = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="pagos_facturacion",
+        verbose_name="Nutricionista",
+    )
     cobro = models.ForeignKey(
         Cobro,
         on_delete=models.SET_NULL,
