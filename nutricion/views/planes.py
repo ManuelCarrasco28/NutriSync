@@ -23,68 +23,50 @@ ORDEN_DIAS = [
 
 class PlanListView(LoginRequiredMixin, ListView):
     """
-    Lista de todos los planes nutricionales del nutricionista.
-    Filtramos por paciente__nutricionista para aislamiento de datos.
+    Lista de todos los modelos de planes nutricionales del nutricionista.
     """
     model = PlanNutricional
     template_name = "nutricion/planes.html"
-    context_object_name = "planes"
+    context_name = "planes"
     paginate_by = 20
 
     def get_queryset(self):
-        qs = PlanNutricional.objects.select_related("paciente").filter(
-            paciente__nutricionista=self.request.user
-        )
+        qs = PlanNutricional.objects.filter(nutricionista=self.request.user)
         estado = self.request.GET.get("estado", "")
-        if estado == "activo":
-            qs = qs.filter(estado=True)
-        elif estado == "inactivo":
-            qs = qs.filter(estado=False)
+        if estado:
+            qs = qs.filter(estado=estado)
 
         q = self.request.GET.get("q", "").strip()
         if q:
             qs = qs.filter(
                 Q(nombre__icontains=q)
-                | Q(paciente__nombre__icontains=q)
-                | Q(paciente__apellido__icontains=q)
+                | Q(tipo_paciente__icontains=q)
+                | Q(objetivo__icontains=q)
             )
         return qs.order_by("-fecha_creacion")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["planes"] = self.get_queryset()
         context["q"] = self.request.GET.get("q", "")
         context["filtro_estado"] = self.request.GET.get("estado", "")
-        context["pacientes_disponibles"] = Paciente.objects.filter(
-            nutricionista=self.request.user, estado=True
-        ).order_by("apellido", "nombre")
         return context
 
 
 class PlanCreateView(LoginRequiredMixin, CreateView):
     """
-    Crea un plan nutricional para un paciente específico.
-    El paciente_pk viene de la URL.
+    Crea un nuevo modelo de plan nutricional.
     """
     model = PlanNutricional
     form_class = PlanNutricionalForm
     template_name = "nutricion/plan_form.html"
 
-    def get_paciente(self):
-        return get_object_or_404(
-            Paciente, pk=self.kwargs["paciente_pk"], nutricionista=self.request.user
-        )
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["paciente"] = self.get_paciente()
-        return kwargs
-
     def form_valid(self, form):
-        form.instance.paciente = self.get_paciente()
+        form.instance.nutricionista = self.request.user
         response = super().form_valid(form)
         messages.success(
             self.request,
-            f"Plan «{self.object.nombre}» creado correctamente para {self.object.paciente.nombre_completo}.",
+            f"Modelo de plan «{self.object.nombre}» creado correctamente.",
         )
         return response
 
@@ -93,69 +75,46 @@ class PlanCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["paciente"] = self.get_paciente()
-        context["titulo"] = "Nuevo Plan Nutricional"
-        context["accion"] = "Crear plan"
+        context["titulo"] = "Nuevo Modelo de Plan"
+        context["accion"] = "Crear modelo"
         return context
 
 
 class PlanDetailView(LoginRequiredMixin, DetailView):
     """
-    Vista detallada del plan nutricional organizada por días de la semana.
+    Vista detallada de un modelo de plan nutricional y sus comidas sugeridas.
     """
     model = PlanNutricional
     template_name = "nutricion/plan_detalle.html"
     context_object_name = "plan"
 
     def get_queryset(self):
-        return PlanNutricional.objects.select_related("paciente").filter(
-            paciente__nutricionista=self.request.user
-        )
+        return PlanNutricional.objects.filter(nutricionista=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         plan = self.object
+        comidas = plan.comidas.select_related("receta").order_by("hora_sugerida", "id")
 
-        comidas = plan.comidas.prefetch_related("alimentos_sugeridos").order_by(
-            "dia_semana", "tipo_comida"
-        )
-
-        comidas_por_dia = {}
-        for dia_key in ORDEN_DIAS:
-            comidas_dia = [c for c in comidas if c.dia_semana == dia_key]
-            if comidas_dia:
-                dia_label = dict(DiaSemana.CHOICES).get(dia_key, dia_key)
-                comidas_por_dia[dia_label] = comidas_dia
-
-        context["comidas_por_dia"] = comidas_por_dia
+        context["comidas"] = comidas
         context["total_comidas"] = comidas.count()
-
-        calorias_total = sum(c.calorias_estimadas for c in comidas)
-        context["calorias_total_plan"] = calorias_total
-        context["comida_form"] = ComidaPlanForm(user=self.request.user, plan=plan)
+        context["comida_form"] = ComidaPlanForm(user=self.request.user)
         return context
 
 
 class PlanUpdateView(LoginRequiredMixin, UpdateView):
-    """Edición de los datos generales del plan nutricional."""
+    """Edición de los datos generales de un modelo de plan."""
     model = PlanNutricional
     form_class = PlanNutricionalForm
     template_name = "nutricion/plan_form.html"
 
     def get_queryset(self):
-        return PlanNutricional.objects.select_related("paciente").filter(
-            paciente__nutricionista=self.request.user
-        )
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["paciente"] = self.object.paciente
-        return kwargs
+        return PlanNutricional.objects.filter(nutricionista=self.request.user)
 
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(
-            self.request, f"Plan «{self.object.nombre}» actualizado correctamente."
+            self.request, f"Modelo de plan «{self.object.nombre}» actualizado correctamente."
         )
         return response
 
@@ -164,59 +123,95 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["paciente"] = self.object.paciente
-        context["titulo"] = "Editar Plan Nutricional"
+        context["titulo"] = "Editar Modelo de Plan"
         context["accion"] = "Guardar cambios"
         return context
 
 
 @login_required
+def plan_duplicar(request, pk):
+    """
+    Duplica un modelo de plan existente y todas sus comidas asociadas.
+    """
+    plan_orig = get_object_or_404(PlanNutricional, pk=pk, nutricionista=request.user)
+    
+    # Clonar metadatos del plan
+    plan_orig.pk = None
+    plan_orig.nombre = f"Copia de {plan_orig.nombre}"
+    plan_orig.estado = 'Borrador'
+    plan_orig.save()
+    
+    # Clonar comidas
+    comidas_orig = ComidaPlan.objects.filter(plan_id=pk)
+    for c in comidas_orig:
+        c.pk = None
+        c.plan = plan_orig
+        c.save()
+        
+    messages.success(request, f"Modelo de plan duplicado como «{plan_orig.nombre}» en estado Borrador.")
+    return redirect("nutricion:plan_detalle", pk=plan_orig.pk)
+
+
+@login_required
 @require_POST
-def plan_toggle_estado(request, pk):
+def plan_toggle(request, pk):
     """
-    Activa o desactiva un plan nutricional.
+    Alterna el estado de un modelo de plan entre Activo y Borrador.
     """
-    plan = get_object_or_404(
-        PlanNutricional, pk=pk, paciente__nutricionista=request.user
-    )
-
-    if not plan.estado:
-        PlanNutricional.objects.filter(paciente=plan.paciente, estado=True).update(
-            estado=False
-        )
-        plan.estado = True
-        plan.save()
-        messages.success(
-            request,
-            f"Plan «{plan.nombre}» activado. Los otros planes del paciente fueron desactivados.",
-        )
+    plan = get_object_or_404(PlanNutricional, pk=pk, nutricionista=request.user)
+    if plan.estado == 'Activo':
+        plan.estado = 'Borrador'
+        messages.success(request, f"Modelo de plan «{plan.nombre}» desactivado.")
     else:
-        plan.estado = False
-        plan.save()
-        messages.success(request, f"Plan «{plan.nombre}» desactivado correctamente.")
-
+        plan.estado = 'Activo'
+        messages.success(request, f"Modelo de plan «{plan.nombre}» activado.")
+    plan.save()
     return redirect("nutricion:plan_detalle", pk=plan.pk)
+
+
+@login_required
+@require_POST
+def plan_archivar(request, pk):
+    """
+    Archiva un modelo de plan nutricional.
+    """
+    plan = get_object_or_404(PlanNutricional, pk=pk, nutricionista=request.user)
+    plan.estado = 'Archivado'
+    plan.save()
+    messages.success(request, f"Modelo de plan «{plan.nombre}» archivado correctamente.")
+    return redirect("nutricion:plan_detalle", pk=plan.pk)
+
+
+
+@login_required
+@require_POST
+def plan_eliminar(request, pk):
+    """
+    Elimina un modelo de plan nutricional.
+    """
+    plan = get_object_or_404(PlanNutricional, pk=pk, nutricionista=request.user)
+    nombre = plan.nombre
+    plan.delete()
+    messages.success(request, f"Modelo de plan «{nombre}» eliminado correctamente.")
+    return redirect("nutricion:planes")
 
 
 @login_required
 @require_POST
 def comida_crear(request, plan_pk):
     """
-    Agrega una nueva comida a un plan nutricional existente.
+    Agrega una nueva comida sugerida a un modelo de plan nutricional.
     """
-    plan = get_object_or_404(
-        PlanNutricional, pk=plan_pk, paciente__nutricionista=request.user
-    )
-    form = ComidaPlanForm(request.POST, user=request.user, plan=plan)
+    plan = get_object_or_404(PlanNutricional, pk=plan_pk, nutricionista=request.user)
+    form = ComidaPlanForm(request.POST, user=request.user)
 
     if form.is_valid():
         comida = form.save(commit=False)
         comida.plan = plan
         comida.save()
-        form.save_m2m()
         messages.success(
             request,
-            f"Comida «{comida.get_tipo_comida_display()}» del {comida.get_dia_semana_display()} agregada correctamente.",
+            f"Comida «{comida.tipo_comida}» agregada correctamente al modelo.",
         )
     else:
         for field, errors in form.errors.items():
@@ -229,12 +224,10 @@ def comida_crear(request, plan_pk):
 @login_required
 @require_POST
 def comida_eliminar(request, pk):
-    """Elimina una comida de un plan nutricional."""
-    comida = get_object_or_404(
-        ComidaPlan, pk=pk, plan__paciente__nutricionista=request.user
-    )
+    """Elimina una comida sugerida de un modelo de plan."""
+    comida = get_object_or_404(ComidaPlan, pk=pk, plan__nutricionista=request.user)
     plan_pk = comida.plan.pk
-    nombre = f"{comida.get_tipo_comida_display()} del {comida.get_dia_semana_display()}"
+    nombre = comida.tipo_comida
     comida.delete()
     messages.success(request, f"Comida «{nombre}» eliminada correctamente.")
     return redirect("nutricion:plan_detalle", pk=plan_pk)

@@ -7,5 +7,5 @@ from .recetas import (
 )
 from .planes import (
     PlanListView, PlanCreateView, PlanDetailView, PlanUpdateView, 
-    plan_toggle_estado, comida_crear, comida_eliminar
+    plan_duplicar, plan_toggle, plan_archivar, plan_eliminar, comida_crear, comida_eliminar
 )
