@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Planes Nutricionales{% endblock %}
-{% block page_title %}Planes Nutricionales{% endblock %}
+{% block title %}Modelos de Planes{% endblock %}
+{% block page_title %}Modelos de Planes{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
 
   <!-- ─── Header ─────────────────────────────────────────────────────────── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-    <p class="text-sm text-slate-500">Todos los planes nutricionales de tus pacientes</p>
-    <a href="{% url 'pacientes:lista' %}"
-       class="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm
-              transition-all duration-200 flex items-center gap-2">
-      <i data-lucide="users" class="w-4 h-4"></i> Ir a pacientes para crear plan
+    <p class="text-sm text-slate-500">Biblioteca de modelos de planes nutricionales reutilizables</p>
+    <a href="{% url 'nutricion:plan_nuevo' %}"
+       class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm font-medium
+              transition-all duration-200 flex items-center gap-2 shadow-sm">
+      <i data-lucide="plus" class="w-4 h-4"></i> Crear modelo de plan
     </a>
   </div>
 
@@ -22,16 +22,17 @@
       <div class="flex-1 relative">
         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
         <input type="text" name="q" value="{{ q }}"
-               placeholder="Buscar plan o paciente..."
+               placeholder="Buscar modelo..."
                class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm
                       focus:outline-none focus:ring-2 focus:ring-teal-500">
       </div>
       <select name="estado"
               class="border border-slate-200 rounded-lg px-3 py-2 text-sm
                      focus:outline-none focus:ring-2 focus:ring-teal-500">
-        <option value="">Todos los planes</option>
-        <option value="activo" {% if filtro_estado == "activo" %}selected{% endif %}>Solo activos</option>
-        <option value="inactivo" {% if filtro_estado == "inactivo" %}selected{% endif %}>Solo inactivos</option>
+        <option value="">Todos los estados</option>
+        <option value="Borrador" {% if filtro_estado == "Borrador" %}selected{% endif %}>Borrador</option>
+        <option value="Activo" {% if filtro_estado == "Activo" %}selected{% endif %}>Activo</option>
+        <option value="Archivado" {% if filtro_estado == "Archivado" %}selected{% endif %}>Archivado</option>
       </select>
       <button type="submit"
               class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm
@@ -47,10 +48,11 @@
     <table class="w-full text-sm">
       <thead>
         <tr class="bg-slate-50 border-b border-slate-200">
-          <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Plan</th>
-          <th class="text-left px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Paciente</th>
+          <th class="text-left px-5 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Modelo</th>
           <th class="text-left px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Objetivo</th>
-          <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Calorías/día</th>
+          <th class="text-left px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Paciente Tipo</th>
+          <th class="text-right px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Calorías</th>
+          <th class="text-center px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Comidas</th>
           <th class="text-center px-4 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Estado</th>
           <th class="text-right px-5 py-3 font-medium text-slate-500 uppercase tracking-wide text-xs">Acciones</th>
         </tr>
@@ -61,45 +63,73 @@
           <td class="px-5 py-3">
             <div>
               <a href="{% url 'nutricion:plan_detalle' plan.pk %}"
-                 class="font-medium text-slate-800 hover:text-teal-600 transition-colors">
+                 class="font-semibold text-slate-800 hover:text-teal-650 transition-colors">
                 {{ plan.nombre }}
               </a>
               <span class="block text-xs text-slate-400 mt-0.5">
-                {{ plan.fecha_inicio|date:"d/m/Y" }}
-                {% if plan.fecha_fin %} → {{ plan.fecha_fin|date:"d/m/Y" }}{% endif %}
+                Creado: {{ plan.fecha_creacion|date:"d/m/Y" }}
               </span>
             </div>
-          </td>
-          <td class="px-4 py-3">
-            <a href="{% url 'pacientes:detalle' plan.paciente.pk %}"
-               class="text-teal-600 hover:text-teal-800 transition-colors">
-              {{ plan.paciente.nombre_completo }}
-            </a>
           </td>
           <td class="px-4 py-3">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
               {{ plan.objetivo_display }}
             </span>
           </td>
-          <td class="px-4 py-3 text-right font-semibold text-amber-600">
+          <td class="px-4 py-3 text-slate-600">
+            {{ plan.tipo_paciente }}
+          </td>
+          <td class="px-4 py-3 text-right font-bold text-amber-600">
             {{ plan.calorias_diarias }} kcal
           </td>
+          <td class="px-4 py-3 text-center text-slate-600 font-semibold">
+            {{ plan.num_comidas }}
+          </td>
           <td class="px-4 py-3 text-center">
-            {% if plan.estado %}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+            {% if plan.estado == 'Activo' %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-150">
               <i data-lucide="check-circle" class="w-3 h-3"></i> Activo
             </span>
+            {% elif plan.estado == 'Borrador' %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-150">
+              <i data-lucide="edit" class="w-3 h-3"></i> Borrador
+            </span>
             {% else %}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
-              <i data-lucide="minus-circle" class="w-3 h-3"></i> Inactivo
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-150">
+              <i data-lucide="archive" class="w-3 h-3"></i> Archivado
             </span>
             {% endif %}
           </td>
           <td class="px-5 py-3 text-right">
-            <a href="{% url 'nutricion:plan_detalle' plan.pk %}"
-               class="text-teal-600 hover:text-teal-800 text-xs font-medium transition-colors">
-              Ver plan →
-            </a>
+            <div class="flex items-center justify-end gap-2.5">
+              <a href="{% url 'nutricion:plan_detalle' plan.pk %}"
+                 class="text-teal-600 hover:text-teal-800 text-xs font-bold transition-colors flex items-center gap-1"
+                 title="Ver detalle">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </a>
+              <a href="{% url 'nutricion:plan_duplicar' plan.pk %}"
+                 class="text-blue-600 hover:text-blue-800 text-xs font-bold transition-colors flex items-center gap-1"
+                 title="Duplicar modelo">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+              </a>
+              {% if plan.estado != 'Archivado' %}
+              <form method="post" action="{% url 'nutricion:plan_archivar' plan.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="text-amber-600 hover:text-amber-800 text-xs font-bold transition-colors flex items-center gap-1"
+                        title="Archivar modelo">
+                  <i data-lucide="archive" class="w-4 h-4"></i>
+                </button>
+              </form>
+              {% endif %}
+              <form method="post" action="{% url 'nutricion:plan_eliminar' plan.pk %}" class="inline"
+                    onsubmit="return confirm('¿Seguro que desea eliminar permanentemente este modelo de plan?');">
+                {% csrf_token %}
+                <button type="submit" class="text-red-500 hover:text-red-750 text-xs font-bold transition-colors flex items-center gap-1"
+                        title="Eliminar modelo">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </form>
+            </div>
           </td>
         </tr>
         {% endfor %}
@@ -107,63 +137,17 @@
     </table>
   </div>
   {% else %}
-  <!-- Empty state con lista de pacientes para crear plan directo -->
-  <div class="space-y-4">
-    <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-start gap-3">
-      <i data-lucide="info" class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5"></i>
-      <div>
-        <p class="text-sm font-semibold text-amber-800">¿Cómo crear un plan?</p>
-        <p class="text-sm text-amber-700 mt-0.5">
-          Selecciona un paciente de la lista de abajo y haz clic en
-          <strong>"+ Nuevo plan"</strong> para crear su plan nutricional.
-        </p>
-      </div>
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+    <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="book-open" class="w-7 h-7 text-slate-400"></i>
     </div>
-
-    {% if pacientes_disponibles %}
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-          <i data-lucide="users" class="w-5 h-5 text-teal-600"></i>
-          Tus pacientes — crea un plan para cualquiera
-        </h3>
-        <span class="text-xs text-slate-400">{{ pacientes_disponibles|length }} paciente{{ pacientes_disponibles|length|pluralize }}</span>
-      </div>
-      <div class="divide-y divide-slate-100">
-        {% for paciente in pacientes_disponibles %}
-        <div class="px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-slate-800">{{ paciente.nombre_completo }}</p>
-              <p class="text-xs text-slate-400">{{ paciente.email|default:paciente.telefono }}</p>
-            </div>
-          </div>
-          <a href="{% url 'nutricion:plan_nuevo' paciente.pk %}"
-             class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm font-medium
-                    transition-all duration-200 flex items-center gap-2">
-            <i data-lucide="plus" class="w-4 h-4"></i> Nuevo plan
-          </a>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    {% else %}
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
-      <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <i data-lucide="user-x" class="w-7 h-7 text-slate-400"></i>
-      </div>
-      <h3 class="font-semibold text-slate-600 mb-2">No tienes pacientes registrados</h3>
-      <p class="text-slate-400 text-sm mb-4">Primero registra un paciente para poder crear un plan.</p>
-      <a href="{% url 'pacientes:nuevo' %}"
-         class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg px-4 py-2 text-sm
-                transition-all duration-200 inline-flex items-center gap-2">
-        <i data-lucide="user-plus" class="w-4 h-4"></i> Registrar paciente
-      </a>
-    </div>
-    {% endif %}
+    <h3 class="font-bold text-slate-700 mb-2">No hay modelos de planes</h3>
+    <p class="text-slate-400 text-sm mb-4">Comienza registrando tu primer modelo de plan nutricional reusable.</p>
+    <a href="{% url 'nutricion:plan_nuevo' %}"
+       class="bg-teal-650 hover:bg-teal-700 text-white rounded-lg px-5 py-2.5 text-sm font-medium
+              transition-all duration-200 inline-flex items-center gap-2">
+      <i data-lucide="plus" class="w-4 h-4"></i> Crear primer modelo
+    </a>
   </div>
   {% endif %}
 
