@@ -14,6 +14,9 @@ urlpatterns = [
     # Endpoints de la API móvil (Django Ninja)
     path("api/", api.urls),
 
+    # Panel de Administración Global (BackOffice SaaS) — completamente independiente
+    path("administracion/", include("administracion.urls")),
+
     # App core: login, logout, dashboard, perfil
     path("", include("core.urls")),
 

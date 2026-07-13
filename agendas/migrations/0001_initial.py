@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Cita',
                 'verbose_name_plural': 'Citas',
                 'ordering': ['fecha_hora'],
+                'db_table': 'citas_cita',
                 'indexes': [models.Index(fields=['fecha_hora', 'estado'], name='citas_cita_fecha_h_e91b0d_idx')],
             },
         ),
