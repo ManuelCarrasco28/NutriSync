@@ -459,6 +459,19 @@ class PlanAlimentario(models.Model):
         return f"{self.nombre} — {self.paciente.nombre_completo} ({self.estado})"
 
 
+import uuid
+import os
+
+def ruta_archivo_paciente(instance, filename):
+    """
+    Genera un nombre de archivo único con UUID para mitigar ataques de 
+    enumeración de archivos en producción y evitar la deducción de nombres.
+    """
+    ext = filename.split('.')[-1].lower()
+    nombre_unico = f"{uuid.uuid4()}.{ext}"
+    return os.path.join("pacientes/archivos/", nombre_unico)
+
+
 class ArchivoPaciente(models.Model):
     CATEGORIAS = [
         ('Documentos', 'Documentos'),
@@ -489,7 +502,7 @@ class ArchivoPaciente(models.Model):
         verbose_name="Profesional Responsable"
     )
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Archivo")
-    archivo = models.FileField(upload_to="pacientes/archivos/", verbose_name="Archivo")
+    archivo = models.FileField(upload_to=ruta_archivo_paciente, verbose_name="Archivo")
     categoria = models.CharField(max_length=50, choices=CATEGORIAS, verbose_name="Categoría")
     subcategoria = models.CharField(max_length=100, blank=True, verbose_name="Subcategoría")
     observaciones = models.TextField(blank=True, verbose_name="Observaciones")
