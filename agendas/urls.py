@@ -14,4 +14,5 @@ urlpatterns = [
     path("citas/<int:pk>/json/", views.cita_detalle_json, name="detalle_json"),
     path("citas/<int:pk>/editar/", views.CitaUpdateView.as_view(), name="editar"),
     path("citas/<int:pk>/estado/", views.cita_cambiar_estado, name="cambiar_estado"),
+    path("citas/check-disponibilidad/", views.check_disponibilidad, name="check_disponibilidad"),
 ]

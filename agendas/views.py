@@ -18,6 +18,7 @@ from .forms import CitaForm
 from config.choices import TipoCita, EstadoCita
 from seguimiento.models import MedidaCorporal
 from pacientes.models import PlanAlimentario, Paciente
+from django.core.exceptions import ValidationError
 
 
 class NutricionistaCitaMixin(LoginRequiredMixin):
@@ -165,30 +166,30 @@ class AgendaView(NutricionistaCitaMixin, ListView):
         lunes = self.selected_date - timedelta(days=self.selected_date.weekday())
         domingo = lunes + timedelta(days=6)
         
-        if 8 <= ahora.hour < 20:
-            mins = (ahora.hour - 8) * 60 + ahora.minute
-            context["current_time_top_pct"] = (mins / 720.0) * 100.0
+        if 7 <= ahora.hour < 24:
+            mins = (ahora.hour - 7) * 60 + ahora.minute
+            context["current_time_top_pct"] = (mins / 1020.0) * 100.0
         else:
             context["current_time_top_pct"] = None
 
         # 2. Generar datos del Calendario según vista
         citas_list = list(context["citas"])
         
-        # Calcular posicionamiento vertical en grilla de horas (08:00 a 20:00 = 12 horas = 720 minutos)
+        # Calcular posicionamiento vertical en grilla de horas (07:00 a 24:00 = 17 horas = 1020 minutos)
         for cita in citas_list:
             local_time = timezone.localtime(cita.fecha_hora)
-            mins_since_start = (local_time.hour - 8) * 60 + local_time.minute
+            mins_since_start = (local_time.hour - 7) * 60 + local_time.minute
             if mins_since_start < 0:
                 mins_since_start = 0
-            elif mins_since_start > 720:
-                mins_since_start = 720
+            elif mins_since_start > 1020:
+                mins_since_start = 1020
                 
-            cita.top_pct = (mins_since_start / 720.0) * 100.0
+            cita.top_pct = (mins_since_start / 1020.0) * 100.0
             
             dur = cita.duracion_minutos
-            if mins_since_start + dur > 720:
-                dur = 720 - mins_since_start
-            cita.height_pct = (dur / 720.0) * 100.0
+            if mins_since_start + dur > 1020:
+                dur = 1020 - mins_since_start
+            cita.height_pct = (dur / 1020.0) * 100.0
 
         if self.vista == "dia":
             # Vista Día: Solo pasamos las citas del día, que ya están en context['citas']
@@ -200,7 +201,7 @@ class AgendaView(NutricionistaCitaMixin, ListView):
             dias_semana = []
             for i in range(7):
                 dia = lunes + timedelta(days=i)
-                citas_dia = [c for c in citas_list if c.fecha_hora.date() == dia]
+                citas_dia = [c for c in citas_list if timezone.localtime(c.fecha_hora).date() == dia]
                 dias_semana.append({
                     "fecha": dia,
                     "citas": citas_dia,
@@ -216,7 +217,7 @@ class AgendaView(NutricionistaCitaMixin, ListView):
             for week in grid_weeks:
                 semana_dias = []
                 for dia in week:
-                    citas_dia = [c for c in citas_list if c.fecha_hora.date() == dia]
+                    citas_dia = [c for c in citas_list if timezone.localtime(c.fecha_hora).date() == dia]
                     semana_dias.append({
                         "fecha": dia,
                         "es_mes_actual": dia.month == self.selected_date.month,
@@ -267,6 +268,17 @@ class CitaCreateView(LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        fecha_str = self.request.GET.get("fecha")
+        hora_str = self.request.GET.get("hora")
+        duracion = self.request.GET.get("duracion")
+        if fecha_str and hora_str:
+            initial["fecha_hora"] = f"{fecha_str}T{hora_str}"
+        if duracion:
+            initial["duracion_minutos"] = duracion
+        return initial
 
     def get_success_url(self):
         messages.success(
@@ -532,3 +544,64 @@ def cita_detalle_json(request, pk):
         })
 
     return JsonResponse(data)
+
+
+@login_required
+def check_disponibilidad(request):
+    """
+    API para verificar si un horario está libre de conflictos para el nutricionista actual.
+    """
+    fecha_str = request.GET.get("fecha")
+    hora_str = request.GET.get("hora")
+    duracion_str = request.GET.get("duracion", "60")
+    
+    if not fecha_str or not hora_str:
+        return JsonResponse({
+            "status": "error",
+            "message": "Fecha y hora son requeridas."
+        }, status=400)
+        
+    try:
+        duracion = int(duracion_str)
+        naive_dt = datetime.strptime(f"{fecha_str} {hora_str}", "%Y-%m-%d %H:%M")
+        proposed_start = timezone.make_aware(naive_dt, timezone.get_current_timezone())
+        proposed_end = proposed_start + timedelta(minutes=duracion)
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Formato inválido de fecha, hora o duración: {str(e)}"
+        }, status=400)
+
+    # Buscar todas las citas del nutricionista para ese día específico
+    citas_dia = Cita.objects.filter(
+        Q(paciente__nutricionista=request.user) | Q(nutricionista=request.user),
+        fecha_hora__date=proposed_start.date()
+    ).exclude(estado=EstadoCita.CANCELADA)
+
+    conflicto = None
+    for cita in citas_dia:
+        cita_start = cita.fecha_hora
+        cita_end = cita_start + timedelta(minutes=cita.duracion_minutos)
+        if cita_start < proposed_end and proposed_start < cita_end:
+            conflicto = cita
+            break
+
+    if conflicto:
+        hora_conflicto = timezone.localtime(conflicto.fecha_hora).strftime("%H:%M")
+        tipo_conflicto = "bloqueo" if conflicto.tipo == TipoCita.BLOQUEO else "cita"
+        mensaje = f"Se cruza con un {tipo_conflicto} a las {hora_conflicto}."
+        if conflicto.paciente:
+            mensaje = f"Se cruza con una cita de {conflicto.paciente.nombre_completo} a las {hora_conflicto}."
+            
+        return JsonResponse({
+            "status": "success",
+            "disponible": False,
+            "mensaje": mensaje
+        })
+        
+    return JsonResponse({
+        "status": "success",
+        "disponible": True,
+        "mensaje": "¡El horario está disponible!"
+    })
+

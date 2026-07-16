@@ -1,5 +1,6 @@
 <!-- templates/agendas/agenda.html -->
 {% extends "base.html" %}
+{% load l10n %}
 
 {% block title %}Agenda Profesional{% endblock %}
 {% block page_title %}Agenda{% endblock %}
@@ -13,7 +14,7 @@
     
     /* Altura fija para la grilla semanal */
     .weekly-calendar-height {
-        height: 600px;
+        height: 850px;
     }
 
     /* Líneas de borde de color para tarjetas */
@@ -72,12 +73,6 @@
                 <button type="button" onclick="openBloqueoModal()"
                         class="border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-lg px-3.5 py-2 text-xs transition flex items-center justify-center gap-1.5 bg-white shadow-xs">
                     <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i> Bloquear horario
-                </button>
-
-                <!-- Ver Disponibilidad -->
-                <button type="button" onclick="alert('Disponibilidad sincronizada con Google Calendar')"
-                        class="border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-lg px-3.5 py-2 text-xs transition flex items-center justify-center bg-white shadow-xs">
-                    Ver disponibilidad
                 </button>
 
                 <!-- Selector de fecha en formato píldora -->
@@ -169,8 +164,9 @@
 
                 <!-- Grilla de horas y columnas -->
                 <div class="flex overflow-y-auto weekly-calendar-height relative">
-                    <!-- Eje de horas (08:00 a 20:00) -->
-                    <div class="w-16 border-r border-slate-150 bg-slate-50/50 flex flex-col justify-between py-2 text-right pr-3 text-[10px] font-bold text-slate-400 select-none relative z-10">
+                    <!-- Eje de horas (07:00 a 24:00) -->
+                    <div class="w-16 border-r border-slate-150 bg-slate-50/50 flex flex-col justify-between py-2 text-right pr-3 text-[10px] font-bold text-slate-400 select-none relative z-10 h-[850px]">
+                        <div class="h-[50px]">07:00</div>
                         <div class="h-[50px]">08:00</div>
                         <div class="h-[50px]">09:00</div>
                         <div class="h-[50px]">10:00</div>
@@ -184,13 +180,17 @@
                         <div class="h-[50px]">18:00</div>
                         <div class="h-[50px]">19:00</div>
                         <div class="h-[50px]">20:00</div>
+                        <div class="h-[50px]">21:00</div>
+                        <div class="h-[50px]">22:00</div>
+                        <div class="h-[50px]">23:00</div>
+                        <div class="h-[50px]">24:00</div>
                     </div>
 
                     <!-- Columnas de días -->
-                    <div class="flex-1 grid grid-cols-7 relative divide-x divide-slate-100 bg-slate-50/10">
+                    <div class="flex-1 grid grid-cols-7 relative divide-x divide-slate-100 bg-slate-50/10 h-[850px]">
                         <!-- Horas de fondo -->
                         <div class="absolute inset-0 flex flex-col justify-between pointer-events-none select-none">
-                            {% for i in "012345678901" %}
+                            {% for i in "01234567890123456" %}
                             <div class="border-b border-slate-100/80 h-[50px]"></div>
                             {% endfor %}
                         </div>
@@ -200,7 +200,7 @@
                         <div class="relative h-full p-1">
                             <!-- Indicador de hora actual en la columna del día de hoy -->
                             {% if ds.fecha == ahora_date and current_time_top_pct %}
-                            <div class="current-time-indicator" style="top: {{ current_time_top_pct }}%;">
+                            <div class="current-time-indicator" style="top: {{ current_time_top_pct|unlocalize }}%;">
                                 <div class="current-time-dot"></div>
                             </div>
                             {% endif %}
@@ -208,7 +208,7 @@
                             <!-- Citas de este día -->
                             {% for cita in ds.citas %}
                             <div onclick="openAppointmentDrawer('{{ cita.pk }}')"
-                                 style="position: absolute; top: {{ cita.top_pct }}%; height: {{ cita.height_pct }}%; left: 3px; right: 3px;"
+                                 style="position: absolute; top: {{ cita.top_pct|unlocalize }}%; height: {{ cita.height_pct|unlocalize }}%; left: 3px; right: 3px;"
                                  class="p-2 rounded-lg border hover:shadow-md cursor-pointer transition-all border-l-4 overflow-hidden flex flex-col justify-between
                                         {% if cita.color_class == 'green' %}bg-emerald-50 border-emerald-250 border-l-green-500 text-emerald-800 hover:bg-emerald-100
                                         {% elif cita.color_class == 'blue' %}bg-blue-50 border-blue-200 border-l-blue-500 text-blue-800 hover:bg-blue-100
@@ -719,7 +719,6 @@
                 </button>
             </div>
         </form>
-    </div>
 </div>
 
 {% endblock %}
