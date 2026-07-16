@@ -439,10 +439,6 @@ def perfil_view(request):
 
     return render(request, "core/perfil.html", context)
 
-
-# ─── Handlers de error personalizados ────────────────────────────────────────
-
-
 def error_404(request, exception):
     """Página 404 personalizada con diseño consistente al sistema."""
     return render(request, "404.html", status=404)

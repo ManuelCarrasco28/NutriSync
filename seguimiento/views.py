@@ -42,11 +42,6 @@ class NutricionistaSeguimientoMixin(LoginRequiredMixin):
         )
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# MEDIDAS CORPORALES
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
 class MedidaCreateView(NutricionistaSeguimientoMixin, CreateView):
     """Registra una nueva medida corporal para un paciente específico."""
 
@@ -167,11 +162,6 @@ class MedidaListView(NutricionistaSeguimientoMixin, ListView):
         return "igual"
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# NOTAS CLÍNICAS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
 class NotaCreateView(NutricionistaSeguimientoMixin, CreateView):
     """Crea una nueva nota clínica para un paciente, opcionalmente vinculada a una cita."""
 
@@ -196,37 +186,108 @@ class NotaCreateView(NutricionistaSeguimientoMixin, CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        
-        # Generar resumen automático basado en datos del paciente
-        resumen = ""
-        info = self.paciente.informacion_clinica or {}
-        objetivo = info.get("objetivo_principal", "No especificado")
-        resumen += f"Objetivo principal: {objetivo}\n\n"
-        
-        # Últimas medidas
-        ultima_medida = self.paciente.medidas.order_by("-fecha", "-fecha_registro").first()
+        from django.utils import timezone
+
+        hoy = timezone.now().date()
+        p = self.paciente
+
+        # ── Número de consulta automático ──────────────────────────────────────
+        num_consulta = p.notas_clinicas.count() + 1
+        initial["titulo"] = f"Consulta #{num_consulta} — {hoy.strftime('%d/%m/%Y')}"
+        initial["fecha"] = hoy
+
+        # ── Motivo de consulta: del objetivo del paciente ──────────────────────
+        info = p.informacion_clinica or {}
+        objetivo = info.get("objetivo_principal") or p.notas_generales or "No especificado"
+        # Limpiar el prefijo "Motivo de Consulta:" si viene de notas_generales
+        if "Motivo de Consulta:" in objetivo:
+            objetivo = objetivo.split("Motivo de Consulta:")[-1].split("\n")[0].strip()
+        initial["motivo_consulta"] = objetivo
+
+        # ── Construcción del resumen automático ────────────────────────────────
+        lineas = []
+
+        # Sección 1: Información del paciente
+        lineas.append("═══ INFORMACIÓN DEL PACIENTE ═══")
+        lineas.append(f"• Edad: {p.edad} años  |  Sexo: {p.get_sexo_display() if hasattr(p, 'get_sexo_display') else p.sexo}")
+        if p.ocupacion:
+            lineas.append(f"• Ocupación: {p.ocupacion}")
+        lineas.append(f"• Objetivo principal: {objetivo}")
+
+        # Condiciones médicas y alergias
+        if p.condiciones_medicas:
+            lineas.append(f"• Condiciones: {p.condiciones_medicas}")
+        if p.alergias:
+            lineas.append(f"• Alergias: {p.alergias}")
+
+        # Hábitos desde informacion_clinica JSON
+        if info:
+            if info.get("nivel_actividad"):
+                lineas.append(f"• Nivel de actividad: {info.get('nivel_actividad')}")
+            if info.get("horas_sueno"):
+                lineas.append(f"• Horas de sueño: {info.get('horas_sueno')}")
+
+        # Sección 2: Últimas mediciones
+        ultima_medida = p.medidas.order_by("-fecha", "-fecha_registro").first()
         if ultima_medida:
-            resumen += f"Últimas medidas ({ultima_medida.fecha.strftime('%d/%m/%Y')}):\n"
-            resumen += f"- Peso: {ultima_medida.peso_kg} kg\n"
-            resumen += f"- IMC: {ultima_medida.imc}\n"
+            lineas.append("")
+            lineas.append("═══ ÚLTIMAS MEDICIONES ═══")
+            lineas.append(f"• Fecha: {ultima_medida.fecha.strftime('%d/%m/%Y')}")
+            lineas.append(f"• Peso: {ultima_medida.peso_kg} kg  |  Talla: {ultima_medida.talla_cm} cm  |  IMC: {ultima_medida.imc}")
             if ultima_medida.grasa_corporal_pct:
-                resumen += f"- Grasa corporal: {ultima_medida.grasa_corporal_pct}%\n"
-            resumen += "\n"
-            
-        # Plan activo
-        planes_activos = self.paciente.planes_alimentarios_sync.filter(estado="Activo").order_by("-fecha_inicio")
-        if planes_activos.exists():
-            plan = planes_activos.first()
-            resumen += f"Plan activo: {plan.nombre} ({plan.calorias} kcal)\n"
-            
-        initial["resumen_consulta"] = resumen.strip()
-        
-        # Cargar objetivos de la última nota si existen
-        ultima_nota = self.paciente.notas_clinicas.order_by("-fecha", "-fecha_creacion").first()
+                lineas.append(f"• Grasa corporal: {ultima_medida.grasa_corporal_pct}%")
+            if ultima_medida.masa_muscular_pct:
+                lineas.append(f"• Masa muscular: {ultima_medida.masa_muscular_pct}%")
+            if ultima_medida.cintura_cm:
+                lineas.append(f"• Cintura: {ultima_medida.cintura_cm} cm", )
+            if ultima_medida.cadera_cm:
+                lineas[-1] += f"  |  Cadera: {ultima_medida.cadera_cm} cm"
+
+        # Sección 3: Evaluación nutricional
+        evaluacion = p.evaluacion or {}
+        if evaluacion:
+            lineas.append("")
+            lineas.append("═══ EVALUACIÓN NUTRICIONAL ═══")
+            if evaluacion.get("diagnostico"):
+                lineas.append(f"• Diagnóstico: {evaluacion.get('diagnostico')}")
+            if evaluacion.get("calorias_recomendadas"):
+                lineas.append(f"• Calorías recomendadas: {evaluacion.get('calorias_recomendadas')} kcal")
+            if p.imc_inicial and p.imc_clasificacion:
+                lineas.append(f"• IMC inicial: {p.imc_inicial} ({p.imc_clasificacion})")
+
+        # Sección 4: Plan alimentario activo
+        plan_activo = p.planes_alimentarios_sync.filter(estado="Activo").order_by("-fecha_inicio").first()
+        if plan_activo:
+            lineas.append("")
+            lineas.append("═══ PLAN ALIMENTARIO ACTIVO ═══")
+            lineas.append(f"• Plan: {plan_activo.nombre}")
+            lineas.append(f"• Calorías: {plan_activo.calorias} kcal  |  Proteínas: {plan_activo.proteinas}g  |  Carbs: {plan_activo.carbohidratos}g  |  Grasas: {plan_activo.grasas}g")
+            if plan_activo.fecha_inicio:
+                lineas.append(f"• Inicio: {plan_activo.fecha_inicio.strftime('%d/%m/%Y')}")
+
+        # Sección 5: Seguimiento de adherencia
+        seguimiento_data = p.seguimiento or {}
+        if seguimiento_data:
+            lineas.append("")
+            lineas.append("═══ SEGUIMIENTO ═══")
+            if seguimiento_data.get("adherencia"):
+                lineas.append(f"• Adherencia al plan: {seguimiento_data.get('adherencia')}")
+            if seguimiento_data.get("nivel_hambre"):
+                lineas.append(f"• Nivel de hambre: {seguimiento_data.get('nivel_hambre')}")
+            if seguimiento_data.get("dificultades"):
+                lineas.append(f"• Dificultades: {seguimiento_data.get('dificultades')}")
+
+        initial["resumen_consulta"] = "\n".join(lineas)
+
+        # Cargar objetivos acordados de la última nota clínica
+        ultima_nota = p.notas_clinicas.order_by("-fecha", "-fecha_creacion").first()
         if ultima_nota and ultima_nota.objetivos_acordados:
             initial["objetivos_acordados"] = ultima_nota.objetivos_acordados
-            
+        if ultima_nota and ultima_nota.plan_accion:
+            initial["plan_accion"] = f"[Revisión de acuerdos previos]\n{ultima_nota.plan_accion}"
+
         return initial
+
 
     def form_valid(self, form):
         form.instance.paciente = self.paciente
@@ -288,11 +349,6 @@ class NotaDetailView(NutricionistaSeguimientoMixin, DetailView):
         if self.object.cita:
             context["cita"] = self.object.cita
         return context
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# HISTORIAL DEL PACIENTE (Timeline)
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 @login_required
@@ -404,20 +460,32 @@ def seguimiento_dashboard(request):
 @login_required
 def notas_dashboard(request):
     """
-    Vista general de notas clínicas: muestra todas las notas del nutricionista,
-    ordenadas por fecha descendente. Accesible desde el sidebar.
+    Vista general de notas clínicas: muestra la lista de pacientes del nutricionista
+    con el total de notas clínicas y la última nota registrada.
+    Análogo a seguimiento_dashboard pero para notas.
     """
-    notas = NotaClinica.objects.filter(
-        paciente__nutricionista=request.user
-    ).select_related("paciente").order_by("-fecha", "-fecha_creacion")
+    pacientes = Paciente.objects.filter(
+        nutricionista=request.user, estado=True
+    ).order_by("nombre", "apellido")
 
-    # Filtro por tipo
-    tipo = request.GET.get("tipo", "")
-    if tipo:
-        notas = notas.filter(tipo=tipo)
+    pacientes_con_notas = []
+    total_notas = NotaClinica.objects.filter(
+        paciente__nutricionista=request.user
+    ).count()
+
+    for p in pacientes:
+        ultima_nota = p.notas_clinicas.order_by("-fecha", "-fecha_creacion").first()
+        total_notas_paciente = p.notas_clinicas.count()
+        pacientes_con_notas.append({
+            "paciente": p,
+            "ultima_nota": ultima_nota,
+            "total_notas": total_notas_paciente,
+        })
 
     context = {
-        "notas": notas,
-        "tipo_seleccionado": tipo,
+        "pacientes_con_notas": pacientes_con_notas,
+        "total_notas": total_notas,
     }
     return render(request, "seguimiento/notas_dashboard.html", context)
+
+

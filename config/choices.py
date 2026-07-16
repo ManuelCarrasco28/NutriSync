@@ -94,12 +94,10 @@ class TipoNota:
     CONSULTA = "consulta"
     SEGUIMIENTO = "seguimiento"
     OBSERVACION = "observacion"
-    RECETA = "receta"
     CHOICES = [
         (CONSULTA, "Consulta"),
         (SEGUIMIENTO, "Seguimiento"),
         (OBSERVACION, "Observación"),
-        (RECETA, "Receta"),
     ]
 
 
