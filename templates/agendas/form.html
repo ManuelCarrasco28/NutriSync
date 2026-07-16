@@ -64,7 +64,34 @@
                     <label for="{{ form.paciente.id_for_label }}" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
                         Paciente <span class="text-red-500">*</span>
                     </label>
-                    {{ form.paciente }}
+                    
+                    <!-- Buscador / Autocomplete de Paciente -->
+                    <div class="relative" id="custom-paciente-select-wrapper">
+                        <button type="button" id="paciente-select-trigger" 
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-white border border-slate-200 text-slate-800 outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all duration-150 text-left mt-1">
+                            <span id="paciente-select-label" class="truncate">Seleccionar paciente...</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                        </button>
+                        
+                        <div id="paciente-select-dropdown" 
+                             class="absolute z-30 w-full mt-1.5 bg-white border border-slate-200 rounded-lg shadow-xl hidden transition-all duration-150">
+                            <div class="p-2 border-b border-slate-100 flex items-center gap-2">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                                <input type="text" id="paciente-search-input" 
+                                       class="w-full text-xs text-slate-700 outline-none border-none focus:ring-0 p-1" 
+                                       placeholder="Buscar por nombre o apellido...">
+                            </div>
+                            <ul id="paciente-options-list" class="max-h-60 overflow-y-auto py-1 text-xs text-slate-700">
+                                <!-- Opciones cargadas por JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Select original oculto para Django -->
+                    <div class="hidden">
+                        {{ form.paciente }}
+                    </div>
+
                     {% if form.paciente.errors %}
                     <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
                         <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
@@ -116,6 +143,13 @@
                         Duración (min) <span class="text-red-500">*</span>
                     </label>
                     {{ form.duracion_minutos }}
+                    <!-- Atajos de duración -->
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button type="button" class="duration-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-750 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-minutes="30">30m</button>
+                        <button type="button" class="duration-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-750 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-minutes="45">45m</button>
+                        <button type="button" class="duration-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-750 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-minutes="60">60m</button>
+                        <button type="button" class="duration-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-750 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-minutes="90">90m</button>
+                    </div>
                     {% if form.duracion_minutos.errors %}
                     <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
                         <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
@@ -149,6 +183,14 @@
                         Costo de Consulta (S/.) <span class="text-red-500">*</span>
                     </label>
                     {{ form.costo }}
+                    <!-- Atajos de costo -->
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <button type="button" class="cost-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-cost="50.00">S/. 50</button>
+                        <button type="button" class="cost-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-cost="80.00">S/. 80</button>
+                        <button type="button" class="cost-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-cost="100.00">S/. 100</button>
+                        <button type="button" class="cost-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-cost="120.00">S/. 120</button>
+                        <button type="button" class="cost-pill px-2 py-0.5 text-[10px] rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-medium cursor-pointer" data-cost="150.00">S/. 150</button>
+                    </div>
                     {% if form.costo.errors %}
                     <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
                         <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
@@ -164,6 +206,12 @@
                     Motivo de Consulta <span class="text-red-500">*</span>
                 </label>
                 {{ form.motivo }}
+                <!-- Plantillas de motivo -->
+                <div class="flex flex-wrap gap-1.5 mt-1.5">
+                    <button type="button" class="motivo-pill px-2.5 py-1 text-[10px] rounded-lg bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-semibold cursor-pointer" data-text="Primera consulta nutricional, evaluación general de hábitos y composición corporal.">Primera consulta</button>
+                    <button type="button" class="motivo-pill px-2.5 py-1 text-[10px] rounded-lg bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-semibold cursor-pointer" data-text="Control de seguimiento antropométrico mensual y ajustes en el plan de alimentación.">Control mensual</button>
+                    <button type="button" class="motivo-pill px-2.5 py-1 text-[10px] rounded-lg bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 transition text-slate-600 font-semibold cursor-pointer" data-text="Evaluación nutricional deportiva avanzada y diseño de plan de suplementación.">Nutrición deportiva</button>
+                </div>
                 {% if form.motivo.errors %}
                 <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
                     <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
@@ -195,7 +243,7 @@
                 </a>
                 <button type="submit" 
                         class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-5 py-2 text-sm
-                               transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
+                               transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer">
                     <i data-lucide="check" class="w-4 h-4"></i>
                     <span>{% if form.instance.pk %}Guardar Cambios{% else %}Agendar Consulta{% endif %}</span>
                 </button>
@@ -235,10 +283,113 @@
             });
         }
 
-        if (pacienteSelect) {
+        // Buscador/Autocomplete de Paciente personalizado
+        const trigger = document.getElementById("paciente-select-trigger");
+        const label = document.getElementById("paciente-select-label");
+        const dropdown = document.getElementById("paciente-select-dropdown");
+        const searchInput = document.getElementById("paciente-search-input");
+        const optionsList = document.getElementById("paciente-options-list");
+
+        if (pacienteSelect && trigger) {
+            const options = Array.from(pacienteSelect.options).filter(opt => opt.value !== "");
+
+            function renderOptions(filterText = "") {
+                optionsList.innerHTML = "";
+                const query = filterText.toLowerCase().trim();
+                const filtered = options.filter(opt => opt.text.toLowerCase().includes(query));
+
+                if (filtered.length === 0) {
+                    optionsList.innerHTML = `<li class="px-4 py-3 text-xs text-slate-400 italic text-center">No se encontraron pacientes</li>`;
+                    return;
+                }
+
+                filtered.forEach(opt => {
+                    const isSelected = pacienteSelect.value === opt.value;
+                    const li = document.createElement("li");
+                    li.className = `px-3 py-2 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors duration-150 ${isSelected ? 'bg-teal-50/50 font-semibold text-teal-700' : ''}`;
+                    li.innerHTML = `
+                        <span>${opt.text}</span>
+                        ${isSelected ? '<i data-lucide="check" class="w-4 h-4 text-teal-600"></i>' : ''}
+                    `;
+                    li.addEventListener("click", function() {
+                        pacienteSelect.value = opt.value;
+                        label.textContent = opt.text;
+                        dropdown.classList.add("hidden");
+                        pacienteSelect.dispatchEvent(new Event("change"));
+                        renderOptions();
+                    });
+                    optionsList.appendChild(li);
+                });
+
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }
+
+            // Seleccionar valor inicial en el label
+            const selectedOption = pacienteSelect.options[pacienteSelect.selectedIndex];
+            if (selectedOption && selectedOption.value !== "") {
+                label.textContent = selectedOption.text;
+            } else {
+                label.textContent = "Seleccionar paciente...";
+            }
+
+            // Abrir y cerrar dropdown
+            trigger.addEventListener("click", function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle("hidden");
+                if (!dropdown.classList.contains("hidden")) {
+                    searchInput.value = "";
+                    searchInput.focus();
+                    renderOptions();
+                }
+            });
+
+            // Filtrado de búsqueda
+            searchInput.addEventListener("input", function() {
+                renderOptions(this.value);
+            });
+
+            // Cerrar dropdown al hacer click fuera
+            document.addEventListener("click", function(e) {
+                if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add("hidden");
+                }
+            });
+
             pacienteSelect.addEventListener("change", actualizarTiposDeConsulta);
             actualizarTiposDeConsulta();
         }
+
+        // Atajos de duración
+        document.querySelectorAll(".duration-pill").forEach(pill => {
+            pill.addEventListener("click", function() {
+                const durationInput = document.getElementById("id_duracion_minutos");
+                if (durationInput) {
+                    durationInput.value = this.getAttribute("data-minutes");
+                }
+            });
+        });
+
+        // Atajos de costo
+        document.querySelectorAll(".cost-pill").forEach(pill => {
+            pill.addEventListener("click", function() {
+                const costInput = document.getElementById("id_costo");
+                if (costInput) {
+                    costInput.value = this.getAttribute("data-cost");
+                }
+            });
+        });
+
+        // Plantillas de motivo
+        document.querySelectorAll(".motivo-pill").forEach(pill => {
+            pill.addEventListener("click", function() {
+                const motivoInput = document.getElementById("id_motivo");
+                if (motivoInput) {
+                    motivoInput.value = this.getAttribute("data-text");
+                }
+            });
+        });
     });
 </script>
 {% endblock %}
