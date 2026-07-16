@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('citas', '0001_initial'),
+        ('agendas', '0001_initial'),
         ('pacientes', '0001_initial'),
     ]
 
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                 ('contenido', models.TextField(verbose_name='Contenido')),
                 ('tipo', models.CharField(choices=[('consulta', 'Consulta'), ('seguimiento', 'Seguimiento'), ('observacion', 'Observación'), ('receta', 'Receta')], default='consulta', max_length=20, verbose_name='Tipo')),
                 ('fecha_creacion', models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')),
-                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='notas', to='citas.cita', verbose_name='Cita relacionada')),
+                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='notas', to='agendas.cita', verbose_name='Cita relacionada')),
                 ('paciente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notas_clinicas', to='pacientes.paciente', verbose_name='Paciente')),
             ],
             options={

@@ -407,7 +407,7 @@ def historial_paciente(request, paciente_pk):
             "color": "amber",
             "titulo": f"Cita: {c.get_tipo_display()}",
             "detalle": f"{c.get_estado_display()} · {c.duracion_minutos} min",
-            "url": reverse_lazy("citas:detalle", kwargs={"pk": c.pk}),
+            "url": reverse_lazy("agendas:detalle", kwargs={"pk": c.pk}),
             "objeto": c,
         })
 

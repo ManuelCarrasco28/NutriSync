@@ -41,10 +41,15 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
             <p class="text-sm text-slate-500 mb-1">Ingresos Totales</p>
             <p class="text-3xl font-bold text-green-700">S/ {{ ingresos.total|floatformat:2 }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-amber-500">
+            <p class="text-sm text-slate-500 mb-1">Ingresos Estimados</p>
+            <p class="text-3xl font-bold text-amber-700">S/ {{ ingresos_estimados.total|floatformat:2 }}</p>
+            <p class="text-xs text-slate-400">{{ ingresos_estimados.cantidad }} citas programadas en rango</p>
         </div>
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
             <p class="text-sm text-slate-500 mb-1">Consultas</p>
@@ -57,7 +62,7 @@
         <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
             <p class="text-sm text-slate-500 mb-1">Proyección</p>
             <p class="text-3xl font-bold text-purple-700">S/ {{ proyeccion.total|floatformat:2 }}</p>
-            <p class="text-xs text-slate-400">{{ proyeccion.cantidad }} citas programadas</p>
+            <p class="text-xs text-slate-400">{{ proyeccion.cantidad }} citas programadas en total</p>
         </div>
     </div>
 

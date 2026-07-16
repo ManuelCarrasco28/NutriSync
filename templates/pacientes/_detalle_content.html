@@ -134,8 +134,8 @@
                     class="flex items-center justify-center gap-2 border border-slate-300 text-slate-650 hover:bg-slate-50 font-bold rounded-xl py-2.5 px-4 text-xs transition-all duration-200">
                     <i data-lucide="pencil" class="w-4 h-4"></i> Editar paciente
                 </button>
-                <a href="{% url 'citas:nueva' %}?paciente={{ paciente.pk }}"
-                    class="flex items-center justify-center gap-2 border border-slate-300 text-slate-650 hover:bg-slate-50 font-bold rounded-xl py-2.5 px-4 text-xs transition-all duration-200">
+                <a href="{% url 'agendas:nueva' %}?paciente={{ paciente.pk }}"
+                   class="flex items-center justify-center gap-2 border border-slate-300 text-slate-650 hover:bg-slate-50 font-bold rounded-xl py-2.5 px-4 text-xs transition-all duration-200">
                     <i data-lucide="calendar" class="w-4 h-4"></i> Agendar cita
                 </a>
                 <button onclick="alert('La generación de reportes PDF estará disponible próximamente en este módulo.')"

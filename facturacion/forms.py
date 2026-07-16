@@ -42,7 +42,7 @@ class CobroForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if nutricionista:
             from pacientes.models import Paciente
-            from citas.models import Cita
+            from agendas.models import Cita
 
             self.fields["paciente"].queryset = Paciente.objects.filter(
                 nutricionista=nutricionista, estado=True

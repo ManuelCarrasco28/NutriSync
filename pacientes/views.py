@@ -212,7 +212,7 @@ class PacienteDetailView(NutricionistaPacienteMixin, DetailView):
 
         # ─── Próxima Cita Programada ───
         try:
-            from citas.models import Cita
+            from agendas.models import Cita
             context['proxima_cita'] = Cita.objects.filter(
                 paciente=paciente,
                 estado='programada'
@@ -318,7 +318,7 @@ def paciente_consulta_iniciar(request, pk):
     from django.utils import timezone
     from pacientes.models import Consulta, PlanAlimentario
     from seguimiento.models import Recomendacion
-    from citas.models import Cita
+    from agendas.models import Cita
     from config.choices import EstadoCita
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
@@ -430,7 +430,7 @@ def paciente_consulta_finalizar(request, pk, consulta_id):
     from django.http import JsonResponse
     from django.utils import timezone
     from pacientes.models import Consulta
-    from citas.models import Cita
+    from agendas.models import Cita
     from config.choices import EstadoCita
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
@@ -1720,6 +1720,7 @@ def paciente_archivos_list(request, pk):
 def paciente_archivo_subir(request, pk):
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     from .models import ArchivoPaciente
+    import os
     
     nombre = request.POST.get("nombre")
     categoria = request.POST.get("categoria")
@@ -1729,6 +1730,15 @@ def paciente_archivo_subir(request, pk):
     
     if not archivo:
         return JsonResponse({"success": False, "error": "No se proporcionó ningún archivo."}, status=400)
+        
+    # Validar extensión del archivo por seguridad (prevención de subida de scripts)
+    extensiones_seguras = {'.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.xls', '.xlsx', '.txt'}
+    _, ext = os.path.splitext(archivo.name)
+    if ext.lower() not in extensiones_seguras:
+        return JsonResponse({
+            "success": False, 
+            "error": "Formato de archivo no permitido. Solo se aceptan PDFs, imágenes y documentos de oficina."
+        }, status=400)
     
     if not nombre:
         nombre = archivo.name

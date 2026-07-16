@@ -316,7 +316,7 @@ def cobro_registrar_pago(request, pk):
 @login_required
 def cobro_crear_desde_cita(request, cita_pk):
     """Crea un cobro automático desde el costo de una cita."""
-    from citas.models import Cita
+    from agendas.models import Cita
 
     cita = get_object_or_404(
         Cita, pk=cita_pk, paciente__nutricionista=request.user
@@ -324,7 +324,7 @@ def cobro_crear_desde_cita(request, cita_pk):
 
     if cita.costo <= 0:
         messages.warning(request, "La cita no tiene un costo definido.")
-        return redirect("citas:detalle", pk=cita.pk)
+        return redirect("agendas:detalle", pk=cita.pk)
 
     cobro = Cobro.objects.create(
         nutricionista=request.user,

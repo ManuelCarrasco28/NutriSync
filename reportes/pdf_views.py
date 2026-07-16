@@ -153,6 +153,7 @@ def pdf_financieros(request):
         fecha_fin = hoy
     
     ingresos = utils.calcular_ingresos(request.user, fecha_inicio, fecha_fin)
+    ingresos_estimados = utils.calcular_ingresos_estimados(request.user, fecha_inicio, fecha_fin)
     ingresos_tipo = utils.calcular_ingresos_por_tipo(request.user, fecha_inicio, fecha_fin)
     ingresos_mensuales = utils.calcular_ingresos_mensuales(request.user, meses=6)
     proyeccion = utils.calcular_proyeccion_ingresos(request.user)
@@ -161,6 +162,7 @@ def pdf_financieros(request):
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
         'ingresos': ingresos,
+        'ingresos_estimados': ingresos_estimados,
         'ingresos_tipo': ingresos_tipo,
         'ingresos_mensuales': ingresos_mensuales,
         'proyeccion': proyeccion,

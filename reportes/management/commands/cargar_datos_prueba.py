@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from pacientes.models import Paciente, Consulta
-from citas.models import Cita
+from agendas.models import Cita
 from seguimiento.models import MedidaCorporal, Recomendacion, NotaClinica
 from datetime import date, timedelta, time, datetime
 from decimal import Decimal

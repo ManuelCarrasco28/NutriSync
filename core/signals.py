@@ -1,6 +1,5 @@
 # core/signals.py
-# Signal para crear el PerfilNutricionista automáticamente al crear un User.
-# Garantiza que nunca exista un User sin su perfil correspondiente.
+# Crea PerfilNutricionista automáticamente al crear un User (excepto staff).
 
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
@@ -10,12 +9,8 @@ from .models import PerfilNutricionista
 
 @receiver(post_save, sender=User)
 def crear_perfil_nutricionista(sender, instance, created, **kwargs):
-    """
-    Crea automáticamente el PerfilNutricionista cuando se crea un nuevo User.
-    Usamos get_or_create para evitar duplicados en caso de saves múltiples.
-    El nombre_completo se inicializa con el nombre del User si está disponible.
-    """
-    if created:
+    """Crea perfil para usuarios nuevos que no sean staff."""
+    if created and not instance.is_staff:
         nombre = f"{instance.first_name} {instance.last_name}".strip()
         PerfilNutricionista.objects.get_or_create(
             usuario=instance,

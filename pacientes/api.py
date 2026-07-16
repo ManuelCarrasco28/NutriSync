@@ -11,7 +11,7 @@ from ninja.security import HttpBearer
 from ninja.errors import HttpError
 from django.core.cache import cache
 from pacientes.models import Paciente, CodigoVinculacion, PlanAlimentario, ArchivoPaciente
-from citas.models import Cita
+from agendas.models import Cita
 from seguimiento.models import MedidaCorporal, NotaClinica, Recomendacion
 
 router = Router()

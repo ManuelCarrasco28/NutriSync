@@ -43,7 +43,7 @@ class NotaClinicaAdmin(admin.ModelAdmin):
         if obj.cita:
             from django.utils.html import format_html
             from django.urls import reverse
-            url = reverse("admin:citas_cita_change", args=[obj.cita.pk])
+            url = reverse("admin:agendas_cita_change", args=[obj.cita.pk])
             return format_html('<a href="{}">Cita #{}</a>', url, obj.cita.pk)
         return "—"
 

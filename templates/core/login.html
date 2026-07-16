@@ -1,41 +1,81 @@
 <!-- templates/core/login.html -->
-<!-- Página de login: formulario centrado, minimalista, paleta teal/slate. -->
+<!-- Página de login: rediseñada con fondo premium, gradientes y estilo glassmorphism. -->
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Iniciar sesión en NutriSync — Plataforma de gestión para nutricionistas">
     <title>Iniciar Sesión — NutriSync</title>
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } }</script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={% now 'U' %}">
+    <style>
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(20, 184, 166, 0.08), transparent 45%),
+                        radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05), transparent 45%),
+                        #fafaf9;
+        }
+        .glowing-border {
+            position: relative;
+        }
+        .glowing-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #0d9488, #4f46e5);
+            border-radius: 1.1rem;
+            z-index: -1;
+            opacity: 0.15;
+            transition: opacity 0.3s ease;
+        }
+        .glowing-border:hover::before {
+            opacity: 0.3;
+        }
+    </style>
 </head>
+<body class="hero-gradient min-h-screen text-slate-800 font-sans flex items-center justify-center py-12 px-6">
 
-<body class="bg-slate-50 font-sans min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        
+        <!-- Volver al Inicio -->
+        <div class="mb-6 text-center lg:text-left">
+            <a href="/" class="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-teal-600 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                Volver al inicio
+            </a>
+        </div>
 
-    <div class="w-full max-w-md px-4">
-
-        <!-- Mensajes de error/info antes del formulario -->
+        <!-- Mensajes de error/info -->
         {% if messages %}
         <div class="mb-4 space-y-2">
             {% for message in messages %}
-            <div class="px-4 py-3 rounded-lg text-sm font-medium
-                {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800
-                {% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800
-                {% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+            <div class="px-4 py-3 rounded-xl text-sm font-medium border
+                {% if message.tags == 'success' %}bg-emerald-50 border-emerald-250/20 text-emerald-800
+                {% elif message.tags == 'error' %}bg-red-50 border-red-250/20 text-red-800
+                {% else %}bg-blue-50 border-blue-250/20 text-blue-800{% endif %}">
                 {{ message }}
             </div>
             {% endfor %}
@@ -43,57 +83,70 @@
         {% endif %}
 
         <!-- Card de login -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200/60 p-8 glowing-border relative overflow-hidden">
+            
             <!-- Logo / Header -->
             <div class="text-center mb-8">
-                <i data-lucide="apple" class="w-12 h-12 mx-auto mb-3 text-teal-600"></i>
-                <h1 class="text-2xl font-semibold text-slate-800">NutriSync</h1>
-                <p class="text-slate-400 text-sm mt-1">Plataforma de Gestión para Nutricionistas</p>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20 mx-auto mb-4">
+                    <i data-lucide="apple" class="w-7 h-7 text-white"></i>
+                </div>
+                <h1 class="font-heading font-bold text-2xl text-slate-900">Iniciar Sesión</h1>
+                <p class="text-slate-500 text-sm mt-1">Plataforma de Gestión para Nutricionistas</p>
             </div>
 
             <!-- Formulario -->
-            <form method="post" action="{% url 'core:login' %}" novalidate>
+            <form method="POST" action="{% url 'core:login' %}" class="space-y-5">
                 {% csrf_token %}
 
-                <div class="space-y-4">
-                    <!-- Usuario -->
-                    <div>
-                        <label for="id_username"
-                            class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                            Usuario
-                        </label>
-                        <input type="text" id="id_username" name="username" autocomplete="username" required class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                                      transition-all duration-200 placeholder-slate-300"
-                            placeholder="Tu usuario de acceso">
+                <!-- Usuario -->
+                <div>
+                    <label for="id_username" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Nombre de Usuario
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" id="id_username" name="username" autocomplete="username" required 
+                               class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300"
+                               placeholder="Tu usuario de acceso">
                     </div>
-
-                    <!-- Contraseña -->
-                    <div>
-                        <label for="id_password"
-                            class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                            Contraseña
-                        </label>
-                        <input type="password" id="id_password" name="password" autocomplete="current-password" required
-                            class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-                                      transition-all duration-200 placeholder-slate-300" placeholder="••••••••">
-                    </div>
-
-                    <!-- Botón de ingreso -->
-                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 active:bg-teal-800
-                                   text-white font-medium rounded-lg px-4 py-2.5 text-sm
-                                   transition-all duration-200 mt-2 shadow-sm hover:shadow-md">
-                        Ingresar al sistema
-                    </button>
                 </div>
+
+                <!-- Contraseña -->
+                <div>
+                    <label for="id_password" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Contraseña
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input type="password" id="id_password" name="password" autocomplete="current-password" required
+                               class="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" 
+                               placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Botón de ingreso -->
+                <button type="submit" class="w-full bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-semibold rounded-xl py-3 text-sm transition-all duration-200 shadow-md hover:shadow-lg mt-3 flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Ingresar al sistema
+                </button>
             </form>
+
+            <!-- Enlace de registro -->
+            <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+                ¿No tienes una cuenta? 
+                <a href="{% url 'core:register' %}" class="text-teal-650 hover:text-teal-700 font-bold transition-colors">
+                    Regístrate aquí
+                </a>
+            </div>
 
         </div>
 
         <!-- Footer -->
-        <p class="text-center text-xs text-slate-400 mt-6">
+        <p class="text-center text-xs text-slate-400 mt-8">
             NutriSync &mdash; Solo para nutricionistas autorizados
         </p>
     </div>
@@ -102,5 +155,4 @@
       lucide.createIcons();
     </script>
 </body>
-
 </html>

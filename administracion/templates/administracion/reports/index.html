@@ -1,0 +1,260 @@
+{% extends 'administracion/base.html' %}
+
+{% block title %}Reportes y Descargas — NutriSync Admin{% endblock %}
+
+{% block page_title %}Reportes y Descargas{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    
+    <!-- Encabezado con ilustración decorativa -->
+    <div class="glass-card border border-slate-200/60 rounded-2xl p-6 shadow-sm overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 opacity-[0.04] pointer-events-none">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="1.5" class="text-teal-600"/>
+                <path d="M100 20 L100 180 M20 100 L180 100" stroke="currentColor" stroke-width="1" class="text-slate-600"/>
+                <rect x="50" y="50" width="100" height="100" stroke="currentColor" stroke-width="1.2" class="text-indigo-600"/>
+            </svg>
+        </div>
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div class="flex items-start gap-5">
+                <div class="w-14 h-14 rounded-2xl gradient-badge flex items-center justify-center shadow-lg shadow-teal-600/20 flex-shrink-0">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-teal-600 uppercase tracking-[0.15em] mb-1">Métricas de Crecimiento</p>
+                    <h1 class="font-heading text-2xl font-bold tracking-tight text-slate-900">Reportes e Inteligencia Comercial</h1>
+                    <p class="text-[13px] text-slate-500 mt-1 max-w-lg">Analiza los flujos de cobro y descarga la información consolidada de la plataforma en Excel.</p>
+                </div>
+            </div>
+
+            <!-- Botones de Exportación General Rápidos -->
+            <div class="flex flex-col sm:flex-row gap-2.5 flex-shrink-0">
+                <a 
+                    href="{% url 'administracion:exportar_nutricionistas_csv' %}"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition-all hover:scale-[1.01]"
+                    title="Exportar base de datos de nutricionistas"
+                >
+                    <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
+                    Padrón Nutricionistas (Excel)
+                </a>
+                <a 
+                    href="{% url 'administracion:exportar_finanzas_csv' %}"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 transition-all hover:scale-[1.01]"
+                    title="Exportar base de datos de transacciones"
+                >
+                    <i data-lucide="receipt" class="w-4 h-4 text-indigo-600"></i>
+                    Reporte Financiero (Excel)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs de Crecimiento Rápido -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="kpi-card kpi-teal glass-card border border-slate-200/60 rounded-2xl p-5 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ingresos Totales Acumulados</span>
+                    <p class="font-heading text-2xl font-bold text-slate-950 mt-2">S/ {{ ingresos_totales|floatformat:2 }}</p>
+                </div>
+                <div class="p-2 rounded-xl bg-teal-50 text-teal-600">
+                    <i data-lucide="banknote" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card kpi-indigo glass-card border border-slate-200/60 rounded-2xl p-5 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nutricionistas Registrados</span>
+                    <p class="font-heading text-2xl font-bold text-slate-950 mt-2">{{ total_usuarios }} profesionales</p>
+                </div>
+                <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card kpi-emerald glass-card border border-slate-200/60 rounded-2xl p-5 shadow-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Suscripciones Activas</span>
+                    <p class="font-heading text-2xl font-bold text-slate-950 mt-2">{{ suscripciones_activas }} vigentes</p>
+                </div>
+                <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Pagos Mensuales de Nutricionistas -->
+    <div id="historial-pagos" class="glass-card border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden mt-6">
+        <div class="p-6 border-b border-slate-100 bg-slate-50/20 space-y-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-heading text-base font-bold text-slate-900">Historial de Pagos Mensuales</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Listado y descargas de las suscripciones pagadas por los nutricionistas mes a mes.</p>
+                </div>
+                
+                <!-- Botón Exportar Excel/CSV del Mes Seleccionado -->
+                <a 
+                    href="{% url 'administracion:exportar_pagos_mensuales_csv' %}?mes={{ mes_filtro }}&anio={{ anio_filtro }}&q_nutricionista={{ q_nutricionista }}&plan_pago={{ plan_pago_filtro }}"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/60 transition-all duration-200"
+                >
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    Exportar Lista Filtrada (Excel)
+                </a>
+            </div>
+
+            <!-- Formulario de Filtros Unificado -->
+            <form method="GET" action="#historial-pagos" class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
+                <!-- Mes y Año -->
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Período</label>
+                    <select 
+                        name="mes_anio" 
+                        onchange="const val = this.value.split('-'); document.getElementById('mes_hidden').value = val[0]; document.getElementById('anio_hidden').value = val[1]; this.form.submit();"
+                        class="w-full px-3 py-2 rounded-xl text-[12px] bg-white border border-slate-200 text-slate-700 outline-none focus:border-teal-500 font-medium cursor-pointer"
+                    >
+                        {% for opt in meses_opciones %}
+                            <option value="{{ opt.mes }}-{{ opt.anio }}" {% if opt.mes == mes_filtro and opt.anio == anio_filtro %}selected{% endif %}>
+                                {{ opt.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="mes" id="mes_hidden" value="{{ mes_filtro }}">
+                    <input type="hidden" name="anio" id="anio_hidden" value="{{ anio_filtro }}">
+                </div>
+
+                <!-- Buscar Nutricionista -->
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nutricionista</label>
+                    <input 
+                        type="text" 
+                        name="q_nutricionista" 
+                        value="{{ q_nutricionista }}" 
+                        placeholder="Buscar por nombre o usuario..."
+                        class="w-full px-3 py-2.5 rounded-xl text-[12px] bg-white border border-slate-200 text-slate-800 outline-none focus:border-teal-500 placeholder:text-slate-400"
+                    >
+                </div>
+
+                <!-- Filtrar por Plan -->
+                <div>
+                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Filtrar por Plan</label>
+                    <select 
+                        name="plan_pago"
+                        class="w-full px-3 py-2.5 rounded-xl text-[12px] bg-white border border-slate-200 text-slate-700 outline-none focus:border-teal-500 font-medium cursor-pointer"
+                    >
+                        <option value="">Todos los planes</option>
+                        {% for p in todos_planes %}
+                            <option value="{{ p.id }}" {% if plan_pago_filtro == p.id|stringformat:"i" %}selected{% endif %}>{{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Botones Acción -->
+                <div class="flex items-end gap-2">
+                    <button 
+                        type="submit"
+                        class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl py-2.5 text-[12px] transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                        <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                        Filtrar
+                    </button>
+                    {% if q_nutricionista or plan_pago_filtro %}
+                    <a 
+                        href="?mes={{ mes_filtro }}&anio={{ anio_filtro }}#historial-pagos"
+                        class="px-3.5 py-2.5 rounded-xl text-[12px] bg-white border border-slate-200 text-slate-650 hover:bg-slate-50 transition-all font-semibold flex items-center justify-center"
+                        title="Limpiar filtros de búsqueda"
+                    >
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse admin-table">
+                <thead>
+                    <tr class="border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-[0.12em]">
+                        <th class="px-6 py-4">Nutricionista</th>
+                        <th class="px-6 py-4">Plan / Ciclo</th>
+                        <th class="px-6 py-4">Monto Cobrado</th>
+                        <th class="px-6 py-4">Método / Referencia</th>
+                        <th class="px-6 py-4">Fecha Pago</th>
+                        <th class="px-6 py-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100/70 text-[13px] text-slate-700">
+                    {% for pago in pagos_mes %}
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500/10 to-indigo-500/10 flex items-center justify-center text-[10px] font-bold text-teal-700 uppercase border border-teal-200/40">
+                                    {{ pago.nutricionista.perfil.nombre_completo|slice:":2" }}
+                                </div>
+                                <div>
+                                    <span class="font-semibold text-slate-900 block text-[12px]">{{ pago.nutricionista.perfil.nombre_completo }}</span>
+                                    <span class="text-[10px] text-slate-400 block">@{{ pago.nutricionista.username }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if pago.nutricionista.suscripcion %}
+                                <span class="font-semibold text-slate-800 text-[12px]">{{ pago.nutricionista.suscripcion.plan.nombre }}</span>
+                                <span class="text-[10px] text-slate-400 block capitalize">{{ pago.nutricionista.suscripcion.get_tipo_facturacion_display }}</span>
+                            {% else %}
+                                <span class="text-[11px] text-slate-400">Sin plan activo</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 font-mono font-bold text-[13px]">
+                            S/ {{ pago.monto|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200/60">
+                                {{ p.get_metodo_pago_display|default:pago.get_metodo_pago_display }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 block mt-1 font-mono">Ref: {{ pago.referencia|default:"Ninguna" }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-400 text-[12px]">
+                            {{ pago.fecha_pago|date:"d M Y, H:i" }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if pago.estado == 'completado' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                    Completado
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
+                                    Pendiente
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-14 text-center">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 mx-auto mb-3 flex items-center justify-center text-slate-300">
+                                <i data-lucide="receipt" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="font-heading text-sm font-semibold text-slate-700">No se registraron pagos este mes</h3>
+                            <p class="text-[11px] text-slate-400 mt-1">Prueba a seleccionar otro período en el filtro superior.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Total Recaudado del Mes -->
+        <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-sm">
+            <span class="font-semibold text-slate-500">Total recaudado este mes:</span>
+            <span class="font-heading font-bold text-slate-900 text-base">S/ {{ total_mes_seleccionado|floatformat:2 }}</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

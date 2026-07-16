@@ -1,0 +1,279 @@
+<!-- templates/agendas/detalle.html -->
+{% extends "base.html" %}
+
+{% block title %}Detalle de Cita — {{ cita.paciente.nombre_completo }}{% endblock %}
+{% block page_title %}Detalle de la Cita{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Acciones superiores / Navegación -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <a href="{% url 'agendas:agenda' %}" 
+           class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Volver a la Agenda</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+            <!-- Botón de editar -->
+            <a href="{% url 'agendas:editar' cita.pk %}" 
+               class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium rounded-lg px-4 py-2 text-sm transition-all shadow-sm">
+                <i data-lucide="pencil" class="w-4 h-4 text-slate-500"></i>
+                <span>Editar Cita</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Fila principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Columna Izquierda: Información de Cita (2/3 de ancho) -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Ficha técnica -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- Encabezado con estado -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Detalles de Consulta</span>
+                        <h2 class="text-xl font-bold text-slate-800">{{ cita.get_tipo_display }}</h2>
+                    </div>
+                    <div>
+                        {% if cita.estado == 'programada' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-blue-200 bg-blue-50 text-blue-700">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                {{ cita.get_estado_display }}
+                            </span>
+                        {% elif cita.estado == 'completada' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                {{ cita.get_estado_display }}
+                            </span>
+                        {% elif cita.estado == 'cancelada' %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-red-200 bg-red-50 text-red-700">
+                                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                {{ cita.get_estado_display }}
+                            </span>
+                        {% else %}
+                            <!-- no_asistio -->
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-slate-200 bg-slate-50 text-slate-700">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                {{ cita.get_estado_display }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Detalles en Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Fecha y Hora -->
+                    <div class="flex gap-3">
+                        <div class="p-2.5 bg-slate-50 rounded-lg text-slate-500 h-fit">
+                            <i data-lucide="calendar" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-400 block">Fecha y Hora</span>
+                            <span class="text-sm font-semibold text-slate-700 block mt-0.5">{{ cita.fecha_hora|date:"l, d \d\e F \d\e Y"|title }}</span>
+                            <span class="text-xs text-slate-500 mt-0.5 block">{{ cita.fecha_hora|date:"H:i" }} - {{ cita.fecha_fin|date:"H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Duración -->
+                    <div class="flex gap-3">
+                        <div class="p-2.5 bg-slate-50 rounded-lg text-slate-500 h-fit">
+                            <i data-lucide="timer" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-400 block">Duración</span>
+                            <span class="text-sm font-semibold text-slate-700 block mt-0.5">{{ cita.duracion_minutos }} minutos</span>
+                            <span class="text-xs text-slate-500 mt-0.5 block">Finalización aprox. {{ cita.fecha_fin|date:"H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Costo -->
+                    <div class="flex gap-3">
+                        <div class="p-2.5 bg-slate-50 rounded-lg text-slate-500 h-fit">
+                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-400 block">Costo de la Sesión</span>
+                            <span class="text-sm font-semibold text-slate-700 block mt-0.5">
+                                {% if cita.costo %}
+                                    S/. {{ cita.costo }}
+                                {% else %}
+                                    <span class="text-slate-400 font-normal italic">No asignado</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Registro -->
+                    <div class="flex gap-3">
+                        <div class="p-2.5 bg-slate-50 rounded-lg text-slate-500 h-fit">
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-slate-400 block">Fecha de Registro</span>
+                            <span class="text-sm text-slate-600 block mt-0.5">{{ cita.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivo de Consulta -->
+                <div class="pt-4 border-t border-slate-100 space-y-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Motivo de la Consulta</span>
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 text-sm text-slate-700">
+                        {% if cita.motivo %}
+                            {{ cita.motivo|linebreaks }}
+                        {% else %}
+                            <span class="text-slate-400 italic">No se registró motivo para esta cita.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notas Clínicas / Evolución -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-teal-600"></i>
+                        <h3 class="text-sm font-bold text-slate-700">Notas Clínicas e Informe de Sesión</h3>
+                    </div>
+                    <span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-semibold flex items-center gap-1">
+                        <i data-lucide="lock" class="w-2.5 h-2.5"></i> Confidencial
+                    </span>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-100 text-sm text-slate-700 min-h-[120px]">
+                    {% if cita.notas_consulta %}
+                        {{ cita.notas_consulta|linebreaks }}
+                    {% else %}
+                        <div class="flex flex-col items-center justify-center text-slate-400 py-6">
+                            <i data-lucide="edit-3" class="w-8 h-8 text-slate-200 mb-2"></i>
+                            <span class="italic">No se han redactado notas clínicas para esta consulta.</span>
+                            <a href="{% url 'agendas:editar' cita.pk %}" class="text-teal-600 hover:text-teal-700 font-semibold mt-2 text-xs hover:underline flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar notas ahora
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Columna Derecha: Paciente & Acciones Rápidas (1/3 de ancho) -->
+        <div class="space-y-6">
+
+            <!-- Ficha rápida del Paciente -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 text-center space-y-4">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Paciente Agendado</span>
+                
+                {% if cita.paciente.informacion_clinica.foto_url %}
+                    <img src="{{ cita.paciente.informacion_clinica.foto_url }}" class="w-16 h-16 rounded-full object-cover mx-auto border border-teal-100 shadow-sm">
+                {% else %}
+                    <div class="w-16 h-16 text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold border border-teal-100"
+                         style="background-color: {{ cita.paciente.informacion_clinica.avatar_color|default:'#10B981' }};">
+                        {{ cita.paciente.nombre|slice:":1" }}{{ cita.paciente.apellido|slice:":1" }}
+                    </div>
+                {% endif %}
+                
+                <div class="space-y-1">
+                    <a href="{% url 'pacientes:detalle' cita.paciente.pk %}" 
+                       class="text-base font-bold text-slate-800 hover:text-teal-600 hover:underline transition-colors block">
+                        {{ cita.paciente.nombre_completo }}
+                    </a>
+                    <span class="text-xs text-slate-400 block">Paciente de NutriSync</span>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 space-y-2 text-left text-xs text-slate-600">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Teléfono:</span>
+                        <span class="font-medium text-slate-800">{{ cita.paciente.telefono }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Email:</span>
+                        <span class="font-medium text-slate-800 truncate max-w-[140px]" title="{{ cita.paciente.email }}">{{ cita.paciente.email|default:"-" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Sexo / Edad:</span>
+                        <span class="font-medium text-slate-800">{{ cita.paciente.get_sexo_display|default:"-" }} ({{ cita.paciente.edad|default:"-" }} años)</span>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <a href="{% url 'pacientes:detalle' cita.paciente.pk %}" 
+                       class="w-full text-center block bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 font-semibold rounded-lg px-4 py-2 text-xs transition-colors">
+                        Ver Expediente Médico
+                    </a>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas de estado de cita -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Control de Asistencia</span>
+                
+                <div class="space-y-2">
+                    {% if cita.estado == 'programada' %}
+                        <!-- Completar -->
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="completada">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                Marcar como Completada
+                            </button>
+                        </form>
+                        <!-- No asistió (Solo disponible si la cita ya inició o pasó en el tiempo) -->
+                        {% if puede_marcar_no_asistio %}
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="no_asistio">
+                            <button type="submit" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-slate-200 flex items-center justify-center gap-2">
+                                <i data-lucide="user-x" class="w-4 h-4"></i>
+                                Marcar como No Asistió
+                            </button>
+                        </form>
+                        {% endif %}
+                        <!-- Cancelar -->
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="cancelada">
+                            <button type="submit" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-red-200 flex items-center justify-center gap-2"
+                                    onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita?');">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                Cancelar Cita
+                            </button>
+                        </form>
+                    {% else %}
+                        <!-- Re-programar o Reactivar -->
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="programada">
+                            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                Re-programar (Activar)
+                            </button>
+                        </form>
+                        
+                        {% if cita.estado != 'cancelada' %}
+                        <!-- Cancelar si está completada o no asistió -->
+                        <form method="post" action="{% url 'agendas:cambiar_estado' cita.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="estado" value="cancelada">
+                            <button type="submit" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg px-4 py-2 text-xs transition-colors border border-red-200 flex items-center justify-center gap-2"
+                                    onclick="return confirm('¿Estás seguro de que deseas cancelar esta cita?');">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                Cancelar Cita
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

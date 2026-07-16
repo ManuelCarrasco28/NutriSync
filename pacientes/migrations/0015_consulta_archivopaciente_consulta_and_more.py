@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('citas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
+        ('agendas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
         ('pacientes', '0014_archivopaciente'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('seguimiento', models.JSONField(blank=True, default=dict, null=True, verbose_name='Seguimiento de la Consulta')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='consultas', to='citas.cita', verbose_name='Cita originaria')),
+                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='consultas', to='agendas.cita', verbose_name='Cita originaria')),
                 ('consulta_anterior', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='consultas_siguientes', to='pacientes.consulta', verbose_name='Consulta anterior')),
                 ('paciente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consultas', to='pacientes.paciente', verbose_name='Paciente')),
                 ('profesional', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='consultas_atendidas', to=settings.AUTH_USER_MODEL, verbose_name='Nutricionista')),

@@ -40,11 +40,12 @@ INSTALLED_APPS = [
     # Apps del proyecto NutriSync — orden según dependencias
     "core.apps.CoreConfig",  # Auth, dashboard, perfil del nutricionista (CoreConfig para signals)
     "pacientes",  # Gestión de pacientes
-    "citas",  # Agenda de citas
+    "agendas.apps.AgendasConfig",  # Agenda de citas
     "nutricion",  # Base de alimentos y planes nutricionales
     "seguimiento",  # Medidas corporales y notas clínicas
     "reportes",  # Reportes clínicos, operativos y financieros
     "facturacion",  # Facturación, cobros y suscripciones
+    "administracion",  # Panel de Administración Global (BackOffice SaaS)
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,8 @@ TEMPLATES = [
                 # Inyecta el PerfilNutricionista en todos los templates
                 # para que el sidebar y el header tengan acceso al nombre/especialidad
                 "core.context_processors.perfil_nutricionista",
+                # Inyecta el perfil del administrador en vistas de administracion
+                "administracion.context_processors.admin_context",
             ],
         },
     },
@@ -163,8 +166,11 @@ else:
 
 
 # ─── Configuración Stripe (Facturación) ──────────────────────────────────────
-STRIPE_PUBLIC_KEY = config("STRIPE_PUBLIC_KEY", default="pk_test_placeholder")
-STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="sk_test_placeholder")
+STRIPE_PUBLIC_KEY     = config("STRIPE_PUBLIC_KEY",     default="pk_test_placeholder")
+STRIPE_SECRET_KEY     = config("STRIPE_SECRET_KEY",     default="sk_test_placeholder")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="whsec_placeholder")
 STRIPE_CURRENCY = "PEN"
 
+
+# Clave secreta para registrar administradores en /administracion/register/
+ADMIN_REGISTER_KEY = config("ADMIN_REGISTER_KEY", default="nutrisync-admin-2025")

@@ -18,11 +18,11 @@
                 <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
                 Nuevo Paciente
             </a>
-            <a href="{% url 'citas:nueva' %}" class="flex items-center justify-center bg-teal-600 text-white hover:bg-teal-500 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-teal-500/50 shadow-sm hover:scale-[1.02]">
+            <a href="{% url 'agendas:nueva' %}" class="flex items-center justify-center bg-teal-600 text-white hover:bg-teal-500 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-teal-500/50 shadow-sm hover:scale-[1.02]">
                 <i data-lucide="calendar-plus" class="w-4 h-4 mr-2"></i>
                 Nueva Cita
             </a>
-            <a href="{% url 'citas:agenda' %}" class="flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-slate-700 shadow-sm hover:scale-[1.02]">
+            <a href="{% url 'agendas:agenda' %}" class="flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border border-slate-700 shadow-sm hover:scale-[1.02]">
                 <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
                 Ver Agenda
             </a>
@@ -138,7 +138,7 @@
                             Próximas Citas (Esta Semana)
                         </h3>
                     </div>
-                    <a href="{% url 'citas:agenda' %}" class="text-xs font-semibold text-teal-600 hover:text-teal-800 transition-colors">
+                    <a href="{% url 'agendas:agenda' %}" class="text-xs font-semibold text-teal-600 hover:text-teal-800 transition-colors">
                         Ver agenda completa
                     </a>
                 </div>
@@ -183,7 +183,7 @@
                                         {{ cita.estado|capfirst }}
                                     </span>
                                 {% endif %}
-                                <a href="{% url 'citas:detalle' cita.pk %}" class="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-all" title="Ver detalles">
+                                <a href="{% url 'agendas:detalle' cita.pk %}" class="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-all" title="Ver detalles">
                                     <i data-lucide="eye" class="w-4 h-4"></i>
                                 </a>
                             </div>

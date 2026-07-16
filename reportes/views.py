@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import date, timedelta
 from pacientes.models import Paciente
-from citas.models import Cita
+from agendas.models import Cita
 from seguimiento.models import MedidaCorporal, Recomendacion
 from . import utils
 import json
@@ -24,6 +24,7 @@ def dashboard_reportes(request):
     ).count()
     
     ingresos_mes = utils.calcular_ingresos(request.user, inicio_mes, fin_mes)
+    ingresos_estimados_mes = utils.calcular_ingresos_estimados(request.user, inicio_mes, fin_mes)
     
     cumplimiento = utils.calcular_cumplimiento_recomendaciones(request.user, inicio_mes, fin_mes)
     
@@ -31,6 +32,7 @@ def dashboard_reportes(request):
         'pacientes_activos': pacientes_activos,
         'citas_mes': citas_mes,
         'ingresos_mes': ingresos_mes['total'],
+        'ingresos_estimados_mes': ingresos_estimados_mes['total'],
         'cumplimiento': cumplimiento['porcentaje_cumplimiento'],
     }
     
@@ -165,6 +167,7 @@ def reportes_financieros(request):
         fecha_fin = hoy
     
     ingresos = utils.calcular_ingresos(request.user, fecha_inicio, fecha_fin)
+    ingresos_estimados = utils.calcular_ingresos_estimados(request.user, fecha_inicio, fecha_fin)
     ingresos_tipo = utils.calcular_ingresos_por_tipo(request.user, fecha_inicio, fecha_fin)
     ingresos_mensuales = utils.calcular_ingresos_mensuales(request.user, meses=6)
     proyeccion = utils.calcular_proyeccion_ingresos(request.user)
@@ -173,6 +176,7 @@ def reportes_financieros(request):
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
         'ingresos': ingresos,
+        'ingresos_estimados': ingresos_estimados,
         'ingresos_tipo': ingresos_tipo,
         'ingresos_tipo_labels': json.dumps(list(ingresos_tipo.keys())),
         'ingresos_tipo_values': json.dumps(list(ingresos_tipo.values())),

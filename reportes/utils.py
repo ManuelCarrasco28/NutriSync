@@ -104,7 +104,7 @@ def calcular_cumplimiento_recomendaciones(nutricionista, fecha_inicio=None, fech
 
 
 def calcular_ocupacion_agenda(nutricionista, fecha_inicio, fecha_fin):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     dias_totales = (fecha_fin - fecha_inicio).days + 1
     horas_disponibles = dias_totales * 10  # 10 horas laborables (8-18)
@@ -126,7 +126,7 @@ def calcular_ocupacion_agenda(nutricionista, fecha_inicio, fecha_fin):
 
 
 def calcular_citas_por_estado(nutricionista, fecha_inicio=None, fecha_fin=None):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     queryset = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista)
@@ -155,7 +155,7 @@ def calcular_citas_por_estado(nutricionista, fecha_inicio=None, fecha_fin=None):
 
 
 def calcular_citas_por_tipo(nutricionista, fecha_inicio=None, fecha_fin=None):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     queryset = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista)
@@ -176,7 +176,7 @@ def calcular_citas_por_tipo(nutricionista, fecha_inicio=None, fecha_fin=None):
 
 
 def calcular_ingresos(nutricionista, fecha_inicio=None, fecha_fin=None):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     queryset = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista),
@@ -200,7 +200,7 @@ def calcular_ingresos(nutricionista, fecha_inicio=None, fecha_fin=None):
 
 
 def calcular_ingresos_por_tipo(nutricionista, fecha_inicio=None, fecha_fin=None):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     queryset = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista),
@@ -222,7 +222,7 @@ def calcular_ingresos_por_tipo(nutricionista, fecha_inicio=None, fecha_fin=None)
 
 
 def calcular_ingresos_mensuales(nutricionista, meses=6):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     fecha_fin = date.today()
     fecha_inicio = fecha_fin - timedelta(days=meses * 30)
@@ -251,7 +251,7 @@ def calcular_ingresos_mensuales(nutricionista, meses=6):
 
 
 def calcular_proyeccion_ingresos(nutricionista):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     citas_futuras = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista),
@@ -281,7 +281,7 @@ def calcular_pacientes_activos(nutricionista):
 
 
 def calcular_productividad(nutricionista, fecha_inicio=None, fecha_fin=None):
-    from citas.models import Cita
+    from agendas.models import Cita
     
     queryset = Cita.objects.filter(
         Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista)
@@ -306,4 +306,28 @@ def calcular_productividad(nutricionista, fecha_inicio=None, fecha_fin=None):
         'canceladas': canceladas,
         'no_asistio': no_asistio,
         'promedio_diario': promedio_diario,
+    }
+
+
+def calcular_ingresos_estimados(nutricionista, fecha_inicio=None, fecha_fin=None):
+    from agendas.models import Cita
+    
+    queryset = Cita.objects.filter(
+        Q(paciente__nutricionista=nutricionista) | Q(nutricionista=nutricionista),
+        estado='programada'
+    )
+    
+    if fecha_inicio:
+        queryset = queryset.filter(fecha_hora__date__gte=fecha_inicio)
+    if fecha_fin:
+        queryset = queryset.filter(fecha_hora__date__lte=fecha_fin)
+        
+    total = queryset.aggregate(total=Sum('costo'))['total'] or Decimal('0')
+    cantidad = queryset.count()
+    promedio = round(total / cantidad, 2) if cantidad > 0 else Decimal('0')
+    
+    return {
+        'total': float(total),
+        'cantidad': cantidad,
+        'promedio': float(promedio),
     }

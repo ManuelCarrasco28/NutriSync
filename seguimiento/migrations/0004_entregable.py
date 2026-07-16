@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('citas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
+        ('agendas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
         ('pacientes', '0014_archivopaciente'),
         ('seguimiento', '0003_recomendacion'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('archivo', models.FileField(blank=True, null=True, upload_to='entregables/', verbose_name='Archivo o recurso asociado')),
                 ('recurso_asociado', models.JSONField(blank=True, default=dict, verbose_name='Metadatos de recurso asociado')),
                 ('fecha_registro', models.DateTimeField(auto_now_add=True, verbose_name='Fecha de registro')),
-                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='entregables', to='citas.cita', verbose_name='Consulta / Cita')),
+                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='entregables', to='agendas.cita', verbose_name='Consulta / Cita')),
                 ('nutricionista', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='entregables_creados', to=settings.AUTH_USER_MODEL, verbose_name='Profesional responsable')),
                 ('paciente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='entregables', to='pacientes.paciente', verbose_name='Paciente')),
             ],

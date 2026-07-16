@@ -3,6 +3,11 @@
 {% block subtitle %}Reporte Financiero{% endblock %}
 
 {% block content %}
+<style>
+    .kpi-box {
+        width: 17%;
+    }
+</style>
 <div class="section">
     <h2>Período del Reporte</h2>
     <p><strong>Desde:</strong> {{ fecha_inicio|date:"d/m/Y" }} — <strong>Hasta:</strong> {{ fecha_fin|date:"d/m/Y" }}</p>
@@ -15,6 +20,10 @@
         <div class="kpi-box">
             <div class="value text-green">S/ {{ ingresos.total|floatformat:2 }}</div>
             <div class="label">Ingresos Totales</div>
+        </div>
+        <div class="kpi-box">
+            <div class="value text-yellow">S/ {{ ingresos_estimados.total|floatformat:2 }}</div>
+            <div class="label">Ingresos Estimados</div>
         </div>
         <div class="kpi-box">
             <div class="value text-blue">{{ ingresos.cantidad }}</div>
@@ -37,12 +46,20 @@
     <h2>Detalle de Ingresos</h2>
     <table>
         <tr>
-            <td><strong>Ingresos Totales:</strong></td>
+            <td><strong>Ingresos Totales (Realizados):</strong></td>
             <td class="text-green">S/ {{ ingresos.total|floatformat:2 }}</td>
         </tr>
         <tr>
-            <td><strong>Cantidad de Consultas:</strong></td>
+            <td><strong>Ingresos Estimados (Programados):</strong></td>
+            <td class="text-yellow">S/ {{ ingresos_estimados.total|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cantidad de Consultas Realizadas:</strong></td>
             <td>{{ ingresos.cantidad }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cantidad de Consultas Programadas:</strong></td>
+            <td>{{ ingresos_estimados.cantidad }}</td>
         </tr>
         <tr>
             <td><strong>Ticket Promedio:</strong></td>

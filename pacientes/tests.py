@@ -799,7 +799,7 @@ class ConsultaFlowTestCase(TestCase):
 
     def test_consulta_vinculo_con_cita(self):
         """Valida que iniciar y finalizar una consulta vinculada actualice el estado de la cita."""
-        from citas.models import Cita
+        from agendas.models import Cita
         from pacientes.models import Consulta
         from datetime import datetime
 

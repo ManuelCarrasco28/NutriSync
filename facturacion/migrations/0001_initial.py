@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('citas', '0006_alter_cita_estado'),
+        ('agendas', '0006_alter_cita_estado'),
         ('pacientes', '0016_alter_planalimentario_options_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('comprobante_pago', models.FileField(blank=True, help_text='Captura o comprobante del pago realizado', upload_to='comprobantes/%Y/%m/', verbose_name='Comprobante de pago')),
                 ('stripe_payment_intent_id', models.CharField(blank=True, max_length=100, verbose_name='Stripe Payment Intent ID')),
                 ('notas', models.TextField(blank=True, verbose_name='Notas internas')),
-                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cobros', to='citas.cita', verbose_name='Cita asociada')),
+                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='cobros', to='agendas.cita', verbose_name='Cita asociada')),
                 ('nutricionista', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cobros', to=settings.AUTH_USER_MODEL, verbose_name='Nutricionista')),
                 ('paciente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cobros', to='pacientes.paciente', verbose_name='Paciente')),
             ],

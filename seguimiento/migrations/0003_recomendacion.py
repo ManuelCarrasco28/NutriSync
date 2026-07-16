@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('citas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
+        ('agendas', '0005_cita_nutricionista_alter_cita_estado_and_more'),
         ('pacientes', '0014_archivopaciente'),
         ('seguimiento', '0002_medidacorporal_agua_corporal_pct_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('fecha', models.DateField(verbose_name='Fecha de recomendación')),
                 ('estado_cumplimiento', models.CharField(choices=[('pendiente', 'Pendiente'), ('cumplida', 'Cumplida'), ('parcial', 'Parcialmente cumplida'), ('no_cumplida', 'No cumplida')], default='pendiente', max_length=20, verbose_name='Estado de Cumplimiento')),
                 ('fecha_registro', models.DateTimeField(auto_now_add=True, verbose_name='Fecha de registro')),
-                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='recomendaciones', to='citas.cita', verbose_name='Consulta / Cita')),
+                ('cita', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='recomendaciones', to='agendas.cita', verbose_name='Consulta / Cita')),
                 ('nutricionista', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recomendaciones_creadas', to=settings.AUTH_USER_MODEL, verbose_name='Profesional responsable')),
                 ('paciente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recomendaciones', to='pacientes.paciente', verbose_name='Paciente')),
             ],

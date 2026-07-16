@@ -1,10 +1,20 @@
 # core/models.py
-# Modelo del perfil profesional del nutricionista.
-# Extiende al User de Django con datos propios del consultorio.
+# Perfil profesional del nutricionista. Extiende el User de Django.
 
 from django.db import models
 from django.contrib.auth.models import User
 from config.choices import EstadoNutricionista
+
+
+class Rol(models.TextChoices):
+    """
+    Roles de usuario dentro de la plataforma NutriSync.
+    - NUTRICIONISTA: profesional que usa el panel de gestión clínica.
+    - ADMIN_PLATAFORMA: operador que administra la plataforma desde /administracion/.
+    """
+
+    NUTRICIONISTA = "nutricionista", "Nutricionista"
+    ADMIN_PLATAFORMA = "admin_plataforma", "Administrador de Plataforma"
 
 
 class PerfilNutricionista(models.Model):
@@ -56,6 +66,12 @@ class PerfilNutricionista(models.Model):
         choices=EstadoNutricionista.CHOICES,
         default=EstadoNutricionista.HABILITADO,
         verbose_name="Estado",
+    )
+    rol = models.CharField(
+        max_length=30,
+        choices=Rol.choices,
+        default=Rol.NUTRICIONISTA,
+        verbose_name="Rol",
     )
     fecha_registro = models.DateTimeField(
         auto_now_add=True,

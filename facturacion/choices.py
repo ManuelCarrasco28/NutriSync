@@ -6,12 +6,14 @@ class MetodoPago:
     STRIPE = "stripe"
     YAPE = "yape"
     PLIN = "plin"
+    PAYPAL = "paypal"
     TRANSFERENCIA = "transferencia"
     EFECTIVO = "efectivo"
     CHOICES = [
         (STRIPE, "Tarjeta (Stripe)"),
         (YAPE, "Yape"),
         (PLIN, "Plin"),
+        (PAYPAL, "PayPal"),
         (TRANSFERENCIA, "Transferencia Bancaria"),
         (EFECTIVO, "Efectivo"),
     ]
