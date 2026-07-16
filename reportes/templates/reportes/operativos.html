@@ -13,141 +13,172 @@
         <span class="text-sm font-medium">Volver a Reportes</span>
     </a>
     
-    <div class="bg-gradient-to-r from-teal-700 to-slate-800 rounded-2xl p-6 text-white shadow-md">
+    <div class="bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 border border-teal-500/20 rounded-2xl p-6 text-white shadow-xl">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h2 class="text-xl font-bold">Filtros</h2>
+            <div class="flex items-center gap-2.5">
+                <div class="p-2 bg-blue-500/20 rounded-lg border border-blue-400/25">
+                    <i data-lucide="filter" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <h2 class="text-lg font-bold">Filtros del Reporte</h2>
+            </div>
             <button type="button" id="btnExportarPDF"
-               class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors text-sm border border-white/30">
-                <i data-lucide="file-text" class="w-4 h-4"></i>
+               class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl transition-all text-xs font-bold border border-white/15 cursor-pointer shadow-xs">
+                <i data-lucide="file-text" class="w-4 h-4 text-blue-300"></i>
                 Exportar PDF
             </button>
         </div>
         <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Período</label>
-                <select name="vista" class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Período</label>
+                <select name="vista" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
                     <option value="semana" class="text-slate-800" {% if vista == 'semana' %}selected{% endif %}>Última Semana</option>
                     <option value="mes" class="text-slate-800" {% if vista == 'mes' %}selected{% endif %}>Último Mes</option>
                     <option value="anio" class="text-slate-800" {% if vista == 'anio' %}selected{% endif %}>Último Año</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Inicio</label>
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Fecha Inicio</label>
                 <input type="date" name="fecha_inicio" value="{{ fecha_inicio|date:'Y-m-d' }}"
-                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                       class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
             </div>
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Fin</label>
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Fecha Fin</label>
                 <input type="date" name="fecha_fin" value="{{ fecha_fin|date:'Y-m-d' }}"
-                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                       class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full bg-white text-teal-800 hover:bg-teal-50 px-4 py-2 rounded-lg transition-colors text-sm font-semibold">
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl transition-all text-xs font-bold shadow-md cursor-pointer border-0">
                     Aplicar Filtros
                 </button>
             </div>
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <p class="text-sm text-slate-500 mb-1">Ocupación</p>
-            <p class="text-3xl font-bold text-blue-700">{{ ocupacion.ocupacion }}%</p>
-            <p class="text-xs text-slate-400">{{ ocupacion.horas_ocupadas }}h / {{ ocupacion.horas_disponibles }}h</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-500/25 transition-all duration-300 hover:-translate-y-1 p-5 flex flex-col justify-between border-t-4 border-t-blue-500">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full w-fit bg-blue-50 text-blue-700">Agenda</span>
+                <p class="text-xs font-bold text-slate-400 mt-2.5 uppercase tracking-wider">Ocupación</p>
+            </div>
+            <div class="mt-3">
+                <p class="text-2xl font-black text-slate-800">{{ ocupacion.ocupacion }}%</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-1">{{ ocupacion.horas_ocupadas }}h / {{ ocupacion.horas_disponibles }}h ocupadas</p>
+            </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-            <p class="text-sm text-slate-500 mb-1">Total Citas</p>
-            <p class="text-3xl font-bold text-green-700">{{ citas_estado.total }}</p>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-green-500/25 transition-all duration-300 hover:-translate-y-1 p-5 flex flex-col justify-between border-t-4 border-t-green-500">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full w-fit bg-green-50 text-green-700">Total</span>
+                <p class="text-xs font-bold text-slate-400 mt-2.5 uppercase tracking-wider">Total Citas</p>
+            </div>
+            <p class="text-2xl font-black text-slate-800 mt-3">{{ citas_estado.total }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-teal-500">
-            <p class="text-sm text-slate-500 mb-1">Pacientes Activos</p>
-            <p class="text-3xl font-bold text-teal-700">{{ pacientes_info.activos }}</p>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-teal-500/25 transition-all duration-300 hover:-translate-y-1 p-5 flex flex-col justify-between border-t-4 border-t-teal-500">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full w-fit bg-teal-50 text-teal-700">Pacientes</span>
+                <p class="text-xs font-bold text-slate-400 mt-2.5 uppercase tracking-wider">Pacientes Activos</p>
+            </div>
+            <p class="text-2xl font-black text-slate-800 mt-3">{{ pacientes_info.activos }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-            <p class="text-sm text-slate-500 mb-1">Tasa Asistencia</p>
-            <p class="text-3xl font-bold text-purple-700">{{ citas_estado.tasa_asistencia }}%</p>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-purple-500/25 transition-all duration-300 hover:-translate-y-1 p-5 flex flex-col justify-between border-t-4 border-t-purple-500">
+            <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full w-fit bg-purple-50 text-purple-750">Asistencia</span>
+                <p class="text-xs font-bold text-slate-400 mt-2.5 uppercase tracking-wider">Tasa Asistencia</p>
+            </div>
+            <p class="text-2xl font-black text-slate-800 mt-3">{{ citas_estado.tasa_asistencia }}%</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Citas por Estado</h3>
-            <canvas id="estadoChart"></canvas>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 p-6">
+            <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> Citas por Estado
+            </h3>
+            <div class="relative h-64 w-full">
+                <canvas id="estadoChart"></canvas>
+            </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Citas por Tipo</h3>
-            <canvas id="tipoChart"></canvas>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 p-6">
+            <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+                <i data-lucide="bar-chart" class="w-4 h-4 text-teal-500"></i> Citas por Tipo
+            </h3>
+            <div class="relative h-64 w-full">
+                <canvas id="tipoChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-slate-800 mb-4">Productividad</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="text-center">
-                <p class="text-2xl font-bold text-slate-800">{{ productividad.total }}</p>
-                <p class="text-sm text-slate-500">Total Citas</p>
+    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 p-6">
+        <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+            <i data-lucide="activity" class="w-4 h-4 text-purple-500"></i> Resumen de Productividad
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Citas</p>
+                <p class="text-2xl font-black text-slate-800">{{ productividad.total }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-green-600">{{ productividad.completadas }}</p>
-                <p class="text-sm text-slate-500">Completadas</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Completadas</p>
+                <p class="text-2xl font-black text-emerald-600">{{ productividad.completadas }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-red-600">{{ productividad.canceladas }}</p>
-                <p class="text-sm text-slate-500">Canceladas</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Canceladas</p>
+                <p class="text-2xl font-black text-rose-600">{{ productividad.canceladas }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-orange-600">{{ productividad.promedio_diario }}</p>
-                <p class="text-sm text-slate-500">Promedio Diario</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Promedio Diario</p>
+                <p class="text-2xl font-black text-blue-600">{{ productividad.promedio_diario }}</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal de selección de secciones para PDF -->
-<div id="pdfModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-slate-800">Seleccionar Secciones</h3>
-            <button id="btnCerrarModal" class="text-slate-400 hover:text-slate-600">
+<div id="pdfModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-200">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+            <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i> Exportar a PDF
+            </h3>
+            <button id="btnCerrarModal" class="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <p class="text-sm text-slate-500 mb-4">Marca las secciones que deseas incluir en el PDF</p>
+        <p class="text-xs text-slate-500 mb-4 font-semibold">Selecciona las secciones que deseas incluir en el documento:</p>
         
-        <div class="space-y-3">
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="indicadores" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Indicadores Clave</span>
+        <div class="space-y-2">
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="indicadores" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Indicadores Clave</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="ocupacion" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Ocupación de Agenda</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="ocupacion" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Ocupación de Agenda</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="citas_estado" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Citas por Estado</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="citas_estado" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Citas por Estado</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="citas_tipo" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Citas por Tipo</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="citas_tipo" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Citas por Tipo</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="productividad" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Productividad</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="productividad" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Productividad</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="pacientes" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Pacientes</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="pacientes" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Pacientes</span>
             </label>
         </div>
         
-        <div class="flex gap-3 mt-6">
-            <button id="btnConfirmarExportar" class="flex-1 bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
-                Exportar
-            </button>
-            <button id="btnCancelar" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg hover:bg-slate-300 transition-colors font-semibold">
+        <div class="flex gap-3 mt-6 border-t border-slate-100 pt-4">
+            <button id="btnCancelar" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl transition-all text-xs font-bold cursor-pointer border-0">
                 Cancelar
+            </button>
+            <button id="btnConfirmarExportar" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl transition-all text-xs font-bold cursor-pointer border-0 shadow-sm">
+                Generar PDF
             </button>
         </div>
     </div>
@@ -187,6 +218,7 @@
         cerrarModal();
     });
 
+    // Configuración Premium de Gráficos (Chart.js)
     new Chart(document.getElementById('estadoChart'), {
         type: 'doughnut',
         data: {
@@ -194,11 +226,33 @@
             datasets: [{
                 data: [{{ citas_estado.completadas }}, {{ citas_estado.programadas }}, {{ citas_estado.canceladas }}, {{ citas_estado.no_asistio }}],
                 backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 6
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { position: 'bottom' } }
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        color: '#475569',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    padding: 12,
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    cornerRadius: 8
+                }
+            },
+            cutout: '65%'
         }
     });
 
@@ -207,15 +261,47 @@
         data: {
             labels: {{ citas_tipo_labels|safe }},
             datasets: [{
-                label: 'Cantidad',
+                label: 'Cantidad de Citas',
                 data: {{ citas_tipo_values|safe }},
                 backgroundColor: '#0d9488',
+                borderRadius: 8,
+                maxBarThickness: 45,
+                hoverBackgroundColor: '#0f766e'
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    padding: 12,
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(241, 245, 249, 0.9)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        font: { size: 10, weight: 'bold' }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#64748b',
+                        font: { size: 10, weight: 'bold' }
+                    }
+                }
+            }
         }
     });
 </script>

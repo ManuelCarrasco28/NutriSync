@@ -13,19 +13,24 @@
         <span class="text-sm font-medium">Volver a Reportes</span>
     </a>
     
-    <div class="bg-gradient-to-r from-teal-700 to-slate-800 rounded-2xl p-6 text-white shadow-md">
+    <div class="bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 border border-teal-500/20 rounded-2xl p-6 text-white shadow-xl">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h2 class="text-xl font-bold">Filtros</h2>
+            <div class="flex items-center gap-2.5">
+                <div class="p-2 bg-teal-500/20 rounded-lg border border-teal-400/25">
+                    <i data-lucide="filter" class="w-4 h-4 text-teal-400"></i>
+                </div>
+                <h2 class="text-lg font-bold">Filtros del Reporte</h2>
+            </div>
             <button type="button" id="btnExportarPDF"
-               class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors text-sm border border-white/30">
-                <i data-lucide="file-text" class="w-4 h-4"></i>
+               class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl transition-all text-xs font-bold border border-white/15 cursor-pointer shadow-xs">
+                <i data-lucide="file-text" class="w-4 h-4 text-teal-300"></i>
                 Exportar PDF
             </button>
         </div>
         <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Paciente</label>
-                <select name="paciente" class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Paciente</label>
+                <select name="paciente" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition-all">
                     <option value="" class="text-slate-800">Todos los pacientes</option>
                     {% for p in pacientes %}
                     <option value="{{ p.id }}" class="text-slate-800" {% if paciente_seleccionado and paciente_seleccionado.id == p.id %}selected{% endif %}>
@@ -35,17 +40,17 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Inicio</label>
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Fecha Inicio</label>
                 <input type="date" name="fecha_inicio" value="{{ fecha_inicio|date:'Y-m-d' }}"
-                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                       class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition-all">
             </div>
             <div>
-                <label class="block text-sm font-medium text-teal-100 mb-1">Fecha Fin</label>
+                <label class="block text-xs font-bold text-teal-200/80 uppercase tracking-wider mb-1.5">Fecha Fin</label>
                 <input type="date" name="fecha_fin" value="{{ fecha_fin|date:'Y-m-d' }}"
-                       class="w-full bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                       class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition-all">
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full bg-white text-teal-800 hover:bg-teal-50 px-4 py-2 rounded-lg transition-colors text-sm font-semibold">
+                <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 text-white px-4 py-2.5 rounded-xl transition-all text-xs font-bold shadow-md cursor-pointer border-0">
                     Aplicar Filtros
                 </button>
             </div>
@@ -53,89 +58,105 @@
     </div>
 
     {% if paciente_seleccionado %}
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-slate-800 mb-4">Evolución Antropométrica — {{ paciente_seleccionado.nombre_completo }}</h3>
-        <canvas id="evolucionChart" height="100"></canvas>
+    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-teal-500/25 transition-all duration-300 hover:-translate-y-1 p-6">
+        <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-teal-500"></i> Evolución Antropométrica — {{ paciente_seleccionado.nombre_completo }}
+        </h3>
+        <div class="relative h-80 w-full">
+            <canvas id="evolucionChart"></canvas>
+        </div>
     </div>
     {% endif %}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Distribución por IMC</h3>
-            <canvas id="imcChart"></canvas>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-500/25 transition-all duration-300 hover:-translate-y-1 p-6">
+            <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-500"></i> Distribución por IMC
+            </h3>
+            <div class="relative h-64 w-full">
+                <canvas id="imcChart"></canvas>
+            </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Cumplimiento de Recomendaciones</h3>
-            <canvas id="cumplimientoChart"></canvas>
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-500/25 transition-all duration-300 hover:-translate-y-1 p-6">
+            <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4 text-blue-500"></i> Adherencia a Recomendaciones
+            </h3>
+            <div class="relative h-64 w-full">
+                <canvas id="cumplimientoChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-slate-800 mb-4">Resumen de Cumplimiento</h3>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="text-center">
-                <p class="text-2xl font-bold text-slate-800">{{ cumplimiento.total }}</p>
-                <p class="text-sm text-slate-500">Total</p>
+    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:border-teal-500/25 transition-all duration-300 hover:-translate-y-1 p-6">
+        <h3 class="text-sm font-bold text-slate-855 mb-6 flex items-center gap-2">
+            <i data-lucide="list-checks" class="w-4 h-4 text-indigo-500"></i> Resumen de Cumplimiento
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total</p>
+                <p class="text-2xl font-black text-slate-800">{{ cumplimiento.total }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-green-600">{{ cumplimiento.cumplidas }}</p>
-                <p class="text-sm text-slate-500">Cumplidas</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Cumplidas</p>
+                <p class="text-2xl font-black text-emerald-600">{{ cumplimiento.cumplidas }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-yellow-600">{{ cumplimiento.parciales }}</p>
-                <p class="text-sm text-slate-500">Parciales</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Parciales</p>
+                <p class="text-2xl font-black text-amber-600">{{ cumplimiento.parciales }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-red-600">{{ cumplimiento.no_cumplidas }}</p>
-                <p class="text-sm text-slate-500">No cumplidas</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">No cumplidas</p>
+                <p class="text-2xl font-black text-rose-600">{{ cumplimiento.no_cumplidas }}</p>
             </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-blue-600">{{ cumplimiento.pendientes }}</p>
-                <p class="text-sm text-slate-500">Pendientes</p>
+            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Pendientes</p>
+                <p class="text-2xl font-black text-blue-600">{{ cumplimiento.pendientes }}</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal de selección de secciones para PDF -->
-<div id="pdfModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-slate-800">Seleccionar Secciones</h3>
-            <button id="btnCerrarModal" class="text-slate-400 hover:text-slate-600">
+<div id="pdfModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-200">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+            <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i> Exportar a PDF
+            </h3>
+            <button id="btnCerrarModal" class="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <p class="text-sm text-slate-500 mb-4">Marca las secciones que deseas incluir en el PDF</p>
+        <p class="text-xs text-slate-500 mb-4 font-semibold">Selecciona las secciones que deseas incluir en el documento:</p>
         
-        <div class="space-y-3">
+        <div class="space-y-2">
             {% if paciente_seleccionado %}
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="evolucion" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Evolución Antropométrica</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="evolucion" checked class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Evolución Antropométrica</span>
             </label>
             {% endif %}
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="imc" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Distribución por IMC</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="imc" checked class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Distribución por IMC</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="cumplimiento_grafico" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Cumplimiento de Recomendaciones (Gráfico)</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="cumplimiento_grafico" checked class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Adherencia (Gráfico)</span>
             </label>
-            <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
-                <input type="checkbox" name="secciones" value="cumplimiento_resumen" checked class="w-4 h-4 text-teal-600 rounded">
-                <span class="text-sm text-slate-700">Resumen de Cumplimiento</span>
+            <label class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
+                <input type="checkbox" name="secciones" value="cumplimiento_resumen" checked class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500 border-slate-300">
+                <span class="text-xs font-bold text-slate-700">Resumen de Cumplimiento</span>
             </label>
         </div>
         
-        <div class="flex gap-3 mt-6">
-            <button id="btnConfirmarExportar" class="flex-1 bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors font-semibold">
-                Exportar
-            </button>
-            <button id="btnCancelar" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg hover:bg-slate-300 transition-colors font-semibold">
+        <div class="flex gap-3 mt-6 border-t border-slate-100 pt-4">
+            <button id="btnCancelar" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl transition-all text-xs font-bold cursor-pointer border-0">
                 Cancelar
+            </button>
+            <button id="btnConfirmarExportar" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl transition-all text-xs font-bold cursor-pointer border-0 shadow-sm">
+                Generar PDF
             </button>
         </div>
     </div>
@@ -177,6 +198,7 @@
         cerrarModal();
     });
 
+    // Configuración Premium de Gráficos (Chart.js)
     {% if paciente_seleccionado and evolucion %}
     const evolucionData = {{ evolucion|safe }};
     if (evolucionData.fechas && evolucionData.fechas.length > 0) {
@@ -189,29 +211,78 @@
                         label: 'Peso (kg)',
                         data: evolucionData.peso,
                         borderColor: '#0d9488',
-                        backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                        backgroundColor: 'rgba(13, 148, 136, 0.05)',
+                        fill: true,
                         tension: 0.3,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#0d9488'
                     },
                     {
                         label: 'IMC',
                         data: evolucionData.imc,
                         borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        fill: true,
                         tension: 0.3,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3b82f6'
                     },
                     {
                         label: 'Grasa Corporal (%)',
                         data: evolucionData.grasa_corporal,
                         borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                        fill: true,
                         tension: 0.3,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#f59e0b'
                     }
                 ]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { position: 'bottom' } },
-                scales: { y: { beginAtZero: false } }
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15,
+                            color: '#475569',
+                            font: { size: 11, weight: 'bold' }
+                        }
+                    },
+                    tooltip: {
+                        padding: 12,
+                        backgroundColor: '#1e293b',
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(241, 245, 249, 0.9)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, weight: 'bold' }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 10, weight: 'bold' }
+                        }
+                    }
+                }
             }
         });
     }
@@ -224,13 +295,35 @@
             datasets: [{
                 data: {{ distribucion_imc_values|safe }},
                 backgroundColor: [
-                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#94a3b8'
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'
                 ],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 6
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { position: 'bottom' } }
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        color: '#475569',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    padding: 12,
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    cornerRadius: 8
+                }
+            },
+            cutout: '65%'
         }
     });
 
@@ -241,11 +334,33 @@
             datasets: [{
                 data: [{{ cumplimiento.cumplidas }}, {{ cumplimiento.parciales }}, {{ cumplimiento.no_cumplidas }}, {{ cumplimiento.pendientes }}],
                 backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 6
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { position: 'bottom' } }
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        color: '#475569',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    padding: 12,
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    cornerRadius: 8
+                }
+            },
+            cutout: '65%'
         }
     });
 </script>
