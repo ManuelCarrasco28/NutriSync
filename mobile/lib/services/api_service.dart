@@ -16,10 +16,8 @@ class ApiService {
       : _defaultLocalUrl();
 
   static String _defaultLocalUrl() {
-    if (Platform.isAndroid) {
-      return 'http://192.168.101.18:8000/api/paciente';
-    }
-    return 'http://10.0.2.2:8000/api/paciente';
+    // Apunta a la URL de producción en Render conectada a Supabase
+    return 'https://nutrisync-qr9a.onrender.com/api/paciente';
   }
 
   static String? _token;
