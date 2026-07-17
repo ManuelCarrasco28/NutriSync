@@ -10138,7 +10138,7 @@
     async function openModalAgendarCita(pacienteId) {
         openModal('Agendar Cita');
         try {
-            const url = `/agenda/citas/nueva/?paciente=${pacienteId}&fragment=1`;
+            const url = `{% url 'agendas:nueva' %}?paciente=${pacienteId}&fragment=1`;
             const resp = await fetch(url);
             const html = await resp.text();
 
@@ -10177,7 +10177,7 @@
             }
 
             const formData = new FormData(form);
-            const actionUrl = form.getAttribute('action') || `/agenda/citas/nueva/?paciente=${pacienteId}&fragment=1`;
+            const actionUrl = form.getAttribute('action') || `{% url 'agendas:nueva' %}?paciente=${pacienteId}&fragment=1`;
 
             try {
                 const resp = await fetch(actionUrl, {
