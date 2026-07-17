@@ -34,8 +34,9 @@
         }
     </script>
 
-    <!-- CSS personalizado -->
+    <!-- CSS personalizado y Favicon -->
     {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}?v={% now 'U' %}">
 
     <!-- CSRF Token para llamadas AJAX seguras -->

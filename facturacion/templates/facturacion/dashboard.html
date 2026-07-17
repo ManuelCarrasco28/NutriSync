@@ -103,7 +103,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-500">Precio</span>
-                    <span class="font-semibold text-slate-800">{{ suscripcion.precio_aplicado|formatear_moneda }}/{{ suscripcion.tipo_facturacion|truncatechars:1 }}</span>
+                    <span class="font-semibold text-slate-800">{{ suscripcion.precio_aplicado|formatear_moneda }}/{{ suscripcion.tipo_facturacion|slice:":1" }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-500">Estado</span>

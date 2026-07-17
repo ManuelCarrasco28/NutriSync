@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Registro de nutricionistas en NutriSync. Comienza a gestionar tu consultorio hoy mismo.">
     <title>Registrarse — NutriSync</title>
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,23 +33,122 @@
 
     <style>
         .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(20, 184, 166, 0.05), transparent 45%),
-                        radial-gradient(circle at bottom left, rgba(79, 70, 229, 0.05), transparent 45%),
-                        #fafaf9;
+            background: #f8fafb;
+            position: relative;
         }
+        .hero-gradient::before {
+            content: '';
+            position: fixed;
+            top: -120px;
+            right: -80px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatOrb 18s ease-in-out infinite;
+        }
+        .hero-gradient::after {
+            content: '';
+            position: fixed;
+            bottom: -100px;
+            left: -60px;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatOrb 22s ease-in-out infinite reverse;
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 15px) scale(0.95); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.15); }
+            50% { box-shadow: 0 0 0 6px rgba(20, 184, 166, 0); }
+        }
+        .animate-fade-in { animation: fadeInUp 0.5s ease-out both; }
+        .animate-fade-in-delay { animation: fadeInUp 0.5s ease-out 0.1s both; }
+        .animate-fade-in-delay-2 { animation: fadeInUp 0.5s ease-out 0.2s both; }
         .active-card {
             border-color: #0d9488 !important;
-            box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.08), 0 4px 6px -4px rgba(13, 148, 136, 0.08) !important;
-            background-color: rgba(13, 148, 136, 0.01) !important;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.08), 0 8px 25px -5px rgba(13, 148, 136, 0.12) !important;
+            background: linear-gradient(135deg, rgba(240, 253, 250, 0.8), rgba(255, 255, 255, 0.9)) !important;
+        }
+        .active-card .radio-circle {
+            animation: pulseGlow 2s ease-in-out infinite;
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+        }
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .form-card {
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+        .form-card:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 12px 32px rgba(0,0,0,0.05);
+        }
+        .input-field {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-field:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1), 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .plan-sidebar {
+            background: linear-gradient(165deg, #f8fffe 0%, #f1f5f9 100%);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        .plan-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .plan-card:hover {
+            transform: translateY(-1px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0d9488 0%, #4f46e5 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #0f766e 0%, #4338ca 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        .btn-primary span, .btn-primary i {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
-<body class="hero-gradient min-h-screen text-slate-800 font-sans pt-32 pb-12 px-6">
+<body class="hero-gradient min-h-screen text-slate-800 font-sans pt-28 pb-16 px-4 sm:px-6">
 
     <!-- Navbar -->
     <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-slate-200/50 transition-all duration-300">
@@ -75,16 +176,35 @@
         </nav>
     </header>
 
-    <div class="w-full max-w-4xl mx-auto">
-        <!-- Logo / Title -->
-        <div class="mb-8 text-center lg:text-left">
-            <h1 class="font-heading font-bold text-3xl text-slate-900">Registro de Nutricionista</h1>
-            <p class="text-slate-500 text-sm mt-1">Crea tu cuenta profesional y configura tu suscripción</p>
+    <div class="w-full max-w-[920px] mx-auto">
+        <!-- Header con título y stepper -->
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-4 animate-fade-in">
+            <div class="text-center md:text-left">
+                <div class="inline-flex items-center gap-2 bg-teal-50/80 border border-teal-100/60 text-teal-700 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i>
+                    Comienza gratis
+                </div>
+                <h1 class="font-heading font-extrabold text-2xl md:text-[28px] text-slate-900 tracking-tight leading-tight">Crea tu cuenta profesional</h1>
+                <p class="text-slate-500 text-sm mt-1.5 font-light">Configura tu perfil y elige el plan perfecto para tu consultorio</p>
+            </div>
+
+            <!-- Step Indicator Premium -->
+            <div class="flex items-center gap-2 glass-card border border-slate-200/40 py-2 px-4 rounded-2xl shadow-sm self-center md:self-auto">
+                <div id="step-1-indicator" class="flex items-center gap-2 font-semibold text-teal-600 text-sm">
+                    <span class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-teal-600/20">1</span>
+                    <span class="hidden sm:inline">Datos y Plan</span>
+                </div>
+                <div class="w-10 h-[2px] bg-slate-200 rounded-full" id="step-line"></div>
+                <div id="step-2-indicator" class="flex items-center gap-2 font-semibold text-slate-400 text-sm">
+                    <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs" id="step-2-circle">2</span>
+                    <span class="hidden sm:inline">Método de Pago</span>
+                </div>
+            </div>
         </div>
 
         <!-- Errores -->
         {% if errors %}
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 text-sm font-medium space-y-1 shadow-sm">
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 text-sm font-medium space-y-1 shadow-sm">
             <p class="font-semibold">Por favor, corrige los siguientes errores:</p>
             <ul class="list-disc pl-5 space-y-0.5">
                 {% for err in errors %}
@@ -95,80 +215,172 @@
         {% endif %}
 
         <!-- Formulario Principal -->
-        <form method="POST" action="{% url 'core:register' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <form id="register-form" method="POST" action="{% url 'core:register' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {% csrf_token %}
 
             <!-- Columna Izquierda: Información de Cuenta y Perfil -->
-            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm space-y-6 flex flex-col justify-between">
+            <div id="left-column-wrapper" class="lg:col-span-7 form-card p-6 space-y-5 transition-all duration-300 animate-fade-in-delay">
                 
-                <!-- Datos de Acceso -->
+                <!-- Paso 1: Datos de Acceso e Información Profesional -->
+                <div id="paso-1-fields" class="space-y-6">
+                
+                <!-- Sección: Datos de Acceso -->
                 <div class="space-y-4">
-                    <h3 class="font-heading font-semibold text-lg text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-                        <i data-lucide="key" class="w-4 h-4 text-teal-600"></i>
-                        Datos de la Cuenta
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="username" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nombre de Usuario *</label>
-                            <input type="text" id="username" name="username" value="{{ data.username|default:'' }}" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="Ej: maria.nutri">
+                    <div class="flex items-center gap-3">
+                        <div class="section-icon bg-gradient-to-br from-teal-500 to-teal-600 shadow-sm shadow-teal-500/20">
+                            <i data-lucide="key-round" class="w-4 h-4 text-white"></i>
                         </div>
                         <div>
-                            <label for="email" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Correo Electrónico *</label>
-                            <input type="email" id="email" name="email" value="{{ data.email|default:'' }}" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="correo@ejemplo.com">
+                            <h3 class="font-heading font-bold text-[15px] text-slate-900 leading-none">Datos de la Cuenta</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Credenciales para acceder a NutriSync</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="password" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Contraseña *</label>
-                            <input type="password" id="password" name="password" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="••••••••">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input type="text" id="username" name="username" value="{{ data.username|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="username" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Nombre de Usuario</label>
+                            <p id="error-username" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
                         </div>
-                        <div>
-                            <label for="password_confirm" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Confirmar Contraseña *</label>
-                            <input type="password" id="password_confirm" name="password_confirm" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="••••••••">
+                        <div class="relative">
+                            <input type="email" id="email" name="email" value="{{ data.email|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="email" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Correo Electrónico</label>
+                            <p id="error-email" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input type="password" id="password" name="password" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="password" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Contraseña</label>
+                            <p id="error-password" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="password_confirm" name="password_confirm" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="password_confirm" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Confirmar Contraseña</label>
+                            <p id="error-password_confirm" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Perfil Profesional -->
-                <div class="space-y-4 pt-4">
-                    <h3 class="font-heading font-semibold text-lg text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-                        <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
-                        Información Profesional
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="sm:col-span-2">
-                            <label for="nombre_completo" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nombre Completo *</label>
-                            <input type="text" id="nombre_completo" name="nombre_completo" value="{{ data.nombre_completo|default:'' }}" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="Ej: Lic. María Rodríguez">
+                <!-- Divisor elegante -->
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+                </div>
+
+                <!-- Sección: Perfil Profesional -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="section-icon bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm shadow-indigo-500/20">
+                            <i data-lucide="stethoscope" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-bold text-[15px] text-slate-900 leading-none">Perfil Profesional</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Información de tu consultorio nutricional</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="especialidad" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Especialidad</label>
-                            <input type="text" id="especialidad" name="especialidad" value="{{ data.especialidad|default:'' }}" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="Ej: Nutrición Deportiva">
+                    <div class="relative">
+                        <input type="text" id="nombre_completo" name="nombre_completo" value="{{ data.nombre_completo|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                        <label for="nombre_completo" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Nombre Completo</label>
+                        <p id="error-nombre_completo" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input type="text" id="especialidad" name="especialidad" value="{{ data.especialidad|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="especialidad" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Especialidad</label>
+                            <p id="error-especialidad" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
                         </div>
-                        <div>
-                            <label for="telefono" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Teléfono</label>
-                            <input type="text" id="telefono" name="telefono" value="{{ data.telefono|default:'' }}" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="+51 999 000 000">
+                        <div class="relative">
+                            <input type="tel" id="telefono" name="telefono" value="{{ data.telefono|default:'' }}" maxlength="9" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="telefono" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Teléfono</label>
+                            <p id="error-telefono" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="numero_colegiatura" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">C.N.P. (Colegiatura)</label>
-                            <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="{{ data.numero_colegiatura|default:'' }}" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="CNP-0000">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input type="text" id="numero_colegiatura" name="numero_colegiatura" value="{{ data.numero_colegiatura|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="numero_colegiatura" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">C.N.P. (Colegiatura)</label>
+                            <p id="error-numero_colegiatura" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="direccion_consultorio" name="direccion_consultorio" value="{{ data.direccion_consultorio|default:'' }}" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="direccion_consultorio" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Dirección del Consultorio</label>
+                            <p id="error-direccion_consultorio" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divisor elegante -->
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+                </div>
+
+                <!-- Sección: Identificación Fiscal -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="section-icon bg-gradient-to-br from-amber-500 to-orange-500 shadow-sm shadow-amber-500/20">
+                            <i data-lucide="fingerprint" class="w-4 h-4 text-white"></i>
                         </div>
                         <div>
-                            <label for="direccion_consultorio" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Dirección del Consultorio</label>
-                            <input type="text" id="direccion_consultorio" name="direccion_consultorio" value="{{ data.direccion_consultorio|default:'' }}" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder-slate-300" placeholder="Av. Principal 123, Of. 401">
+                            <h3 class="font-heading font-bold text-[15px] text-slate-900 leading-none">Identificación Fiscal</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Requerido para la emisión de comprobantes</p>
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input type="text" id="dni" name="dni" value="{{ data.dni|default:'' }}" maxlength="8" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="dni" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">DNI</label>
+                            <p id="error-dni" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="ruc" name="ruc" value="{{ data.ruc|default:'' }}" maxlength="11" class="input-field peer w-full border border-slate-200 rounded-xl px-3.5 pt-5 pb-1.5 text-slate-800 text-sm focus:outline-none transition-all placeholder-transparent" placeholder=" ">
+                            <label for="ruc" class="absolute left-3.5 text-slate-400 transition-all duration-200 pointer-events-none origin-left top-3 text-[11px] font-semibold uppercase tracking-wider peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-teal-600 peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[9px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">RUC (Opcional)</label>
+                            <p id="error-ruc" class="text-red-500 text-[10px] mt-1 hidden font-semibold px-2"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botón para continuar al paso 2 -->
+                <div class="pt-2">
+                    <button type="button" id="btn-continuar-pago" class="btn-primary w-full text-white font-bold rounded-xl py-3.5 text-sm shadow-lg shadow-teal-600/15 flex items-center justify-center gap-2">
+                        <span>Continuar al Pago</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Link a login -->
+                <p class="text-center text-xs text-slate-400 pt-1">
+                    ¿Ya tienes una cuenta? 
+                    <a href="/?login=true" class="text-teal-600 hover:text-teal-700 font-bold transition-colors">Inicia sesión</a>
+                </p>
+            </div> <!-- Fin paso-1-fields -->
+
+            <!-- Paso 2: Información de Facturación (Método de Pago) -->
+            <div id="paso-2-fields" class="space-y-6 hidden">
+                <!-- Resumen del Plan Seleccionado -->
+                <div class="bg-gradient-to-r from-teal-50 to-indigo-50/50 border border-teal-100/60 rounded-2xl p-5 flex items-center justify-between mb-2">
+                    <div>
+                        <p class="text-[10px] text-teal-600 uppercase font-bold tracking-widest flex items-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                            Plan Seleccionado
+                        </p>
+                        <h4 id="resumen-plan-nombre" class="font-heading font-bold text-slate-800 text-lg mt-1">-</h4>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total a pagar</p>
+                        <p class="font-extrabold text-slate-900 text-2xl tracking-tight" id="resumen-plan-precio">S/ 0.00</p>
                     </div>
                 </div>
 
                 <!-- Información de Facturación (Pasarela Culqi / PayPal) -->
-                <div class="space-y-4 pt-6 border-t border-slate-200 text-left">
-                    <h3 class="font-heading font-semibold text-lg text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-                        <i data-lucide="credit-card" class="w-4.5 h-4.5 text-teal-600"></i>
-                        Método de Pago (Requerido)
-                    </h3>
+                <div class="space-y-4 pt-4 border-t border-slate-200 text-left">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="section-icon bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm shadow-emerald-500/20">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-bold text-[15px] text-slate-900 leading-none">Método de Pago</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Selecciona cómo deseas pagar tu suscripción</p>
+                        </div>
+                    </div>
                     
                     <!-- Campo oculto para el Tipo de Método de Pago -->
                     <input type="hidden" id="payment_method_type" name="payment_method_type" value="tarjeta">
@@ -203,7 +415,7 @@
                             <div class="space-y-1.5">
                                 <label for="card_number" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Número de tarjeta *</label>
                                 <div class="relative">
-                                    <input type="text" id="card_number" name="card_number" value="{{ data.card_number|default:'' }}" required maxlength="19" 
+                                    <input type="text" id="card_number" name="card_number" value="{{ data.card_number|default:'' }}" maxlength="19" 
                                            class="w-full border border-slate-200 bg-white rounded-xl pl-4 pr-24 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all placeholder-slate-300" 
                                            placeholder="1234 1234 1234 1234">
                                     <div class="absolute right-3.5 inset-y-0 flex items-center gap-1.5 pointer-events-none">
@@ -218,14 +430,14 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label for="card_expiry" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Fecha de vencimiento *</label>
-                                    <input type="text" id="card_expiry" name="card_expiry" value="{{ data.card_expiry|default:'' }}" required maxlength="7" 
+                                    <input type="text" id="card_expiry" name="card_expiry" value="{{ data.card_expiry|default:'' }}" maxlength="7" 
                                            class="w-full border border-slate-200 bg-white rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all placeholder-slate-300" 
                                            placeholder="MM / AA">
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="card_cvv" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Código de seguridad *</label>
                                     <div class="relative">
-                                        <input type="password" id="card_cvv" name="card_cvv" value="{{ data.card_cvv|default:'' }}" required maxlength="4" 
+                                        <input type="password" id="card_cvv" name="card_cvv" value="{{ data.card_cvv|default:'' }}" maxlength="4" 
                                                class="w-full border border-slate-200 bg-white rounded-xl pl-4 pr-10 py-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all placeholder-slate-300" 
                                                placeholder="CVC">
                                         <span class="absolute right-3.5 inset-y-0 flex items-center text-slate-400 pointer-events-none">
@@ -304,30 +516,45 @@
                     </div>
                 </div>
 
-                <!-- Footer del Formulario -->
-                <div class="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                    <p>* Campos obligatorios</p>
-                    <a href="/?login=true" class="text-teal-650 hover:text-teal-700 font-bold transition-colors">¿Ya tienes una cuenta? Inicia sesión</a>
+                <!-- Botones de Acción del Paso 2 -->
+                <div class="flex gap-3 pt-6 border-t border-slate-100">
+                    <button type="button" id="btn-atras" class="px-5 py-3 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 focus:outline-none shadow-sm">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>Atrás</span>
+                    </button>
+                    <button type="submit" class="btn-primary flex-1 text-white font-bold rounded-xl py-3.5 text-sm shadow-lg shadow-teal-600/15 flex items-center justify-center gap-2 focus:outline-none">
+                        <i data-lucide="shield-check" class="w-4 h-4" style="position:relative;z-index:1"></i>
+                        <span>Confirmar Pago y Registrarse</span>
+                    </button>
                 </div>
-            </div>
+            </div> <!-- Fin paso-2-fields -->
+
+        </div>
 
             <!-- Columna Derecha: Selección del Plan de Suscripción -->
-            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm flex flex-col justify-between space-y-6">
-                <div class="space-y-4">
-                    <h3 class="font-heading font-semibold text-lg text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-                        <i data-lucide="credit-card" class="w-4 h-4 text-teal-600"></i>
-                        Plan de Suscripción
-                    </h3>
+            <div id="plan-selection-sidebar" class="lg:col-span-5 plan-sidebar p-5 rounded-2xl shadow-sm flex flex-col justify-between space-y-4 transition-all duration-300 animate-fade-in-delay-2">
+                <div class="space-y-3.5">
+                    <div class="flex items-center justify-between border-b border-slate-150 pb-2">
+                        <h3 class="font-heading font-bold text-sm text-slate-800 flex items-center gap-1.5">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-teal-600"></i>
+                            Elige tu Plan
+                        </h3>
+                        <span class="bg-teal-50/80 text-teal-700 text-[9px] font-bold px-2 py-0.5 rounded-full border border-teal-100">Nutricionistas</span>
+                    </div>
 
-                    <!-- Billing Toggle -->
-                    <div class="flex items-center justify-between bg-slate-50 border border-slate-200/55 p-3 rounded-xl">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ciclo de Facturación</span>
-                        <div class="flex items-center gap-2">
-                            <span id="txt-mensual" class="text-xs font-semibold text-slate-400">Mensual</span>
-                            <button id="toggle-billing" type="button" class="w-10 h-6 bg-teal-600 rounded-full p-0.5 transition-colors flex items-center relative" aria-label="Toggle billing">
-                                <span id="toggle-circle" class="w-5 h-5 bg-white rounded-full transition-transform translate-x-4 shadow-sm"></span>
+                    <!-- Billing Toggle Premium (Segment Control) -->
+                    <div class="bg-white border border-slate-200/60 p-1 rounded-xl">
+                        <div class="relative flex bg-slate-100 p-0.5 rounded-lg overflow-hidden">
+                            <!-- Indicador deslizante de fondo -->
+                            <div id="billing-indicator" class="absolute top-0.5 bottom-0.5 left-0.5 w-[calc(50%-2px)] bg-white rounded-md shadow-xs transition-transform duration-300 ease-out"></div>
+                            
+                            <button id="btn-billing-mensual" type="button" class="relative z-10 flex-1 py-1.5 text-[10px] font-bold transition-colors duration-250 focus:outline-none">
+                                Mensual
                             </button>
-                            <span id="txt-anual" class="text-xs font-semibold text-teal-600">Anual</span>
+                            <button id="btn-billing-anual" type="button" class="relative z-10 flex-1 py-1.5 text-[10px] font-bold transition-colors duration-250 focus:outline-none flex items-center justify-center gap-1">
+                                Anual
+                                <span class="bg-teal-100 text-teal-800 text-[8px] font-bold px-1.5 rounded-xs">Ahorra</span>
+                            </button>
                         </div>
                     </div>
 
@@ -335,43 +562,46 @@
                     <input type="hidden" name="plan" id="selected-plan-id" value="">
                     <input type="hidden" name="tipo_facturacion" id="billing-cycle-input" value="anual">
 
-                    <!-- Plan Cards -->
-                    <div class="space-y-3">
+                    <!-- Plan Cards Premium -->
+                    <div class="space-y-2.5">
                         {% for plan in planes %}
-                        <div class="plan-card border border-slate-200 hover:border-slate-300 rounded-xl p-4 cursor-pointer transition-all duration-200 flex items-center justify-between"
+                        <div class="plan-card bg-white border border-slate-200/80 hover:border-slate-350 rounded-xl p-3.5 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-xs"
                              data-plan-id="{{ plan.id }}"
                              data-price-mensual="{{ plan.precio_mensual }}"
                              data-price-anual="{{ plan.precio_anual }}">
-                            <div class="flex items-start gap-3">
-                                <div class="radio-circle w-5 h-5 rounded-full border border-slate-350 flex items-center justify-center mt-0.5 flex-shrink-0">
-                                    <div class="inner-dot w-2.5 h-2.5 rounded-full bg-teal-600 scale-0 transition-transform"></div>
+                            <div class="flex items-start gap-2.5">
+                                <div class="radio-circle w-4.5 h-4.5 rounded-full border border-slate-300 bg-slate-50 flex items-center justify-center mt-0.5 flex-shrink-0 transition-all duration-200">
+                                    <div class="inner-dot w-2 h-2 rounded-full bg-teal-600 scale-0 transition-transform duration-200"></div>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-sm text-slate-900">{{ plan.nombre }}</h4>
-                                    <p class="text-[11px] text-slate-500 font-light mt-0.5 leading-relaxed">{{ plan.descripcion|truncatechars:70 }}</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <h4 class="font-bold text-sm text-slate-900 leading-none">{{ plan.nombre }}</h4>
+                                        {% if plan.nombre == "Básico" %}
+                                        <span class="bg-indigo-50 text-indigo-700 text-[8px] font-bold px-1.5 py-0.5 rounded-sm border border-indigo-100 uppercase">Popular</span>
+                                        {% elif plan.nombre == "Profesional" %}
+                                        <span class="bg-amber-50 text-amber-700 text-[8px] font-bold px-1.5 py-0.5 rounded-sm border border-amber-100 uppercase">Recomendado</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 font-light mt-1 leading-normal">{{ plan.descripcion }}</p>
                                 </div>
                             </div>
                             <!-- Price Indicator -->
                             <div class="text-right flex-shrink-0 pl-3 border-l border-slate-100">
-                                <span class="text-slate-800 text-[11px] font-bold">S/</span>
-                                <span class="card-price text-slate-900 text-lg font-bold">
+                                <span class="text-slate-800 text-[10px] font-bold">S/</span>
+                                <span class="card-price text-slate-950 text-base font-extrabold tracking-tight">
                                     {{ plan.precio_anual }}
                                 </span>
-                                <p class="text-[9px] text-slate-400 font-semibold card-period">/año</p>
+                                <p class="text-[8px] text-slate-400 font-bold card-period">/año</p>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- Action Button -->
-                <div class="pt-6 border-t border-slate-100 space-y-3">
-                    <button type="submit" class="w-full bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-700 hover:to-indigo-700 text-white font-semibold rounded-xl py-3.5 text-sm transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        Crear Cuenta y Continuar
-                    </button>
-                    <p class="text-center text-[10px] text-slate-400 leading-relaxed">
-                        Al hacer clic en "Crear Cuenta", aceptas nuestros Términos de Servicio y Políticas de Privacidad.
+                <!-- Footer del Panel -->
+                <div class="pt-3 border-t border-slate-200 text-center">
+                    <p class="text-[9px] text-slate-400 leading-normal">
+                        Al continuar con tu registro, aceptas nuestros Términos de Servicio y Políticas de Privacidad.
                     </p>
                 </div>
             </div>
@@ -383,10 +613,8 @@
     <script>
         lucide.createIcons();
 
-        const toggleBillingBtn = document.getElementById('toggle-billing');
-        const toggleCircle = document.getElementById('toggle-circle');
-        const txtMensual = document.getElementById('txt-mensual');
-        const txtAnual = document.getElementById('txt-anual');
+        const btnBillingMensual = document.getElementById('btn-billing-mensual');
+        const btnBillingAnual = document.getElementById('btn-billing-anual');
         const billingCycleInput = document.getElementById('billing-cycle-input');
         const selectedPlanInput = document.getElementById('selected-plan-id');
 
@@ -398,14 +626,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const preselectedPlanId = urlParams.get('plan');
 
+        const billingIndicator = document.getElementById('billing-indicator');
+
         function updateBillingUI() {
             if (isAnnual) {
-                toggleCircle.classList.add('translate-x-4');
-                toggleCircle.classList.remove('translate-x-0');
-                txtAnual.classList.add('text-teal-600');
-                txtAnual.classList.remove('text-slate-400');
-                txtMensual.classList.add('text-slate-400');
-                txtMensual.classList.remove('text-teal-600');
+                // Activar anual (Desplazar fondo a la derecha)
+                if (billingIndicator) {
+                    billingIndicator.style.transform = 'translateX(100%)';
+                }
+                btnBillingAnual.className = "relative z-10 flex-1 py-1.5 text-[10px] font-bold text-slate-800 focus:outline-none flex items-center justify-center gap-1";
+                btnBillingMensual.className = "relative z-10 flex-1 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 focus:outline-none";
                 billingCycleInput.value = 'anual';
 
                 planCards.forEach(card => {
@@ -420,12 +650,12 @@
                     }
                 });
             } else {
-                toggleCircle.classList.add('translate-x-0');
-                toggleCircle.classList.remove('translate-x-4');
-                txtMensual.classList.add('text-teal-600');
-                txtMensual.classList.remove('text-slate-400');
-                txtAnual.classList.add('text-slate-400');
-                txtAnual.classList.remove('text-teal-600');
+                // Activar mensual (Desplazar fondo a la izquierda)
+                if (billingIndicator) {
+                    billingIndicator.style.transform = 'translateX(0)';
+                }
+                btnBillingMensual.className = "relative z-10 flex-1 py-1.5 text-[10px] font-bold text-slate-800 focus:outline-none";
+                btnBillingAnual.className = "relative z-10 flex-1 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 focus:outline-none flex items-center justify-center gap-1";
                 billingCycleInput.value = 'mensual';
 
                 planCards.forEach(card => {
@@ -442,8 +672,13 @@
             }
         }
 
-        toggleBillingBtn.addEventListener('click', () => {
-            isAnnual = !isAnnual;
+        btnBillingMensual.addEventListener('click', () => {
+            isAnnual = false;
+            updateBillingUI();
+        });
+
+        btnBillingAnual.addEventListener('click', () => {
+            isAnnual = true;
             updateBillingUI();
         });
 
@@ -452,15 +687,19 @@
             card.addEventListener('click', () => {
                 // Clear active states
                 planCards.forEach(c => {
-                    c.classList.remove('active-card');
-                    c.querySelector('.radio-circle').classList.remove('border-teal-600');
+                    c.classList.remove('active-card', 'border-teal-500', 'bg-teal-50/20', 'ring-1', 'ring-teal-500/20', 'shadow-sm');
+                    c.classList.add('border-slate-200/80', 'bg-white', 'shadow-xs');
+                    c.querySelector('.radio-circle').classList.remove('border-teal-600', 'bg-teal-50');
+                    c.querySelector('.radio-circle').classList.add('border-slate-300', 'bg-slate-50');
                     c.querySelector('.inner-dot').classList.remove('scale-100');
                     c.querySelector('.inner-dot').classList.add('scale-0');
                 });
 
                 // Apply active state to clicked
-                card.classList.add('active-card');
-                card.querySelector('.radio-circle').classList.add('border-teal-600');
+                card.classList.add('active-card', 'border-teal-500', 'bg-teal-50/20', 'ring-1', 'ring-teal-500/20', 'shadow-sm');
+                card.classList.remove('border-slate-200/80', 'bg-white', 'shadow-xs');
+                card.querySelector('.radio-circle').classList.add('border-teal-600', 'bg-teal-50');
+                card.querySelector('.radio-circle').classList.remove('border-slate-300', 'bg-slate-50');
                 card.querySelector('.inner-dot').classList.remove('scale-0');
                 card.querySelector('.inner-dot').classList.add('scale-100');
 
@@ -516,6 +755,44 @@
             });
         }
 
+        // Forzar solo números en el teléfono
+        const telefonoInput = document.getElementById('telefono');
+        if (telefonoInput) {
+            telefonoInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        }
+
+        // Definir campos de DNI y RUC
+        const inputDni = document.getElementById('dni');
+        const inputRuc = document.getElementById('ruc');
+
+        // Restringir a números en DNI y RUC
+        if (inputDni) {
+            inputDni.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+                // Limpiar error local
+                const err = document.getElementById('error-dni');
+                if (err) {
+                    err.classList.add('hidden');
+                    inputDni.classList.remove('border-red-500', 'bg-red-50/30');
+                    inputDni.classList.add('border-slate-200');
+                }
+            });
+        }
+        if (inputRuc) {
+            inputRuc.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+                // Limpiar error local
+                const err = document.getElementById('error-ruc');
+                if (err) {
+                    err.classList.add('hidden');
+                    inputRuc.classList.remove('border-red-500', 'bg-red-50/30');
+                    inputRuc.classList.add('border-slate-200');
+                }
+            });
+        }
+
         // Conmutador de Pestañas
         tabTarjeta.addEventListener('click', () => {
             // Estilos de botones
@@ -531,10 +808,10 @@
             // Setear tipo
             paymentMethodType.value = 'tarjeta';
             
-            // Modificar atributos required
-            cardNumberInput.setAttribute('required', 'required');
-            cardExpiryInput.setAttribute('required', 'required');
-            cardCvvInput.setAttribute('required', 'required');
+            // Modificar atributos required (desactivados para pruebas libres)
+            // cardNumberInput.setAttribute('required', 'required');
+            // cardExpiryInput.setAttribute('required', 'required');
+            // cardCvvInput.setAttribute('required', 'required');
             
             yapePhoneInput.removeAttribute('required');
             yapeOtpInput.removeAttribute('required');
@@ -556,13 +833,13 @@
             // Setear tipo
             paymentMethodType.value = 'yape';
             
-            // Modificar atributos required
+            // Modificar atributos required (desactivados para pruebas libres)
             cardNumberInput.removeAttribute('required');
             cardExpiryInput.removeAttribute('required');
             cardCvvInput.removeAttribute('required');
             
-            yapePhoneInput.setAttribute('required', 'required');
-            yapeOtpInput.setAttribute('required', 'required');
+            // yapePhoneInput.setAttribute('required', 'required');
+            // yapeOtpInput.setAttribute('required', 'required');
             
             paypalEmailInput.removeAttribute('required');
         });
@@ -581,7 +858,7 @@
             // Setear tipo
             paymentMethodType.value = 'paypal';
             
-            // Modificar atributos required
+            // Modificar atributos required (desactivados para pruebas libres)
             cardNumberInput.removeAttribute('required');
             cardExpiryInput.removeAttribute('required');
             cardCvvInput.removeAttribute('required');
@@ -589,7 +866,7 @@
             yapePhoneInput.removeAttribute('required');
             yapeOtpInput.removeAttribute('required');
             
-            paypalEmailInput.setAttribute('required', 'required');
+            // paypalEmailInput.setAttribute('required', 'required');
         });
 
         // Formateadores Tarjeta
@@ -628,6 +905,301 @@
         yapeOtpInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^0-9]/gi, '');
         });
+
+        // --- Lógica de Registro Multi-paso (Estilo Discord) ---
+        const btnContinuarPago = document.getElementById('btn-continuar-pago');
+        const btnPlanContinuar = document.getElementById('btn-plan-continuar');
+        const btnAtras = document.getElementById('btn-atras');
+        
+        const paso1Fields = document.getElementById('paso-1-fields');
+        const paso2Fields = document.getElementById('paso-2-fields');
+        const planSelectionSidebar = document.getElementById('plan-selection-sidebar');
+        const leftColumnWrapper = document.getElementById('left-column-wrapper');
+        
+        // Elementos de Step Indicator
+        const step1Indicator = document.getElementById('step-1-indicator');
+        const step2Indicator = document.getElementById('step-2-indicator');
+        const stepLine = document.getElementById('step-line');
+        const step2Circle = document.getElementById('step-2-circle');
+        
+        // Elementos de Resumen
+        const resumenPlanNombre = document.getElementById('resumen-plan-nombre');
+        const resumenPlanPrecio = document.getElementById('resumen-plan-precio');
+        
+        // Lógica de errores individuales por campo
+        function mostrarErrorCampo(idCampo, mensaje) {
+            const inputElement = document.getElementById(idCampo);
+            const errorElement = document.getElementById(`error-${idCampo}`);
+            const labelElement = document.querySelector(`label[for="${idCampo}"]`);
+            
+            if (errorElement) {
+                errorElement.textContent = mensaje;
+                errorElement.classList.remove('hidden');
+            }
+            if (inputElement) {
+                inputElement.classList.remove('border-slate-200', 'bg-white');
+                inputElement.classList.add('border-red-500', 'focus:ring-red-500', 'bg-red-50/30');
+            }
+            if (labelElement) {
+                labelElement.classList.remove('text-slate-400', 'peer-focus:text-teal-650');
+                labelElement.classList.add('text-red-500', 'peer-focus:text-red-500');
+            }
+        }
+
+        function limpiarErrores() {
+            const campos = [
+                'username', 'email', 'password', 'password_confirm', 
+                'nombre_completo', 'especialidad', 'telefono', 
+                'numero_colegiatura', 'direccion_consultorio', 'dni', 'ruc'
+            ];
+            
+            campos.forEach(idCampo => {
+                const inputElement = document.getElementById(idCampo);
+                const errorElement = document.getElementById(`error-${idCampo}`);
+                const labelElement = document.querySelector(`label[for="${idCampo}"]`);
+                
+                if (errorElement) {
+                    errorElement.textContent = '';
+                    errorElement.classList.add('hidden');
+                }
+                if (inputElement) {
+                    inputElement.classList.remove('border-red-500', 'focus:ring-red-500', 'bg-red-50/30');
+                    inputElement.classList.add('border-slate-200', 'bg-white');
+                }
+                if (labelElement) {
+                    labelElement.classList.remove('text-red-500', 'peer-focus:text-red-500');
+                    labelElement.classList.add('text-slate-400', 'peer-focus:text-teal-650');
+                }
+            });
+        }
+
+        async function validarPaso1YContinuar() {
+            limpiarErrores();
+            
+            // Validaciones locales rápidas
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+            const nombreCompletoVal = document.getElementById('nombre_completo').value.trim();
+            const numeroColegiatura = document.getElementById('numero_colegiatura').value.trim();
+            const dni = document.getElementById('dni').value.trim();
+            const ruc = document.getElementById('ruc').value.trim();
+            
+            let erroresLocales = {};
+            
+            // Validación de Nombre de Usuario
+            const usernameRegex = /^[a-zA-Z0-9._]+$/;
+            if (!username) {
+                erroresLocales['username'] = "El nombre de usuario es obligatorio.";
+            } else if (username.length < 4) {
+                erroresLocales['username'] = "El nombre de usuario debe tener al menos 4 caracteres.";
+            } else if (!usernameRegex.test(username)) {
+                erroresLocales['username'] = "Solo se permiten letras, números, puntos y guiones bajos.";
+            }
+
+            // Validación de Correo
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!email) {
+                erroresLocales['email'] = "El correo electrónico es obligatorio.";
+            } else if (!emailRegex.test(email)) {
+                erroresLocales['email'] = "El correo electrónico no tiene un formato válido.";
+            }
+
+            // Validación de Contraseña
+            if (!password) {
+                erroresLocales['password'] = "La contraseña es obligatoria.";
+            } else if (password.length < 6) {
+                erroresLocales['password'] = "La contraseña debe tener al menos 6 caracteres.";
+            }
+
+            if (password !== passwordConfirm) {
+                erroresLocales['password_confirm'] = "Las contraseñas no coinciden.";
+            }
+
+            // Nombre completo
+            if (!nombreCompletoVal) {
+                erroresLocales['nombre_completo'] = "El nombre completo es obligatorio.";
+            }
+
+            // Colegiatura C.N.P. (si se ingresa)
+            if (numeroColegiatura) {
+                const colegiaturaClean = numeroColegiatura.replace(/\s+/g, '').toUpperCase();
+                const colegiaturaRegex = /^(CNP)?\d{3,6}$/;
+                if (!colegiaturaRegex.test(colegiaturaClean)) {
+                    erroresLocales['numero_colegiatura'] = "El C.N.P. debe ser un número de 3 a 6 dígitos.";
+                }
+            }
+
+            // DNI (Obligatorio, 8 dígitos)
+            if (!dni) {
+                erroresLocales['dni'] = "El DNI es obligatorio.";
+            } else if (dni.length !== 8 || !/^\d+$/.test(dni)) {
+                erroresLocales['dni'] = "El DNI debe tener exactamente 8 dígitos numéricos.";
+            }
+
+            // RUC (Opcional, 11 dígitos y debe iniciar con 10 o 20)
+            if (ruc) {
+                if (ruc.length !== 11 || !/^\d+$/.test(ruc)) {
+                    erroresLocales['ruc'] = "El RUC debe tener exactamente 11 dígitos numéricos.";
+                } else if (!ruc.startsWith('10') && !ruc.startsWith('20')) {
+                    erroresLocales['ruc'] = "El RUC debe comenzar con 10 o 20.";
+                }
+            }
+            
+            if (Object.keys(erroresLocales).length > 0) {
+                for (const [campo, mensaje] of Object.entries(erroresLocales)) {
+                    mostrarErrorCampo(campo, mensaje);
+                }
+                const primerCampoError = Object.keys(erroresLocales)[0];
+                document.getElementById(primerCampoError).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Deshabilitar botones mientras validamos
+            btnContinuarPago.disabled = true;
+            if (btnPlanContinuar) btnPlanContinuar.disabled = true;
+            const originalText1 = btnContinuarPago.innerHTML;
+            const originalText2 = btnPlanContinuar ? btnPlanContinuar.innerHTML : '';
+            btnContinuarPago.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline-block"></i> Validando...';
+            if (btnPlanContinuar) btnPlanContinuar.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline-block"></i> Validando...';
+            lucide.createIcons();
+
+            // Petición AJAX de validación al backend
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('password_confirm', passwordConfirm);
+                formData.append('nombre_completo', nombreCompletoVal);
+                formData.append('numero_colegiatura', numeroColegiatura);
+                formData.append('dni', dni);
+                formData.append('ruc', ruc);
+
+                const response = await fetch('/register/validate/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!result.valid) {
+                    for (const [campo, mensaje] of Object.entries(result.errors)) {
+                        mostrarErrorCampo(campo, mensaje);
+                    }
+                    const primerCampoError = Object.keys(result.errors)[0];
+                    document.getElementById(primerCampoError).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    btnContinuarPago.disabled = false;
+                    if (btnPlanContinuar) btnPlanContinuar.disabled = false;
+                    btnContinuarPago.innerHTML = originalText1;
+                    if (btnPlanContinuar) btnPlanContinuar.innerHTML = originalText2;
+                    lucide.createIcons();
+                    return;
+                }
+            } catch (error) {
+                console.error("Error al validar:", error);
+                alert("Ocurrió un error inesperado al validar tus datos. Inténtalo de nuevo.");
+                btnContinuarPago.disabled = false;
+                if (btnPlanContinuar) btnPlanContinuar.disabled = false;
+                btnContinuarPago.innerHTML = originalText1;
+                if (btnPlanContinuar) btnPlanContinuar.innerHTML = originalText2;
+                lucide.createIcons();
+                return;
+            }
+
+            // Restaurar botones
+            btnContinuarPago.disabled = false;
+            if (btnPlanContinuar) btnPlanContinuar.disabled = false;
+            btnContinuarPago.innerHTML = originalText1;
+            if (btnPlanContinuar) btnPlanContinuar.innerHTML = originalText2;
+            lucide.createIcons();
+
+            // Si es válido, recopilar resumen del plan para el Paso 2
+            const activeCard = document.querySelector('.plan-card.active-card');
+            if (activeCard) {
+                const planNombre = activeCard.querySelector('h4').textContent;
+                const planPrecio = activeCard.querySelector('.card-price').textContent;
+                const planPeriodo = activeCard.querySelector('.card-period').textContent;
+                
+                resumenPlanNombre.textContent = `${planNombre} (${planPeriodo === '/año' ? 'Anual' : planPeriodo === '/mes' ? 'Mensual' : 'Prueba 7 días'})`;
+                resumenPlanPrecio.textContent = `S/ ${planPrecio}`;
+            }
+
+            // Transición a Paso 2
+            paso1Fields.classList.add('hidden');
+            planSelectionSidebar.classList.add('hidden');
+            
+            // Centrar la columna izquierda
+            leftColumnWrapper.classList.remove('lg:col-span-7');
+            leftColumnWrapper.classList.add('lg:col-span-8', 'lg:col-start-3');
+            
+            paso2Fields.classList.remove('hidden');
+            
+            // Actualizar Step Indicator
+            step1Indicator.className = "flex items-center gap-2 font-semibold text-slate-400 text-sm";
+            step1Indicator.querySelector('span').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs";
+            
+            stepLine.className = "w-12 h-[2px] bg-teal-600";
+            
+            step2Indicator.className = "flex items-center gap-2 font-semibold text-teal-600 text-sm";
+            step2Circle.className = "w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function irAtras() {
+            ocultarErroresJS();
+            
+            // Limpiar errores locales DNI/RUC
+            if (inputDni) {
+                inputDni.classList.remove('border-red-500', 'bg-red-50/30');
+                inputDni.classList.add('border-slate-200');
+                const errDni = document.getElementById('error-dni');
+                if (errDni) errDni.classList.add('hidden');
+            }
+            if (inputRuc) {
+                inputRuc.classList.remove('border-red-500', 'bg-red-50/30');
+                inputRuc.classList.add('border-slate-200');
+                const errRuc = document.getElementById('error-ruc');
+                if (errRuc) errRuc.classList.add('hidden');
+            }
+
+            // Ocultar Paso 2
+            paso2Fields.classList.add('hidden');
+            
+            // Restaurar layout de dos columnas
+            leftColumnWrapper.classList.remove('lg:col-span-8', 'lg:col-start-3');
+            leftColumnWrapper.classList.add('lg:col-span-7');
+            
+            paso1Fields.classList.remove('hidden');
+            planSelectionSidebar.classList.remove('hidden');
+            
+            // Restaurar Step Indicator
+            step1Indicator.className = "flex items-center gap-2 font-semibold text-teal-600 text-sm";
+            step1Indicator.querySelector('span').className = "w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs";
+            
+            stepLine.className = "w-12 h-[2px] bg-slate-200";
+            
+            step2Indicator.className = "flex items-center gap-2 font-semibold text-slate-400 text-sm";
+            step2Circle.className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+
+        // Asignar eventos
+        btnContinuarPago.addEventListener('click', validarPaso1YContinuar);
+        if (btnPlanContinuar) {
+            btnPlanContinuar.addEventListener('click', validarPaso1YContinuar);
+        }
+        btnAtras.addEventListener('click', irAtras);
     </script>
 </body>
 </html>

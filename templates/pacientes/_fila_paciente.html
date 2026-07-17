@@ -1,34 +1,47 @@
 <!-- pacientes/_fila_paciente.html -->
-<!-- Fragmento: una fila de la tabla de pacientes.
-     Se incluye desde lista.html y se reutiliza en refrescos AJAX de la tabla. -->
+<!-- Fragmento: una fila de la tabla de pacientes. -->
 
-<tr class="hover:bg-slate-50 transition-colors duration-150">
-    <td class="px-5 py-3.5">
-        <a href="{% url 'pacientes:detalle' paciente.pk %}" class="font-medium text-slate-800 hover:text-teal-600 transition-colors text-left inline-block">
-            {{ paciente.nombre_completo }}
-        </a>
-        {% if paciente.sexo %}
-        <span class="text-xs text-slate-400 ml-1">({{ paciente.get_sexo_display }})</span>
-        {% endif %}
+<tr class="group transition-colors duration-150 hover:bg-slate-50">
+    <td class="px-5 py-4">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-sm font-semibold text-teal-700 ring-1 ring-teal-100">
+                {{ paciente.nombre|slice:":1" }}{{ paciente.apellido|slice:":1" }}
+            </div>
+            <div class="min-w-0">
+                <a href="{% url 'pacientes:detalle' paciente.pk %}" class="block truncate font-semibold text-slate-900 hover:text-teal-600">
+                    {{ paciente.nombre_completo }}
+                </a>
+                {% if paciente.sexo %}
+                <span class="text-xs text-slate-500">{{ paciente.get_sexo_display }}</span>
+                {% else %}
+                <span class="text-xs text-slate-400">Sin sexo registrado</span>
+                {% endif %}
+            </div>
+        </div>
     </td>
-    <td class="px-5 py-3.5 text-slate-600">{{ paciente.telefono }}</td>
-    <td class="px-5 py-3.5 text-slate-600 hidden sm:table-cell">
-        {{ paciente.email|default:"—" }}
+    <td class="px-5 py-4">
+        <div class="inline-flex items-center gap-2 text-slate-700">
+            <i data-lucide="phone" class="h-4 w-4 text-slate-400"></i>
+            <span>{{ paciente.telefono }}</span>
+        </div>
     </td>
-    <td class="px-5 py-3.5">
+    <td class="hidden px-5 py-4 text-slate-600 md:table-cell">
+        {{ paciente.email|default:"-" }}
+    </td>
+    <td class="px-5 py-4">
         {% include "components/badge_estado.html" with activo=paciente.estado %}
     </td>
-    <td class="px-5 py-3.5 text-right">
+    <td class="px-5 py-4 text-right">
         <div class="flex items-center justify-end gap-1">
             <a href="{% url 'pacientes:detalle' paciente.pk %}"
-               class="text-slate-400 hover:text-teal-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all inline-flex"
+               class="inline-flex rounded-lg p-2 text-slate-400 hover:bg-teal-50 hover:text-teal-700"
                title="Ver ficha">
-                <i data-lucide="eye" class="w-4 h-4"></i>
+                <i data-lucide="eye" class="h-4 w-4"></i>
             </a>
             <button onclick="openModalEditar({{ paciente.pk }})"
-               class="text-slate-400 hover:text-amber-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
+               class="rounded-lg p-2 text-slate-400 hover:bg-amber-50 hover:text-amber-700"
                title="Editar">
-                <i data-lucide="pencil" class="w-4 h-4"></i>
+                <i data-lucide="pencil" class="h-4 w-4"></i>
             </button>
         </div>
     </td>
