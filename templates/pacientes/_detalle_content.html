@@ -1900,6 +1900,33 @@
 
             </div>
 
+            <!-- Modal: Confirmar Finalización de Consulta -->
+            <div id="modal-confirmar-finalizar"
+                class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div id="modal-confirmar-finalizar-card"
+                    class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-sm w-full overflow-hidden transform transition-all scale-95 opacity-0 duration-200">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-50 text-amber-600 mb-4 border border-amber-100">
+                            <i data-lucide="alert-triangle" class="h-5 w-5"></i>
+                        </div>
+                        <h3 class="text-sm font-extrabold text-slate-800 mb-2">¿Finalizar Consulta Actual?</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed px-2">
+                            Una vez finalizada, la consulta pasará al estado <strong class="text-slate-700">"finalizada"</strong> y no se podrá editar la información clínica registrada en ella.
+                        </p>
+                    </div>
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
+                        <button type="button" onclick="cerrarModalConfirmarFinalizar()"
+                            class="text-slate-650 hover:text-slate-800 text-xs font-bold px-4 py-2 bg-slate-100 rounded-xl transition-colors w-1/2">
+                            Cancelar
+                        </button>
+                        <button type="button" id="btn-confirmar-finalizar-submit"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 w-1/2">
+                            <i data-lucide="check" class="w-4 h-4"></i> Sí, finalizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal: Iniciar Nueva Consulta -->
             <div id="modal-nueva-consulta"
                 class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -10133,35 +10160,81 @@
             });
     }
 
+    let consultaIdAFinalizar = null;
+
     function finalizarConsulta(consultaId) {
-        if (!confirm("¿Está seguro que desea finalizar la consulta actual? Una vez finalizada, no se podrá editar la información clínica registrada en ella.")) {
-            return;
-        }
-
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const formData = new FormData();
-        formData.append("csrfmiddlewaretoken", csrfToken);
-
-        fetch(`/pacientes/{{ paciente.pk }}/consultas/${consultaId}/finalizar/`, {
-            method: "POST",
-            body: formData,
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
+        consultaIdAFinalizar = consultaId;
+        const modal = document.getElementById('modal-confirmar-finalizar');
+        const card = document.getElementById('modal-confirmar-finalizar-card');
+        if (modal && card) {
+            modal.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
             }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert("Error al finalizar la consulta: " + (data.error || "Ocurrió un problema."));
-                }
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("Error de conexión al finalizar la consulta.");
-            });
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
     }
+
+    function cerrarModalConfirmarFinalizar() {
+        const modal = document.getElementById('modal-confirmar-finalizar');
+        const card = document.getElementById('modal-confirmar-finalizar-card');
+        if (modal && card) {
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                consultaIdAFinalizar = null;
+            }, 150);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnConfirmar = document.getElementById('btn-confirmar-finalizar-submit');
+        if (btnConfirmar) {
+            btnConfirmar.addEventListener('click', function() {
+                if (!consultaIdAFinalizar) return;
+                
+                btnConfirmar.disabled = true;
+                const originalHtml = btnConfirmar.innerHTML;
+                btnConfirmar.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin mr-1"></i> Procesando...`;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const formData = new FormData();
+                formData.append("csrfmiddlewaretoken", csrfToken);
+
+                fetch(`/pacientes/{{ paciente.pk }}/consultas/${consultaIdAFinalizar}/finalizar/`, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            cerrarModalConfirmarFinalizar();
+                            window.location.reload();
+                        } else {
+                            alert("Error al finalizar la consulta: " + (data.error || "Ocurrió un problema."));
+                            btnConfirmar.disabled = false;
+                            btnConfirmar.innerHTML = originalHtml;
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Error:", err);
+                        alert("Error de conexión al finalizar la consulta.");
+                        btnConfirmar.disabled = false;
+                        btnConfirmar.innerHTML = originalHtml;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+            });
+        }
+    });
 
     function lockFinalizedFields() {
         const isFinalized = {% if active_consulta and active_consulta.estado == "finalizada" %} true{% else %} false{% endif %};
