@@ -261,9 +261,15 @@ async function refreshListaPacientes() {
         const newTable = doc.querySelector('#pacientes-table-body');
         const newPagination = doc.querySelector('#pacientes-pagination');
         const newCounts = doc.querySelector('#pacientes-counts');
+        const newTotalCount = doc.querySelector('#pacientes-total-count');
+        const newActivosCount = doc.querySelector('#pacientes-activos-count');
+        const newInactivosCount = doc.querySelector('#pacientes-inactivos-count');
 
         const oldPagination = document.getElementById('pacientes-pagination');
         const oldCounts = document.getElementById('pacientes-counts');
+        const oldTotalCount = document.getElementById('pacientes-total-count');
+        const oldActivosCount = document.getElementById('pacientes-activos-count');
+        const oldInactivosCount = document.getElementById('pacientes-inactivos-count');
 
         // Reemplazar el contenedor completo (maneja la transición vacío <-> con datos de forma robusta)
         if (oldContainer && newContainer) {
@@ -278,6 +284,10 @@ async function refreshListaPacientes() {
         if (oldCounts && newCounts) {
             oldCounts.replaceWith(document.importNode(newCounts, true));
         }
+
+        if (oldTotalCount && newTotalCount) oldTotalCount.textContent = newTotalCount.textContent;
+        if (oldActivosCount && newActivosCount) oldActivosCount.textContent = newActivosCount.textContent;
+        if (oldInactivosCount && newInactivosCount) oldInactivosCount.textContent = newInactivosCount.textContent;
 
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (err) {

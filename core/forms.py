@@ -58,3 +58,13 @@ class PerfilNutricionistaForm(forms.ModelForm):
                 }
             ),
         }
+
+    def clean_numero_colegiatura(self):
+        numero_colegiatura = self.cleaned_data.get("numero_colegiatura", "").strip()
+        if numero_colegiatura:
+            qs = PerfilNutricionista.objects.filter(numero_colegiatura=numero_colegiatura)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError("Este número de colegiatura C.N.P. ya está registrado.")
+        return numero_colegiatura

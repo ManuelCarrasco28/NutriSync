@@ -173,6 +173,11 @@ class PacienteDetailView(NutricionistaPacienteMixin, DetailView):
         context = super().get_context_data(**kwargs)
         paciente = self.object
 
+        # Recalcular y persistir preventivamente la edad y el IMC si están nulos en la base de datos
+        # (ej. para registros creados antes de la migración de campos calculados)
+        if paciente.fecha_nacimiento and (paciente.edad is None or (paciente.peso and paciente.talla and paciente.imc_inicial is None)):
+            paciente.save()
+
         # ─── Consultas e Historial Clínico ───
         active_consulta = get_consulta_context(paciente, self.request)
         context['active_consulta'] = active_consulta

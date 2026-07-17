@@ -2,6 +2,7 @@
 # Vistas de autenticación, dashboard y perfil del nutricionista.
 
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -123,11 +124,25 @@ def register_view(request):
         direccion_consultorio = request.POST.get("direccion_consultorio", "").strip()
         plan_id = request.POST.get("plan", "")
         tipo_facturacion = request.POST.get("tipo_facturacion", "mensual").strip()
+        
+        dni = request.POST.get("dni", "").strip()
+        ruc = request.POST.get("ruc", "").strip()
 
         errors = []
 
         if not username or not email or not password or not nombre_completo:
             errors.append("Por favor completa los campos obligatorios del usuario y perfil.")
+
+        if not dni:
+            errors.append("El DNI es obligatorio.")
+        elif not dni.isdigit() or len(dni) != 8:
+            errors.append("El DNI debe tener exactamente 8 dígitos numéricos.")
+
+        if ruc:
+            if not ruc.isdigit() or len(ruc) != 11:
+                errors.append("El RUC debe tener exactamente 11 dígitos numéricos.")
+            elif not ruc.startswith("10") and not ruc.startswith("20"):
+                errors.append("El RUC debe comenzar con 10 o 20.")
 
         if password != password_confirm:
             errors.append("Las contraseñas no coinciden.")
@@ -137,6 +152,11 @@ def register_view(request):
 
         if User.objects.filter(email=email).exists():
             errors.append("El correo electrónico ya está registrado.")
+
+        if numero_colegiatura:
+            from core.models import PerfilNutricionista
+            if PerfilNutricionista.objects.filter(numero_colegiatura=numero_colegiatura).exists():
+                errors.append("El número de colegiatura C.N.P. ya está registrado.")
 
         if not plan_id:
             errors.append("Debes elegir un plan de suscripción.")
@@ -209,6 +229,8 @@ def register_view(request):
         perfil.email_profesional = email
         perfil.numero_colegiatura = numero_colegiatura
         perfil.direccion_consultorio = direccion_consultorio
+        perfil.dni = dni
+        perfil.ruc = ruc
         perfil.estado = EstadoNutricionista.HABILITADO
         perfil.save()
 
@@ -317,6 +339,90 @@ def register_view(request):
         return redirect("core:dashboard")
 
     return render(request, "core/register.html", {"planes": planes})
+
+
+def validate_register_fields_view(request):
+    """Valida los campos del paso 1 de registro vía AJAX antes de ir al pago."""
+    if request.method != "POST":
+        return JsonResponse({"valid": False, "errors": ["Método no permitido."]}, status=405)
+
+    import re
+    username = request.POST.get("username", "").strip()
+    email = request.POST.get("email", "").strip()
+    password = request.POST.get("password", "")
+    password_confirm = request.POST.get("password_confirm", "")
+    nombre_completo = request.POST.get("nombre_completo", "").strip()
+    telefono = request.POST.get("telefono", "").strip()
+    numero_colegiatura = request.POST.get("numero_colegiatura", "").strip()
+    dni = request.POST.get("dni", "").strip()
+    ruc = request.POST.get("ruc", "").strip()
+
+    errors = {}
+
+    # Validar username
+    username_regex = r"^[a-zA-Z0-9._]+$"
+    if not username:
+        errors["username"] = "El nombre de usuario es obligatorio."
+    elif len(username) < 4:
+        errors["username"] = "El nombre de usuario debe tener al menos 4 caracteres."
+    elif not re.match(username_regex, username):
+        errors["username"] = "Solo se permiten letras, números, puntos y guiones bajos."
+    elif User.objects.filter(username=username).exists():
+        errors["username"] = "El nombre de usuario ya está registrado."
+
+    # Validar email
+    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if not email:
+        errors["email"] = "El correo electrónico es obligatorio."
+    elif not re.match(email_regex, email):
+        errors["email"] = "El correo electrónico no tiene un formato válido."
+    elif User.objects.filter(email=email).exists():
+        errors["email"] = "El correo electrónico ya está registrado."
+
+    # Validar password
+    if not password:
+        errors["password"] = "La contraseña es obligatoria."
+    elif len(password) < 6:
+        errors["password"] = "La contraseña debe tener al menos 6 caracteres."
+
+    if password != password_confirm:
+        errors["password_confirm"] = "Las contraseñas no coinciden."
+
+    if not nombre_completo:
+        errors["nombre_completo"] = "El nombre completo es obligatorio."
+
+    if telefono:
+        if not telefono.isdigit():
+            errors["telefono"] = "El teléfono debe contener únicamente números."
+        elif len(telefono) != 9:
+            errors["telefono"] = "El teléfono debe tener exactamente 9 dígitos."
+
+    if numero_colegiatura:
+        # Validar colegiatura (sólo dígitos o prefijo CNP seguido de números)
+        colegiatura_clean = re.sub(r"\s+", "", numero_colegiatura).upper()
+        if not re.match(r"^(CNP)?\d{3,6}$", colegiatura_clean):
+            errors["numero_colegiatura"] = "El C.N.P. debe ser un número de 3 a 6 dígitos."
+        else:
+            from core.models import PerfilNutricionista
+            if PerfilNutricionista.objects.filter(numero_colegiatura=numero_colegiatura).exists():
+                errors["numero_colegiatura"] = "El número de colegiatura C.N.P. ya está registrado."
+
+    if not dni:
+        errors["dni"] = "El DNI es obligatorio."
+    elif not dni.isdigit() or len(dni) != 8:
+        errors["dni"] = "El DNI debe tener exactamente 8 dígitos numéricos."
+
+    if ruc:
+        if not ruc.isdigit() or len(ruc) != 11:
+            errors["ruc"] = "El RUC debe tener exactamente 11 dígitos numéricos."
+        elif not ruc.startswith("10") and not ruc.startswith("20"):
+            errors["ruc"] = "El RUC debe comenzar con 10 o 20."
+
+    if errors:
+        return JsonResponse({"valid": False, "errors": errors})
+    
+    return JsonResponse({"valid": True})
+
 
 
 @login_required
