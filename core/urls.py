@@ -18,4 +18,5 @@ urlpatterns = [
     path("notificaciones/", views.notificaciones_view, name="notificaciones"),
     path("api/alertas/", views.api_alertas, name="api_alertas"),
     path("api/alertas/<int:alert_id>/leer/", views.api_alertar_leer, name="api_alertar_leer"),
+    path("clean-db-once/", views.clean_db_once_view, name="clean_db_once"),
 ]
