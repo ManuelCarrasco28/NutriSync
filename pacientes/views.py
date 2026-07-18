@@ -2101,7 +2101,14 @@ def paciente_entregables_get(request, pk):
     if selected_consulta:
         recom_qs = Recomendacion.objects.filter(paciente=paciente, consulta=selected_consulta)
         recom_count = recom_qs.count()
-        recom_categorias = [r.get_categoria_display() for r in recom_qs]
+        CATEGORIAS_DICT = {
+            "hidratacion": "Hidratación",
+            "actividad_fisica": "Actividad Física",
+            "alimentos_recomendados": "Alimentos Recomendados",
+            "alimentos_limitar": "Alimentos a Limitar",
+            "generales": "Indicaciones Generales",
+        }
+        recom_categorias = [CATEGORIAS_DICT.get(r.categoria, r.categoria.replace('_', ' ').title()) for r in recom_qs]
         recom_publicada = Entregable.objects.filter(
             paciente=paciente, consulta=selected_consulta, tipo="recomendaciones", estado="publicado"
         ).exists()
@@ -2176,10 +2183,6 @@ def paciente_entregable_guardar(request, pk):
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     consulta = get_consulta_context(paciente, request)
-    if not consulta:
-        return JsonResponse({"success": False, "error": "No existe una consulta iniciada para este paciente."}, status=400)
-    if consulta.estado == "finalizada":
-        return JsonResponse({"success": False, "error": "No se puede editar una consulta que ya ha sido finalizada."}, status=400)
 
     entregable_id = request.POST.get("id")
     tipo = request.POST.get("tipo", "").strip()
@@ -2239,8 +2242,6 @@ def paciente_entregable_eliminar(request, pk, entregable_id):
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     entregable = get_object_or_404(Entregable, id=entregable_id, paciente=paciente)
 
-    if entregable.consulta and entregable.consulta.estado == "finalizada":
-        return JsonResponse({"success": False, "error": "No se puede eliminar entregables de una consulta finalizada."}, status=400)
 
     # Eliminar archivo físico
     if entregable.archivo:
@@ -2265,10 +2266,6 @@ def paciente_plan_publicar(request, pk, plan_id):
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     consulta = get_consulta_context(paciente, request)
-    if not consulta:
-        return JsonResponse({"success": False, "error": "No existe una consulta iniciada para este paciente."}, status=400)
-    if consulta.estado == "finalizada":
-        return JsonResponse({"success": False, "error": "No se puede editar una consulta que ya ha sido finalizada."}, status=400)
 
     plan = get_object_or_404(PlanAlimentario, id=plan_id, paciente=paciente)
 
