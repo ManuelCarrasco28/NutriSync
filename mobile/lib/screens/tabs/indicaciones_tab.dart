@@ -76,6 +76,10 @@ class _IndicacionesTabState extends State<IndicacionesTab> with SingleTickerProv
       itemCount: _notas.length,
       itemBuilder: (context, index) {
         final nota = _notas[index];
+        final String titulo = (nota['titulo'] ?? 'Nota de Consulta').toString();
+        final String tipo = (nota['tipo'] ?? '').toString();
+        final String fecha = (nota['fecha'] ?? '').toString();
+
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
           color: isDark ? const Color(0xFF1C1D24) : Colors.white,
@@ -84,34 +88,36 @@ class _IndicacionesTabState extends State<IndicacionesTab> with SingleTickerProv
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: ExpansionTile(
             title: Text(
-              nota['titulo'] ?? 'Nota de Consulta',
+              titulo,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             subtitle: Text(
-              '${nota['tipo']} — ${nota['fecha']}',
+              tipo.isNotEmpty && fecha.isNotEmpty
+                  ? '$tipo — $fecha'
+                  : (tipo.isNotEmpty ? tipo : (fecha.isNotEmpty ? fecha : 'Consulta')),
               style: const TextStyle(fontSize: 12, color: Color(0xFF10B981)),
             ),
             childrenPadding: const EdgeInsets.all(16),
             expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (nota['motivo_consulta'] != null && nota['motivo_consulta'].toString().isNotEmpty) ...[
-                _buildSectionDetail('Motivo de Consulta', nota['motivo_consulta'] ?? ''),
+              if (nota['motivo_consulta'] != null && nota['motivo_consulta'].toString().trim().isNotEmpty) ...[
+                _buildSectionDetail('Motivo de Consulta', nota['motivo_consulta'].toString()),
                 const Divider(height: 20),
               ],
-              if (nota['resumen_consulta'] != null && nota['resumen_consulta'].toString().isNotEmpty) ...[
-                _buildSectionDetail('Resumen de Consulta', nota['resumen_consulta'] ?? ''),
+              if (nota['resumen_consulta'] != null && nota['resumen_consulta'].toString().trim().isNotEmpty) ...[
+                _buildSectionDetail('Resumen de Consulta', nota['resumen_consulta'].toString()),
                 const Divider(height: 20),
               ],
-              if (nota['objetivos_acordados'] != null && nota['objetivos_acordados'].toString().isNotEmpty) ...[
-                _buildSectionDetail('Objetivos Acordados', nota['objetivos_acordados'] ?? ''),
+              if (nota['objetivos_acordados'] != null && nota['objetivos_acordados'].toString().trim().isNotEmpty) ...[
+                _buildSectionDetail('Objetivos Acordados', nota['objetivos_acordados'].toString()),
                 const Divider(height: 20),
               ],
-              if (nota['plan_accion'] != null && nota['plan_accion'].toString().isNotEmpty) ...[
-                _buildSectionDetail('Plan de Acción', nota['plan_accion'] ?? ''),
+              if (nota['plan_accion'] != null && nota['plan_accion'].toString().trim().isNotEmpty) ...[
+                _buildSectionDetail('Plan de Acción', nota['plan_accion'].toString()),
                 const Divider(height: 20),
               ],
-              if (nota['observaciones_clinicas'] != null && nota['observaciones_clinicas'].toString().isNotEmpty) ...[
-                _buildSectionDetail('Observaciones Clínicas', nota['observaciones_clinicas'] ?? ''),
+              if (nota['observaciones_clinicas'] != null && nota['observaciones_clinicas'].toString().trim().isNotEmpty) ...[
+                _buildSectionDetail('Observaciones Clínicas', nota['observaciones_clinicas'].toString()),
               ],
             ],
           ),
@@ -164,10 +170,11 @@ class _IndicacionesTabState extends State<IndicacionesTab> with SingleTickerProv
       itemCount: _recomendaciones.length,
       itemBuilder: (context, index) {
         final rec = _recomendaciones[index];
-        final desc = rec['descripcion'] ?? {};
-        final titulo = desc['titulo'] ?? 'Recomendación';
-        final detalle = desc['detalle'] ?? '';
-        final categoria = rec['categoria'] ?? '';
+        final desc = rec['descripcion'] is Map ? rec['descripcion'] : {};
+        final String titulo = (desc['titulo'] ?? 'Recomendación').toString();
+        final String detalle = (desc['detalle'] ?? '').toString();
+        final String categoria = (rec['categoria'] ?? '').toString();
+        final String fecha = (rec['fecha'] ?? '').toString();
 
         IconData catIcon = Icons.info_outline;
         if (categoria == 'hidratacion') catIcon = Icons.local_drink;
@@ -206,7 +213,7 @@ class _IndicacionesTabState extends State<IndicacionesTab> with SingleTickerProv
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Asignada el: ${rec['fecha']}',
+                        'Asignada el: $fecha',
                         style: const TextStyle(fontSize: 10, color: Colors.grey),
                       ),
                     ],

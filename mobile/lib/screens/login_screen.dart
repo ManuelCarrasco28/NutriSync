@@ -1,8 +1,10 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/screens/home_screen.dart';
+import 'package:mobile/widgets/glass_container.dart';
+import 'package:mobile/widgets/rounded_input_field.dart';
+import 'package:mobile/constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -351,89 +353,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF111520).withValues(alpha: 0.88) : Colors.white.withValues(alpha: 0.88),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey[200]!.withValues(alpha: 0.65),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
-                                blurRadius: 18,
-                                offset: const Offset(0, 12),
+                    GlassContainer(
+                      child: AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 300),
+                        crossFadeState: _isRegisterMode
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        firstChild: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Campo de Usuario
+                            const Text(
+                              'NOMBRE DE USUARIO',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF90949C),
+                                letterSpacing: 0.5,
                               ),
-                            ],
-                          ),
-                          child: AnimatedCrossFade(
-                      duration: const Duration(milliseconds: 300),
-                      crossFadeState: _isRegisterMode
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      firstChild: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Campo de Usuario
-                          const Text(
-                            'NOMBRE DE USUARIO',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF90949C),
-                              letterSpacing: 0.5,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _usernameController,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
+                            const SizedBox(height: 8),
+                            RoundedInputField(
+                              controller: _usernameController,
                               hintText: 'Ingresa tu usuario',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(Icons.person_outline_rounded, color: Colors.grey[500]),
+                              prefixIcon: Icons.person_outline_rounded,
                             ),
-                          ),
-                          const SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
-                          // Campo de Contraseña
-                          const Text(
-                            'CONTRASEÑA',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF90949C),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Ingresa tu contraseña',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                            // Campo de Contraseña
+                            const Text(
+                              'CONTRASEÑA',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF90949C),
+                                letterSpacing: 0.5,
                               ),
-                              prefixIcon: Icon(Icons.lock_outline_rounded, color: Colors.grey[500]),
+                            ),
+                            const SizedBox(height: 8),
+                            RoundedInputField(
+                              controller: _passwordController,
+                              hintText: 'Ingresa tu contraseña',
+                              prefixIcon: Icons.lock_outline_rounded,
+                              obscureText: _obscurePassword,
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
@@ -449,65 +411,65 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 28),
+                            const SizedBox(height: 28),
 
-                          // Botón de Login
-                          SizedBox(
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: _loading ? null : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF10B981),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            // Botón de Login
+                            SizedBox(
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: _loading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 2,
+                                  shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: _loading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Iniciar Sesión',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Botón para alternar a Registro
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isRegisterMode = true;
+                                  _errorMsg = null;
+                                  _passwordStrength = '';
+                                  _usernameController.clear();
+                                  _passwordController.clear();
+                                });
+                              },
+                              child: const Text(
+                                '¿Tienes un código de vinculación? Activa tu cuenta',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              child: _loading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2.5,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Iniciar Sesión',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Botón para alternar a Registro
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _isRegisterMode = true;
-                                _errorMsg = null;
-                                _passwordStrength = '';
-                                _usernameController.clear();
-                                _passwordController.clear();
-                              });
-                            },
-                            child: const Text(
-                              '¿Tienes un código de vinculación? Activa tu cuenta',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF10B981),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
                       secondChild: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -522,24 +484,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _dniController,
+                            hintText: 'Ingresa tu DNI',
+                            prefixIcon: Icons.badge_outlined,
                             keyboardType: TextInputType.number,
                             maxLength: 8,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Ingresa tu DNI',
-                              counterText: '',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(Icons.badge_outlined, color: Colors.grey[500]),
-                            ),
                           ),
                           const SizedBox(height: 16),
 
@@ -554,21 +504,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _codigoController,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Código de 8 caracteres',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(Icons.qr_code_scanner_rounded, color: Colors.grey[500]),
-                            ),
+                            hintText: 'Código de 8 caracteres',
+                            prefixIcon: Icons.qr_code_scanner_rounded,
                           ),
                           const SizedBox(height: 16),
 
@@ -583,22 +522,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _emailController,
+                            hintText: 'Correo',
+                            prefixIcon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Correo',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[500]),
-                            ),
                           ),
                           const SizedBox(height: 16),
 
@@ -613,21 +541,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _usernameController,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Nombre del usuario',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(Icons.person_outline, color: Colors.grey[500]),
-                            ),
+                            hintText: 'Nombre del usuario',
+                            prefixIcon: Icons.person_outline,
                           ),
                           const SizedBox(height: 16),
 
@@ -642,36 +559,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _passwordController,
+                            hintText: 'Crea tu contraseña',
+                            prefixIcon: Icons.lock_outline_rounded,
                             obscureText: _obscurePassword,
                             onChanged: _evaluarPassword,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Crea tu contraseña',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
+                                color: Colors.grey[500],
+                                size: 20,
                               ),
-                              prefixIcon: Icon(Icons.lock_outline_rounded, color: Colors.grey[500]),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off_rounded
-                                      : Icons.visibility_rounded,
-                                  color: Colors.grey[500],
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
                             ),
                           ),
 
@@ -730,35 +636,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          RoundedInputField(
                             controller: _confirmPasswordController,
+                            hintText: 'Confirma tu contraseña',
+                            prefixIcon: Icons.lock_clock_outlined,
                             obscureText: _obscureConfirmPassword,
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-                            decoration: InputDecoration(
-                              hintText: 'Confirma tu contraseña',
-                              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF262730) : const Color(0xFFF3F4F6),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
+                                color: Colors.grey[500],
+                                size: 20,
                               ),
-                              prefixIcon: Icon(Icons.lock_clock_outlined, color: Colors.grey[500]),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscureConfirmPassword
-                                      ? Icons.visibility_off_rounded
-                                      : Icons.visibility_rounded,
-                                  color: Colors.grey[500],
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureConfirmPassword = !_obscureConfirmPassword;
-                                  });
-                                },
-                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                                });
+                              },
                             ),
                           ),
                           const SizedBox(height: 28),
@@ -769,9 +664,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: _loading ? null : _handleRegister,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF10B981),
+                                backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
-                                elevation: 0,
+                                elevation: 2,
+                                shadowColor: AppColors.primary.withValues(alpha: 0.4),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -814,7 +710,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text(
                               '¿Ya tienes una cuenta activa? Inicia Sesión',
                               style: TextStyle(
-                                color: Color(0xFF10B981),
+                                color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -823,121 +719,37 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ), // Cierra AnimatedCrossFade
-                  ), // Cierra Container
-                ), // Cierra BackdropFilter
-              ), // Cierra ClipRRect
-            ], // Cierra children de Column principal
-          ), // Cierra Column principal
-        ), // Cierra ConstrainedBox
-      ), // Cierra SingleChildScrollView
-    ), // Cierra Center
-  ), // Cierra SafeArea
-], // Cierra children de Stack
+                  ), // Cierra GlassContainer
+                  ], // Cierra children de Column principal
+                ), // Cierra Column principal
+              ), // Cierra ConstrainedBox
+              ), // Cierra SingleChildScrollView
+            ), // Cierra Center
+          ), // Cierra SafeArea
+        ], // Cierra children de Stack
       ), // Cierra Stack
     ); // Cierra Scaffold
   }
 }
 
-// ─── Logo Personalizado Vectorial de NutriSync (Manzana) ──────────────────────
+// ─── Logo Personalizado de NutriSync (Manzana desde Asset PNG) ───────────────
 class NutriSyncLogo extends StatelessWidget {
   final double size;
-  final Color color;
+  final Color? color;
 
   const NutriSyncLogo({
     super.key,
     this.size = 80,
-    this.color = const Color(0xFF10B981),
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Image.asset(
+      'assets/images/nutrisync_logo.png',
       width: size,
       height: size,
-      child: CustomPaint(
-        painter: AppleLogoPainter(color: color),
-      ),
+      fit: BoxFit.contain,
     );
   }
-}
-
-class AppleLogoPainter extends CustomPainter {
-  final Color color;
-
-  AppleLogoPainter({this.color = const Color(0xFF10B981)});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5
-      ..strokeCap = StrokeCap.round
-      ..isAntiAlias = true;
-
-    final path = Path();
-    final w = size.width;
-    final h = size.height;
-
-    // Cuerpo de la manzana
-    // Empezamos en el centro superior (depresión superior)
-    path.moveTo(w * 0.5, h * 0.32);
-    
-    // Curva hacia la izquierda y abajo
-    path.cubicTo(
-      w * 0.22, h * 0.16, // Control 1
-      w * 0.05, h * 0.42, // Control 2
-      w * 0.12, h * 0.68  // Punto final izquierdo-bajo
-    );
-    
-    // Curva hacia la base de la manzana (depresión inferior)
-    path.cubicTo(
-      w * 0.18, h * 0.88, // Control 1
-      w * 0.40, h * 0.94, // Control 2
-      w * 0.50, h * 0.86  // Punto central inferior
-    );
-    
-    // Curva hacia la derecha-bajo y arriba
-    path.cubicTo(
-      w * 0.60, h * 0.94, // Control 1
-      w * 0.82, h * 0.88, // Control 2
-      w * 0.88, h * 0.68  // Punto final derecho-bajo
-    );
-    
-    // Curva hacia el centro superior
-    path.cubicTo(
-      w * 0.95, h * 0.42, // Control 1
-      w * 0.78, h * 0.16, // Control 2
-      w * 0.50, h * 0.32  // Volver al inicio superior
-    );
-    
-    // Dibujar el cuerpo
-    canvas.drawPath(path, paint);
-
-    // Tallo (Stem)
-    final stemPath = Path();
-    stemPath.moveTo(w * 0.5, h * 0.30);
-    stemPath.quadraticBezierTo(
-      w * 0.46, h * 0.16, // Punto de control
-      w * 0.52, h * 0.10  // Final del tallo
-    );
-    canvas.drawPath(stemPath, paint);
-
-    // Hoja (Leaf)
-    final leafPath = Path();
-    leafPath.moveTo(w * 0.52, h * 0.16);
-    // Forma de la hoja
-    leafPath.quadraticBezierTo(w * 0.70, h * 0.08, w * 0.76, h * 0.04);
-    leafPath.quadraticBezierTo(w * 0.66, h * 0.22, w * 0.52, h * 0.16);
-    
-    final leafPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true;
-      
-    canvas.drawPath(leafPath, leafPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/services/api_service.dart';
 import 'package:mobile/screens/perfil_dialog.dart';
 import 'package:mobile/screens/archivos_screen.dart';
+import 'package:mobile/screens/login_screen.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -17,6 +18,16 @@ class _DashboardTabState extends State<DashboardTab> {
   Map<String, dynamic>? _plan;
   List<dynamic> _citas = [];
   String? _errorMsg;
+
+  Future<void> _cerrarSesion() async {
+    await ApiService.cerrarSesion();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -345,6 +356,10 @@ class _DashboardTabState extends State<DashboardTab> {
                     IconButton(
                       icon: Icon(Icons.settings_outlined, color: isDark ? Colors.grey[450] : const Color(0xFF4B5563)),
                       onPressed: _abrirPerfilDialog,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.logout, color: Colors.redAccent),
+                      onPressed: _cerrarSesion,
                     ),
                   ],
                 ),
