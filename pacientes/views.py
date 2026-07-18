@@ -585,8 +585,6 @@ def paciente_guardar_informacion(request, pk):
     """
     Guarda los datos de cada uno de los 5 bloques del módulo de Información de Paciente.
     Combina la actualización de campos del modelo nativo con persistencia flexible en JSON.
-    Si hay una consulta activa (no finalizada), se guardan en la consulta y se sincronizan al paciente.
-    Si no hay consulta o la consulta está finalizada, se guardan directamente en el perfil del paciente.
     """
     import json
     from datetime import datetime
@@ -594,22 +592,15 @@ def paciente_guardar_informacion(request, pk):
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     consulta = get_consulta_context(paciente, request)
-    
-    # Determinamos si podemos editar la consulta.
-    # Solo es editable si existe y no está finalizada.
-    is_consulta_editable = (consulta is not None and consulta.estado != "finalizada")
+    if not consulta:
+        return JsonResponse({"success": False, "error": "No existe una consulta iniciada para este paciente."}, status=400)
+    if consulta.estado == "finalizada":
+        return JsonResponse({"success": False, "error": "No se puede editar una consulta que ya ha sido finalizada."}, status=400)
 
     section = request.POST.get("section")
 
-    # Inicializamos el diccionario de información clínica a modificar
-    if is_consulta_editable:
-        if consulta.informacion_clinica is None:
-            consulta.informacion_clinica = {}
-        info_clinica = consulta.informacion_clinica
-    else:
-        if paciente.informacion_clinica is None:
-            paciente.informacion_clinica = {}
-        info_clinica = paciente.informacion_clinica
+    if consulta.informacion_clinica is None:
+        consulta.informacion_clinica = {}
 
     if section == "datos_personales":
         dni = request.POST.get("dni", "").strip()
@@ -624,8 +615,8 @@ def paciente_guardar_informacion(request, pk):
             paciente.fecha_nacimiento = fecha_nac
         paciente.sexo = request.POST.get("sexo", "").strip()
         paciente.ocupacion = request.POST.get("ocupacion", "").strip()
-        info_clinica["estado_civil"] = request.POST.get("estado_civil", "").strip()
-        info_clinica["ciudad"] = request.POST.get("ciudad", "").strip()
+        consulta.informacion_clinica["estado_civil"] = request.POST.get("estado_civil", "").strip()
+        consulta.informacion_clinica["ciudad"] = request.POST.get("ciudad", "").strip()
         
         # Guardar DNI de sombra en el perfil del paciente para integridad de la cuenta móvil
         if paciente.informacion_clinica is None:
@@ -654,28 +645,28 @@ def paciente_guardar_informacion(request, pk):
         paciente.telefono = telefono
         paciente.email = email
         paciente.direccion = request.POST.get("direccion", "").strip()
-        info_clinica["contacto_emergencia"] = request.POST.get("contacto_emergencia", "").strip()
-        info_clinica["relacion_contacto"] = request.POST.get("relacion_contacto", "").strip()
-        info_clinica["telefono_emergencia"] = request.POST.get("telefono_emergencia", "").strip()
+        consulta.informacion_clinica["contacto_emergencia"] = request.POST.get("contacto_emergencia", "").strip()
+        consulta.informacion_clinica["relacion_contacto"] = request.POST.get("relacion_contacto", "").strip()
+        consulta.informacion_clinica["telefono_emergencia"] = request.POST.get("telefono_emergencia", "").strip()
 
     elif section == "historia_clinica":
-        info_clinica["objetivo_principal"] = request.POST.get("objetivo_principal", "").strip()
-        info_clinica["clinica_observaciones"] = request.POST.get("clinica_observaciones", "").strip()
-        info_clinica["enfermedades"] = request.POST.getlist("enfermedades")
-        info_clinica["enfermedad_personalizada"] = request.POST.get("enfermedad_personalizada", "").strip()
-        info_clinica["antecedentes_medicos"] = request.POST.getlist("antecedentes_medicos")
-        info_clinica["antecedentes_medicos_detalles"] = request.POST.get("antecedentes_medicos_detalles", "").strip()
-        info_clinica["antecedentes_familiares"] = request.POST.getlist("antecedentes_familiares")
-        info_clinica["antecedentes_familiares_detalles"] = request.POST.get("antecedentes_familiares_detalles", "").strip()
-        info_clinica["alergias_intolerancias"] = request.POST.getlist("alergias_intolerancias")
-        info_clinica["alergias_personalizadas"] = request.POST.get("alergias_personalizadas", "").strip()
+        consulta.informacion_clinica["objetivo_principal"] = request.POST.get("objetivo_principal", "").strip()
+        consulta.informacion_clinica["clinica_observaciones"] = request.POST.get("clinica_observaciones", "").strip()
+        consulta.informacion_clinica["enfermedades"] = request.POST.getlist("enfermedades")
+        consulta.informacion_clinica["enfermedad_personalizada"] = request.POST.get("enfermedad_personalizada", "").strip()
+        consulta.informacion_clinica["antecedentes_medicos"] = request.POST.getlist("antecedentes_medicos")
+        consulta.informacion_clinica["antecedentes_medicos_detalles"] = request.POST.get("antecedentes_medicos_detalles", "").strip()
+        consulta.informacion_clinica["antecedentes_familiares"] = request.POST.getlist("antecedentes_familiares")
+        consulta.informacion_clinica["antecedentes_familiares_detalles"] = request.POST.get("antecedentes_familiares_detalles", "").strip()
+        consulta.informacion_clinica["alergias_intolerancias"] = request.POST.getlist("alergias_intolerancias")
+        consulta.informacion_clinica["alergias_personalizadas"] = request.POST.get("alergias_personalizadas", "").strip()
         
         # Medicacion y Suplementacion (dynamic table data as JSON string)
         meds_json = request.POST.get("meds_data", "[]")
         try:
-            info_clinica["medicacion_suplementacion"] = json.loads(meds_json)
+            consulta.informacion_clinica["medicacion_suplementacion"] = json.loads(meds_json)
         except Exception:
-            info_clinica["medicacion_suplementacion"] = []
+            consulta.informacion_clinica["medicacion_suplementacion"] = []
 
     elif section == "habitos":
         habitos = {}
@@ -689,7 +680,7 @@ def paciente_guardar_informacion(request, pk):
         habitos["tabaco"] = request.POST.get("tabaco", "").strip()
         habitos["hidratacion"] = request.POST.get("hidratacion", "").strip()
         habitos["observaciones"] = request.POST.get("observaciones", "").strip()
-        info_clinica["habitos"] = habitos
+        consulta.informacion_clinica["habitos"] = habitos
 
     elif section == "historia_alimentaria":
         alimentaria = {}
@@ -706,22 +697,17 @@ def paciente_guardar_informacion(request, pk):
         alimentaria["comida_rapida"] = request.POST.get("comida_rapida", "").strip()
         alimentaria["recordatorio_24h"] = request.POST.get("recordatorio_24h", "").strip()
         alimentaria["observaciones"] = request.POST.get("observaciones", "").strip()
-        info_clinica["historia_alimentaria"] = alimentaria
+        consulta.informacion_clinica["historia_alimentaria"] = alimentaria
 
     # Registrar fecha de última actualización para esta sección
-    if "last_updated" not in info_clinica:
-        info_clinica["last_updated"] = {}
-    info_clinica["last_updated"][section] = datetime.now().strftime("%d/%m/%Y %H:%M")
+    if "last_updated" not in consulta.informacion_clinica:
+        consulta.informacion_clinica["last_updated"] = {}
+    consulta.informacion_clinica["last_updated"][section] = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-    # Guardar persistencia
-    if is_consulta_editable:
-        consulta.informacion_clinica = info_clinica
-        consulta.save()
-        paciente.informacion_clinica = info_clinica
-        paciente.save()
-    else:
-        paciente.informacion_clinica = info_clinica
-        paciente.save()
+    # Guardar consulta y sincronizar con paciente
+    consulta.save()
+    paciente.informacion_clinica = consulta.informacion_clinica
+    paciente.save()
 
     return JsonResponse({"success": True})
 
@@ -834,11 +820,10 @@ def paciente_medicion_guardar(request, pk):
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
     consulta = get_consulta_context(paciente, request)
-    
-    # Solo asociamos la medición a la consulta si está en curso (no finalizada).
-    # De lo contrario, se guarda como medición suelta en el perfil del paciente.
-    is_consulta_editable = (consulta is not None and consulta.estado != "finalizada")
-    consulta_asociada = consulta if is_consulta_editable else None
+    if not consulta:
+        return JsonResponse({"success": False, "error": "No existe una consulta iniciada para este paciente."}, status=400)
+    if consulta.estado == "finalizada":
+        return JsonResponse({"success": False, "error": "No se puede editar una consulta que ya ha sido finalizada."}, status=400)
 
     fecha_str = request.POST.get("fecha", "").strip()
     fecha_val = parse_date(fecha_str) if fecha_str else date.today()
@@ -859,10 +844,10 @@ def paciente_medicion_guardar(request, pk):
         defaults["peso_kg"] = to_decimal(peso_str) if peso_str else (paciente.peso or 70.0)
         defaults["talla_cm"] = to_decimal(talla_str) if talla_str else (paciente.talla or 170.0)
 
-    # Buscar o crear medida para la consulta/perfil y fecha dadas
+    # Buscar o crear medida para la consulta y fecha dadas
     medida, created = MedidaCorporal.objects.get_or_create(
         paciente=paciente, 
-        consulta=consulta_asociada,
+        consulta=consulta,
         fecha=fecha_val, 
         defaults=defaults
     )
