@@ -3,240 +3,640 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recursos del Paciente - {{ paciente.nombre_completo }}</title>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Guía Nutricional Personalizada - {{ paciente.nombre_completo }}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            background-color: #f1f5f9;
+            color: #2c3e50;
         }
-        .dot { width:6px; height:6px; border-radius:9999px; background:#0d9488; flex-shrink:0; margin-top:5px; }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+        .pdf-page {
+            width: 210mm;
+            height: 296mm;
+            padding: 20mm 20mm;
+            margin: 0 auto 30px auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
         @media print {
-            body { background-color: #ffffff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .no-print { display: none !important; }
-            .avoid-break { page-break-inside: avoid; }
+            body {
+                background-color: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .pdf-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 20mm 20mm !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-<!-- Toolbar -->
-<div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between no-print">
-    <a href="{% url 'pacientes:detalle' paciente.pk %}" class="text-xs font-semibold text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
-        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver a la Ficha
-    </a>
-    <button onclick="window.print()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-        <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / Guardar PDF
-    </button>
-</div>
-
-<div class="max-w-4xl mx-auto space-y-5">
-
-<!-- ENCABEZADO -->
-<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    <div class="flex justify-between items-start pb-5 border-b border-slate-100 mb-5">
-        <div>
-            <h1 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-                <i data-lucide="heart" class="w-5 h-5 text-teal-600"></i> NutriSync
-            </h1>
-            <p class="text-xs text-slate-400 mt-0.5">Plataforma Inteligente de Nutrición y Salud</p>
-        </div>
-        <div class="text-right">
-            <h2 class="text-base font-extrabold text-slate-700">Recursos del Paciente</h2>
-            <p class="text-xs text-slate-500">Generado: {{ fecha_generacion }}</p>
-            <p class="text-xs text-slate-400">Nutricionista: {{ nutricionista }}</p>
+    <!-- Toolbar (No se imprime) -->
+    <div class="max-w-[210mm] mx-auto my-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between no-print">
+        <a href="{% url 'pacientes:detalle' paciente.pk %}" class="text-xs font-semibold text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver a la Ficha del Paciente
+        </a>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400">Listo para imprimir o guardar</span>
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
+                <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / Guardar PDF
+            </button>
         </div>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-        <div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Paciente</span><span class="font-bold text-slate-700">{{ paciente.nombre_completo }}</span></div>
-        <div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">DNI</span><span class="font-bold text-slate-700">{{ paciente.dni|default:"-" }}</span></div>
-        <div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Edad</span><span class="font-bold text-slate-700">{{ paciente.edad|default:"-" }} años</span></div>
-        <div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Objetivo</span><span class="font-bold text-slate-700">{{ objetivo|default:"No especificado" }}</span></div>
-        <div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Diagnóstico</span><span class="font-bold text-slate-700">{{ diagnostico|default:"No registrado" }}</span></div>
-        {% if peso %}<div><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Peso / IMC</span><span class="font-bold text-slate-700">{{ peso }} kg / {{ imc }}</span></div>{% endif %}
-    </div>
-</div>
 
-<!-- PLAN ALIMENTARIO -->
-{% if plan %}
-<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-        <i data-lucide="utensils" class="w-5 h-5 text-teal-600"></i>
-        <h2 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Plan Alimentario: {{ plan.nombre }}</h2>
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div class="bg-teal-50 p-3 rounded-xl border border-teal-100 text-center">
-            <span class="block text-[10px] text-teal-600 font-semibold uppercase">Calorías</span>
-            <span class="block text-lg font-extrabold text-teal-700">{{ plan.calorias }}</span>
-            <span class="text-[9px] text-teal-500">kcal/día</span>
+    <!-- PÁGINA 1: PORTADA -->
+    <div class="pdf-page">
+        <!-- Cover Banner Image -->
+        <div class="absolute top-0 left-0 w-full h-[32%] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1490818383965-675646437267?auto=format&fit=crop&w=1200&q=80" 
+                 class="w-full h-full object-cover brightness-[0.9] saturate-[1.1]" alt="Healthy Food Banner">
+            <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20"></div>
         </div>
-        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-            <span class="block text-[10px] text-blue-600 font-semibold uppercase">Proteínas</span>
-            <span class="block text-lg font-extrabold text-blue-700">{{ plan.proteinas|default:"-" }}g</span>
-        </div>
-        <div class="bg-amber-50 p-3 rounded-xl border border-amber-100 text-center">
-            <span class="block text-[10px] text-amber-600 font-semibold uppercase">Carbohidratos</span>
-            <span class="block text-lg font-extrabold text-amber-700">{{ plan.carbohidratos|default:"-" }}g</span>
-        </div>
-        <div class="bg-rose-50 p-3 rounded-xl border border-rose-100 text-center">
-            <span class="block text-[10px] text-rose-600 font-semibold uppercase">Grasas</span>
-            <span class="block text-lg font-extrabold text-rose-700">{{ plan.grasas|default:"-" }}g</span>
-        </div>
-    </div>
-    {% if plan.descripcion %}<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-4">{{ plan.descripcion }}</p>{% endif %}
-    {% if comidas %}
-    <div class="space-y-3">
-        {% for comida in comidas %}
-        <div class="border border-slate-100 rounded-xl p-3">
-            <span class="text-xs font-bold text-slate-700 block mb-1.5">{{ comida.nombre }}</span>
-            <div class="space-y-1">
-                {% for receta in comida.recetas %}
-                <div class="flex items-start gap-2 text-xs text-slate-600">
-                    <div class="dot"></div>
-                    <span>{{ receta.nombre }}{% if receta.porcion %} &mdash; <em class="text-slate-400">{{ receta.porcion }}</em>{% endif %}</span>
+
+        <div class="mt-[72%] flex-1 flex flex-col justify-between">
+            <div class="text-center space-y-4">
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-800 leading-tight">
+                    {% if plan %}{{ plan.nombre }}{% else %}Plan Nutricional Personalizado{% endif %}
+                </h1>
+                <p class="text-lg font-medium text-emerald-700 uppercase tracking-widest">
+                    Guía y Recursos Alimentarios
+                </p>
+                <div class="w-20 h-1 bg-emerald-500 mx-auto rounded-full mt-4"></div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center space-y-6 mb-8">
+                <!-- Logo NutriSync -->
+                <div class="flex flex-col items-center space-y-1">
+                    <div class="flex items-center gap-2 text-emerald-600 font-extrabold text-2xl">
+                        <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span>NutriSync</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Nutrición Integral</span>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-</div>
-{% endif %}
 
-<!-- RECOMENDACIONES -->
-{% if recom_hidratacion or recom_actividad or recom_alimentos_recom or recom_alimentos_limitar or recom_generales %}
-<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-        <i data-lucide="clipboard-check" class="w-5 h-5 text-teal-600"></i>
-        <h2 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Recomendaciones e Indicaciones Clínicas</h2>
-    </div>
-    <div class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% if recom_hidratacion and recom_hidratacion.descripcion %}
-            <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs space-y-2">
-                <span class="font-bold text-slate-700 flex items-center gap-1"><i data-lucide="droplet" class="w-3.5 h-3.5 text-sky-500"></i> Hidratación</span>
-                <p class="font-semibold text-slate-800">Consumo diario: {{ recom_hidratacion.descripcion.consumo_diario|default:"-" }} L/día</p>
-                <p class="text-slate-500 italic">{{ recom_hidratacion.descripcion.observaciones|default:"" }}</p>
-            </div>
-            {% endif %}
-            {% if recom_actividad and recom_actividad.descripcion %}
-            <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs space-y-1.5">
-                <span class="font-bold text-slate-700 flex items-center gap-1"><i data-lucide="dumbbell" class="w-3.5 h-3.5 text-violet-500"></i> Actividad Física</span>
-                <p class="text-slate-800 font-semibold">{{ recom_actividad.descripcion.tipo|default:"-" }}</p>
-                <div class="grid grid-cols-3 gap-2 text-[10px] text-slate-500">
-                    <div><span class="font-bold block">Frecuencia</span>{{ recom_actividad.descripcion.frecuencia|default:"-" }}</div>
-                    <div><span class="font-bold block">Duración</span>{{ recom_actividad.descripcion.duracion|default:"-" }}</div>
-                    <div><span class="font-bold block">Intensidad</span>{{ recom_actividad.descripcion.intensidad|default:"-" }}</div>
+                <div class="bg-slate-50/80 backdrop-blur-xs border border-slate-200/60 rounded-2xl p-6 w-full max-w-md text-xs grid grid-cols-2 gap-4 shadow-xs">
+                    <div class="col-span-2 border-b border-slate-100 pb-2 flex justify-between items-center">
+                        <span class="font-bold text-slate-700 text-sm">Expediente Clínico</span>
+                        <span class="text-slate-400 font-medium">Ficha #{{ paciente.pk }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Paciente</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ paciente.nombre_completo }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">DNI</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ paciente.dni|default:"-" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Objetivo</span>
+                        <span class="font-bold text-emerald-700 text-sm">{{ objetivo }}</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Fecha</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ fecha_generacion }}</span>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% if recom_alimentos_recom and recom_alimentos_recom.descripcion.items %}
-            <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs space-y-2">
-                <span class="font-bold text-slate-700 flex items-center gap-1"><i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-500"></i> Alimentos Recomendados</span>
-                <div class="flex flex-wrap gap-1.5">
-                    {% for item in recom_alimentos_recom.descripcion.items %}
-                    <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold rounded-lg uppercase">{{ item }}</span>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-[10px] text-slate-400">
+            <span>NutriSync &copy; 2026</span>
+            <span>Profesional Responsable: {{ nutricionista }}</span>
+        </div>
+    </div>
+
+
+    <!-- PÁGINA 2: BIENVENIDA -->
+    <div class="pdf-page">
+        <!-- Left Fruit Decorative Strip -->
+        <div class="absolute top-0 right-0 w-[42%] h-full opacity-10 pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1610970881699-44a55b4cfd87?auto=format&fit=crop&w=800&q=80" 
+                 class="w-full h-full object-cover" alt="Fruits">
+        </div>
+
+        <div class="flex-1 flex flex-col justify-between mt-6 z-10">
+            <div class="space-y-6 max-w-[85%]">
+                <h2 class="text-3xl font-extrabold text-emerald-800 flex items-center gap-2">
+                    ¡Hola, {{ paciente.nombre_completo }}!
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+                
+                <p class="text-slate-600 leading-relaxed text-sm text-justify">
+                    Soy tu especialista en Nutrición y Salud, y me enfoco en trabajar la alimentación de manera integral, 
+                    priorizando siempre tu salud y bienestar de forma sostenible. Esta guía nutricional ha sido totalmente 
+                    personalizada de acuerdo con tus metas, diagnóstico, peso y talla actuales.
+                </p>
+
+                <p class="text-slate-600 leading-relaxed text-sm text-justify">
+                    Creemos firmemente en que no existen dietas restrictivas ni alimentos prohibidos, sino porciones inteligentes 
+                    que se adaptan a tu ritmo de vida. Este documento contiene todo tu plan de alimentación, 
+                    las indicaciones clínicas de soporte y tu lista de compras semanal.
+                </p>
+
+                <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 space-y-4 mt-8">
+                    <h3 class="text-sm font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-2">
+                        <i data-lucide="target" class="w-4 h-4 text-emerald-600"></i> Objetivos del Tratamiento:
+                    </h3>
+                    <ul class="space-y-3 text-xs text-slate-700">
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">✓</span>
+                            <span><strong>{{ objetivo }}</strong> como meta principal de evolución.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">✓</span>
+                            <span>Mejorar hábitos alimentarios y optimizar la relación con los alimentos.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">✓</span>
+                            <span>Regularizar marcadores antropométricos e incrementar niveles de energía.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Nutricionista Signature Info -->
+            <div class="flex justify-between items-end border-t border-slate-100 pt-6 mb-4">
+                <div class="space-y-1">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tu Especialista</p>
+                    <p class="text-sm font-bold text-slate-800">{{ nutricionista }}</p>
+                    <p class="text-xs text-emerald-600">Nutrición y Dietética Integral</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] text-slate-400">NutriSync - Soporte al Paciente</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 2</span>
+        </div>
+    </div>
+
+
+    <!-- PÁGINA 3: CONSIDERACIONES -->
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                    Tener en Cuenta Antes de Iniciar
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+                    <!-- Left sage column -->
+                    <div class="md:col-span-5 bg-emerald-800 text-white rounded-2xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+                        <div class="space-y-3">
+                            <h3 class="font-extrabold text-lg leading-tight">Medición e Ingredientes</h3>
+                            <p class="text-xs text-emerald-100 leading-relaxed">
+                                Para asegurar los mejores resultados, te recomendamos medir tus alimentos en gramos con una balanza digital de cocina, o utilizando tazas y cucharadas estándar de medición.
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                                <i data-lucide="scale" class="w-5 h-5 text-emerald-300"></i>
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Balanza Gramera</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                                <i data-lucide="cup-soda" class="w-5 h-5 text-emerald-300"></i>
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Tazas y Cucharas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right explanation column -->
+                    <div class="md:col-span-7 border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <h3 class="font-bold text-sm text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="shuffle" class="w-4 h-4 text-emerald-600"></i> Sistema de Dieta Flexible
+                            </h3>
+                            <p class="text-xs text-slate-500 leading-relaxed text-justify">
+                                El sistema de alimentación que utilizamos es de <strong>intercambio de alimentos</strong>. Esto significa que puedes intercambiar fuentes de proteínas, carbohidratos o grasas equivalentes según tus preferencias. 
+                            </p>
+                            <p class="text-xs text-slate-500 leading-relaxed text-justify">
+                                Por ejemplo, puedes cambiar el pollo por pescado, o el camote por arroz cocido en las porciones indicadas. Cada porción de alimento está calculada en gramos específicos para mantener estable tu balance calórico diario y tus macronutrientes.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 text-xs flex gap-3 items-start">
+                            <div class="text-amber-500 font-bold mt-0.5 text-base">💡</div>
+                            <p class="text-slate-500 leading-relaxed">
+                                <strong>Consejo del especialista:</strong> Prepara tus comidas en tandas (batch cooking) los fines de semana. Esto reduce la ansiedad de cocinar a diario y te ayuda a cumplir tu plan al 100%.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 3</span>
+        </div>
+    </div>
+
+
+    <!-- PÁGINA 4: PLAN ALIMENTARIO -->
+    {% if plan %}
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-2">
+                        <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                            Plan Alimentario Recomendado
+                        </h2>
+                        <span class="text-xs font-semibold text-emerald-700 uppercase tracking-widest">{{ plan.nombre }}</span>
+                    </div>
+                    <!-- Prescripción calórica -->
+                    <div class="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl text-center shadow-xs">
+                        <span class="text-[9px] text-emerald-600 font-bold uppercase tracking-wider block">Prescripción</span>
+                        <span class="text-sm font-extrabold text-emerald-800">{{ plan.calorias }} kcal / día</span>
+                    </div>
+                </div>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+
+                <!-- Macronutrientes Breakdown block -->
+                <div class="grid grid-cols-4 gap-3 bg-slate-50 p-4 border border-slate-200/60 rounded-2xl text-center">
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Calorías</span>
+                        <strong class="text-base font-extrabold text-slate-700">{{ plan.calorias }} kcal</strong>
+                    </div>
+                    <div class="space-y-0.5 border-l border-slate-200/80">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Proteínas</span>
+                        <strong class="text-base font-extrabold text-slate-700">{{ plan.proteinas|default:"-" }}g</strong>
+                    </div>
+                    <div class="space-y-0.5 border-l border-slate-200/80">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Carbohidratos</span>
+                        <strong class="text-base font-extrabold text-slate-700">{{ plan.carbohidratos|default:"-" }}g</strong>
+                    </div>
+                    <div class="space-y-0.5 border-l border-slate-200/80">
+                        <span class="text-[9px] text-slate-400 font-bold uppercase block">Grasas</span>
+                        <strong class="text-base font-extrabold text-slate-700">{{ plan.grasas|default:"-" }}g</strong>
+                    </div>
+                </div>
+
+                <!-- Comidas List -->
+                <div class="space-y-4 max-h-[550px] overflow-y-auto pr-1">
+                    {% for comida in comidas %}
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-start justify-between gap-3 hover:border-emerald-300 transition-all">
+                        <div class="md:w-36 flex-shrink-0 flex items-center md:flex-col md:items-start gap-2 md:gap-0">
+                            <span class="text-xs font-extrabold text-emerald-800 uppercase tracking-widest">{{ comida.tipo }}</span>
+                            {% if comida.hora %}
+                            <span class="text-[10px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> {{ comida.hora }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 space-y-1.5">
+                            {% if comida.alimentos %}
+                            <div class="space-y-1">
+                                {% for alimento in comida.alimentos %}
+                                <div class="flex items-start gap-2 text-xs text-slate-700 font-medium">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+                                    <span>{{ alimento }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-xs text-slate-400 italic">Alimentos no detallados.</p>
+                            {% endif %}
+                            
+                            {% if comida.observaciones %}
+                            <div class="text-[10px] text-slate-400 italic pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                                <i data-lucide="message-square-text" class="w-3.5 h-3.5"></i> {{ comida.observaciones }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
-            {% if recom_alimentos_limitar and recom_alimentos_limitar.descripcion.items %}
-            <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs space-y-2">
-                <span class="font-bold text-slate-700 flex items-center gap-1"><i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-500"></i> Alimentos a Evitar/Limitar</span>
-                <div class="flex flex-wrap gap-1.5">
-                    {% for item in recom_alimentos_limitar.descripcion.items %}
-                    <span class="px-2 py-0.5 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded-lg uppercase">{{ item }}</span>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 4</span>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- PÁGINA 5: ARMA TU DIETA A TU GUSTO -->
+    {% if sustituciones %}
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                    Arma tu Dieta a tu Gusto
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Usa esta tabla de sustituciones y equivalencias para intercambiar alimentos de forma flexible. Elige una opción alternativa por cada ingrediente manteniendo tu menú variado e igualmente saludable.
+                </p>
+
+                <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-800 text-white font-bold">
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px]">Alimento Base</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px] text-center">Equivalencia</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px] text-right">Sustituto Recomendado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sust in sustituciones %}
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                                <td class="py-3 px-4 font-bold text-slate-700">{{ sust.alimento }}</td>
+                                <td class="py-3 px-4 text-center font-medium text-slate-400 italic">puede intercambiarse por</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-800 bg-emerald-50/30">{{ sust.sustituto }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 5</span>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- PÁGINA 6: RECOMENDACIONES -->
+    {% if recom_hidratacion or recom_actividad or recom_alimentos_recom or recom_alimentos_limitar or recom_generales %}
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                    Indicaciones y Estilo de Vida
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Hidratación -->
+                    {% if recom_hidratacion and recom_hidratacion.descripcion %}
+                    <div class="bg-white border border-slate-200/80 p-5 rounded-2xl text-xs space-y-3 hover:border-emerald-300 transition-all">
+                        <span class="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                            <i data-lucide="droplet" class="w-4 h-4 text-sky-500"></i> Hidratación Diaria
+                        </span>
+                        <div class="space-y-1.5">
+                            <p class="text-slate-800 font-semibold">Consumo sugerido: <span class="text-emerald-700 font-bold">{{ recom_hidratacion.descripcion.consumo_diario|default:"-" }} Litros</span> por día.</p>
+                            <p class="text-slate-500 italic">{{ recom_hidratacion.descripcion.observaciones|default:"" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Actividad Física -->
+                    {% if recom_actividad and recom_actividad.descripcion %}
+                    <div class="bg-white border border-slate-200/80 p-5 rounded-2xl text-xs space-y-3 hover:border-emerald-300 transition-all">
+                        <span class="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                            <i data-lucide="dumbbell" class="w-4 h-4 text-violet-500"></i> Actividad Física
+                        </span>
+                        <div class="space-y-2">
+                            <p class="text-slate-800 font-semibold">Tipo: <span class="text-emerald-700 font-bold">{{ recom_actividad.descripcion.tipo|default:"-" }}</span></p>
+                            <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[10px] text-slate-500">
+                                <div><span class="font-bold block uppercase tracking-wider text-[8px] text-slate-400 mb-0.5">Frecuencia</span>{{ recom_actividad.descripcion.frecuencia|default:"-" }}</div>
+                                <div><span class="font-bold block uppercase tracking-wider text-[8px] text-slate-400 mb-0.5">Duración</span>{{ recom_actividad.descripcion.duracion|default:"-" }}</div>
+                                <div><span class="font-bold block uppercase tracking-wider text-[8px] text-slate-400 mb-0.5">Intensidad</span>{{ recom_actividad.descripcion.intensidad|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Alimentos Recomendados -->
+                    {% if recom_alimentos_recom and recom_alimentos_recom.descripcion.items %}
+                    <div class="bg-white border border-slate-200/80 p-5 rounded-2xl text-xs space-y-3 hover:border-emerald-300 transition-all">
+                        <span class="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                            <i data-lucide="leaf" class="w-4 h-4 text-emerald-500"></i> Priorizar Alimentos
+                        </span>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for item in recom_alimentos_recom.descripcion.items %}
+                            <span class="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-bold rounded-lg">{{ item }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Alimentos a Evitar -->
+                    {% if recom_alimentos_limitar and recom_alimentos_limitar.descripcion.items %}
+                    <div class="bg-white border border-slate-200/80 p-5 rounded-2xl text-xs space-y-3 hover:border-emerald-300 transition-all">
+                        <span class="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-rose-500"></i> Limitar Consumo
+                        </span>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for item in recom_alimentos_limitar.descripcion.items %}
+                            <span class="px-2.5 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded-lg">{{ item }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Indicaciones Generales -->
+                {% if recom_generales and recom_generales.descripcion.items %}
+                <div class="bg-white border border-slate-200/80 p-5 rounded-2xl text-xs space-y-3 hover:border-emerald-300 transition-all">
+                    <span class="font-bold text-slate-700 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                        <i data-lucide="check-square" class="w-4 h-4 text-amber-500"></i> Recomendaciones Generales
+                    </span>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-600">
+                        {% for item in recom_generales.descripcion.items %}
+                        <li class="flex items-start gap-2.5">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full mt-1.5 flex-shrink-0"></span>
+                            <span>{{ item }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 6</span>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- PÁGINA 7: LISTA DE COMPRAS -->
+    {% if lista_compras %}
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                    Lista de Compras del Supermercado
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Esta lista contiene las cantidades e ingredientes requeridos para cumplir tu menú prescrito durante la semana. Te recomendamos comprar ingredientes frescos y de calidad.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 max-h-[550px] overflow-y-auto pr-1">
+                    {% for item in lista_compras %}
+                    <div class="flex items-center gap-3 bg-emerald-50/20 border border-emerald-100/50 p-3 rounded-2xl shadow-2xs hover:border-emerald-300 transition-all">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 font-bold">
+                            🛒
+                        </div>
+                        <div class="text-xs flex-1">
+                            <strong class="text-slate-800 text-sm">{{ item.producto }}</strong>
+                            <div class="flex justify-between items-center mt-0.5 text-slate-400">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-600">{{ item.categoria }}</span>
+                                <span class="text-[11px] font-bold text-slate-500 bg-white border border-slate-100 px-1.5 py-0.5 rounded-md">{{ item.cantidad }}</span>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
         </div>
-        {% if recom_generales and recom_generales.descripcion.items %}
-        <div class="bg-white border border-slate-200 p-4 rounded-xl text-xs space-y-2">
-            <span class="font-bold text-slate-700 flex items-center gap-1 mb-1"><i data-lucide="check-square" class="w-3.5 h-3.5 text-amber-500"></i> Indicaciones Generales</span>
-            <ul class="list-disc list-inside space-y-1 text-slate-600">
-                {% for item in recom_generales.descripcion.items %}<li>{{ item }}</li>{% endfor %}
-            </ul>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 7</span>
         </div>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-
-<!-- LISTA DE COMPRAS -->
-{% if lista_compras %}
-<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-        <i data-lucide="shopping-cart" class="w-5 h-5 text-amber-500"></i>
-        <h2 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Lista de Compras Recomendada</h2>
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {% for item in lista_compras %}
-        <div class="flex items-start gap-2 text-xs text-slate-700 bg-amber-50 p-2.5 rounded-lg border border-amber-100">
-            <i data-lucide="check-square" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5"></i>
-            <span><strong>{{ item.producto }}</strong><br><em class="text-slate-400">{{ item.cantidad }}</em></span>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- EVOLUCION -->
-{% if medidas %}
-<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-        <i data-lucide="activity" class="w-5 h-5 text-emerald-500"></i>
-        <h2 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Reportes de Evolución</h2>
-    </div>
-    <table class="w-full text-left text-xs border-collapse">
-        <thead>
-            <tr class="bg-emerald-50 text-emerald-700 font-bold">
-                <th class="py-2 px-3">Fecha</th>
-                <th class="py-2 px-3">Peso (kg)</th>
-                <th class="py-2 px-3">Talla (cm)</th>
-                <th class="py-2 px-3">IMC</th>
-                <th class="py-2 px-3">% Grasa Corp.</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in medidas %}
-            <tr class="border-b border-slate-100 {% if forloop.last %}font-bold text-slate-800{% else %}text-slate-600{% endif %}">
-                <td class="py-2 px-3">{{ m.fecha|date:"d/m/Y" }}</td>
-                <td class="py-2 px-3">{{ m.peso_kg|default:"-" }}</td>
-                <td class="py-2 px-3">{{ m.talla_cm|default:"-" }}</td>
-                <td class="py-2 px-3">{{ m.imc|default:"-" }}</td>
-                <td class="py-2 px-3">{{ m.grasa_corporal_pct|default:"-" }}{% if m.grasa_corporal_pct %}%{% endif %}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
-
-<!-- PIE DE PAGINA -->
-<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm avoid-break">
-    {% if proxima_cita %}
-    <div class="mb-4 flex items-center gap-2 text-xs text-teal-700 bg-teal-50 p-3 rounded-lg border border-teal-100">
-        <i data-lucide="calendar-check" class="w-4 h-4"></i>
-        <span>Próxima cita: <strong>{{ proxima_cita.fecha }}</strong> a las {{ proxima_cita.hora }} &mdash; {{ proxima_cita.tipo }}</span>
     </div>
     {% endif %}
-    <div class="flex items-center justify-between text-[10px] text-slate-400 pt-3 border-t border-slate-100">
-        <span>NutriSync &mdash; Documento informativo para uso del paciente</span>
-        <span>Profesional responsable: {{ nutricionista }}</span>
-    </div>
-</div>
 
-</div>
-<script>
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-</script>
+
+    <!-- PÁGINA 8: EVOLUCIÓN HISTÓRICA -->
+    {% if medidas %}
+    <div class="pdf-page">
+        <div class="flex-1 flex flex-col justify-between mt-6">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                    Reporte de Evolución y Avances
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Monitoreo continuo de mediciones corporales clave. Recuerda que el peso es solo un indicador más; nuestro objetivo se centra en la reducción del tejido graso y la optimización metabólica integral.
+                </p>
+
+                <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-800 text-white font-bold">
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px]">Fecha</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px]">Peso (kg)</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px]">Estatura (cm)</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px]">IMC</th>
+                                <th class="py-3 px-4 font-semibold uppercase tracking-wider text-[10px] text-right">% Grasa Corporal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in medidas %}
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/50 {% if forloop.last %}font-bold text-slate-800{% else %}text-slate-500{% endif %}">
+                                <td class="py-3 px-4">{{ m.fecha|date:"d/m/Y" }}</td>
+                                <td class="py-3 px-4">{{ m.peso_kg|default:"-" }}</td>
+                                <td class="py-3 px-4">{{ m.talla_cm|default:"-" }}</td>
+                                <td class="py-3 px-4">{{ m.imc|default:"-" }}</td>
+                                <td class="py-3 px-4 text-right font-bold text-emerald-800 {% if forloop.last %}text-emerald-700 bg-emerald-50/20{% endif %}">
+                                    {{ m.grasa_corporal_pct|default:"-" }}{% if m.grasa_corporal_pct %}%{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Página 8</span>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- PÁGINA 9: CIERRE Y PROXIMA CITA -->
+    <div class="pdf-page">
+        <!-- Top decorative fruit image banner -->
+        <div class="absolute top-0 left-0 w-full h-[32%] overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1490818383965-675646437267?auto=format&fit=crop&w=1200&q=80" 
+                 class="w-full h-full object-cover brightness-[0.9] saturate-[1.1]" alt="Healthy Food Banner">
+            <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/20"></div>
+        </div>
+
+        <div class="mt-[72%] flex-1 flex flex-col justify-between">
+            <div class="text-center space-y-6 flex-1 flex flex-col justify-center items-center">
+                <h2 class="text-3xl font-extrabold text-slate-800 leading-tight">
+                    ¡Gracias por tu Confianza!
+                </h2>
+                <div class="w-16 h-1 bg-emerald-500 rounded-full"></div>
+                
+                <p class="text-slate-600 leading-relaxed text-sm max-w-md text-center">
+                    Recuerda que cada meta y logro dependen de que cumplas tu plan alimentario e indicaciones al 100%. 
+                    ¡Tu salud es nuestro mayor compromiso!
+                </p>
+
+                {% if proxima_cita %}
+                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 w-full max-w-sm mt-8 text-xs text-center space-y-2 shadow-2xs">
+                    <span class="text-[9px] text-emerald-600 font-bold uppercase tracking-wider block">Próxima Consulta Agendada</span>
+                    <strong class="text-base font-extrabold text-emerald-800 block">{{ proxima_cita.fecha }}</strong>
+                    <span class="text-slate-500 block font-medium">Hora: {{ proxima_cita.hora }} &mdash; Modalidad: {{ proxima_cita.tipo }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer Logo NutriSync -->
+            <div class="flex flex-col items-center space-y-1 mb-6">
+                <div class="flex items-center gap-1.5 text-emerald-600 font-extrabold text-xl">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" 
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span>NutriSync</span>
+                </div>
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Nutrición Integral</span>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3">
+            <span>NutriSync - Guía del Paciente</span>
+            <span>Final</span>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
 </body>
 </html>

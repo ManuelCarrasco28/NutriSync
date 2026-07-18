@@ -2312,6 +2312,7 @@ def paciente_entregables_pdf(request, pk):
     from django.utils import timezone
     from seguimiento.models import Recomendacion, MedidaCorporal, Entregable
     from pacientes.models import PlanAlimentario
+    from nutricion.models.recetas import Receta
 
     paciente = get_object_or_404(Paciente, pk=pk, nutricionista=request.user)
 
@@ -2323,14 +2324,38 @@ def paciente_entregables_pdf(request, pk):
         paciente=paciente, enviado_al_paciente=True
     ).order_by('-fecha_inicio').first()
 
-    # Comidas del plan
+    # Comidas del plan con resolución de recetas e ingredientes
     comidas = []
     if plan and plan.comidas:
         for comida_data in plan.comidas:
+            receta_id = comida_data.get('receta_id')
+            receta = None
+            if receta_id:
+                try:
+                    receta = Receta.objects.get(id=receta_id)
+                except Receta.DoesNotExist:
+                    pass
+            
+            alimentos_list = []
+            if receta:
+                for ing in receta.ingredientes.all():
+                    nota_str = f" ({ing.nota})" if ing.nota else ""
+                    qty = ing.cantidad
+                    qty_str = f"{int(qty)}" if qty % 1 == 0 else f"{qty}"
+                    alimentos_list.append(f"{qty_str}g de {ing.alimento.nombre}{nota_str}")
+            elif comida_data.get('alimentos'):
+                alimentos_list = [comida_data.get('alimentos')]
+            
             comidas.append({
-                'nombre': comida_data.get('nombre', ''),
-                'recetas': comida_data.get('recetas', []),
+                'tipo': comida_data.get('tipo', 'Comida'),
+                'hora': comida_data.get('hora', ''),
+                'receta_nombre': receta.nombre if receta else 'Personalizado',
+                'alimentos': alimentos_list,
+                'observaciones': comida_data.get('observaciones', ''),
             })
+
+    # --- Sustituciones de alimentos ---
+    sustituciones = plan.sustituciones if plan else []
 
     # --- Recomendaciones (si hay entregable publicado) ---
     recom_qs = None
@@ -2393,6 +2418,7 @@ def paciente_entregables_pdf(request, pk):
         'paciente': paciente,
         'plan': plan,
         'comidas': comidas,
+        'sustituciones': sustituciones,
         'recom_hidratacion': recom_hid,
         'recom_actividad': recom_act,
         'recom_alimentos_recom': recom_al_rec,
