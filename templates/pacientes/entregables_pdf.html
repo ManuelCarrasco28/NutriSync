@@ -11,7 +11,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             color: #2c3e50;
         }
         h1, h2, h3, h4, h5, h6 {
@@ -21,16 +21,22 @@
             width: 210mm;
             min-height: 275mm;
             padding: 15mm 15mm;
-            margin: 0 auto 15px auto;
+            margin: 0 auto;
             background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            border-radius: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
             box-sizing: border-box;
+            border-bottom: 2px dashed #e2e8f0;
+        }
+        .pdf-page:last-of-type {
+            border-bottom: none;
+        }
+        @page {
+            size: A4;
+            margin: 0;
         }
         @media print {
             body {
@@ -48,6 +54,7 @@
                 padding: 15mm 15mm !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
+                border-bottom: none !important;
                 page-break-after: always !important;
                 page-break-inside: avoid !important;
                 -webkit-print-color-adjust: exact !important;
@@ -64,7 +71,7 @@
             <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Volver a la Ficha
         </a>
         <div class="flex items-center gap-2">
-            <span class="text-[11px] text-slate-400">Diseño Premium Optimizado</span>
+            <span class="text-[11px] text-slate-400">Diseño Continuo Premium</span>
             <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
                 <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
             </button>
@@ -166,13 +173,13 @@
                 </h2>
                 <div class="w-12 h-1 bg-emerald-500 rounded-full"></div>
                 
-                <p class="text-slate-650 leading-relaxed text-xs text-justify">
+                <p class="text-slate-655 leading-relaxed text-xs text-justify">
                     Soy tu especialista en Nutrición y Salud, y me enfoco en trabajar la alimentación de manera integral, 
                     priorizando siempre tu salud y bienestar de forma sostenible. Esta guía nutricional ha sido totalmente 
                     personalizada de acuerdo con tus metas, diagnóstico, peso y talla actuales.
                 </p>
 
-                <p class="text-slate-650 leading-relaxed text-xs text-justify">
+                <p class="text-slate-655 leading-relaxed text-xs text-justify">
                     Creemos firmemente en que no existen dietas restrictivas ni alimentos prohibidos, sino porciones inteligentes 
                     que se adaptan a tu ritmo de vida. Este documento contiene todo tu plan de alimentación, 
                     las indicaciones clínicas de soporte y tu lista de compras semanal.
@@ -255,10 +262,10 @@
                             <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-2">
                                 <i data-lucide="shuffle" class="w-3.5 h-3.5 text-emerald-600"></i> Sistema de Dieta Flexible
                             </h3>
-                            <p class="text-[11px] text-slate-650 leading-relaxed text-justify">
+                            <p class="text-[11px] text-slate-655 leading-relaxed text-justify">
                                 El sistema de alimentación que utilizamos es de <strong>intercambio de alimentos</strong>. Esto significa que puedes intercambiar fuentes de proteínas, carbohidratos o grasas equivalentes según tus preferencias. 
                             </p>
-                            <p class="text-[11px] text-slate-650 leading-relaxed text-justify">
+                            <p class="text-[11px] text-slate-655 leading-relaxed text-justify">
                                 Por ejemplo, puedes cambiar el pollo por pescado, o el camote por arroz cocido en las porciones indicadas. Cada porción de alimento está calculada en gramos específicos para mantener estable tu balance calórico diario y tus macronutrientes.
                             </p>
                         </div>
