@@ -30,7 +30,8 @@ class PacienteAuth(HttpBearer):
             # Descifrar y validar el token firmado (vigente por 30 días)
             data = signing.loads(token, max_age=60*60*24*30)
             user_id = data.get("user_id")
-            user = User.objects.get(pk=user_id)
+            # Optimización: Cargar de antemano el perfil del paciente para evitar queries extra (N+1)
+            user = User.objects.select_related('paciente_perfil').get(pk=user_id)
             return user
         except (signing.SignatureExpired, signing.BadSignature, User.DoesNotExist):
             return None
