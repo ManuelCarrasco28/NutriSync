@@ -679,26 +679,3 @@ def notificaciones_view(request):
     }
     return render(request, "core/notificaciones.html", context)
 
-
-def clean_db_once_view(request):
-    """
-    Vista temporal y segura para ejecutar la limpieza de base de datos desde el navegador.
-    Llama internamente al comando clean_nutricionistas.
-    """
-    from django.core.management import call_command
-    from django.http import JsonResponse
-    import io
-
-    # Protegemos la ejecución con una clave simple
-    key = request.GET.get("key")
-    if key != "manuel12345":
-        return JsonResponse({"error": "No autorizado"}, status=403)
-        
-    try:
-        out = io.StringIO()
-        call_command('clean_nutricionistas', stdout=out)
-        result = out.getvalue()
-        return JsonResponse({"status": "success", "output": result})
-    except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
