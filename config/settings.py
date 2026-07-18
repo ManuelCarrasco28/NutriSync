@@ -112,6 +112,9 @@ DATABASES = {
         # DB_HOST=db con Docker; DB_HOST=localhost sin Docker
         "HOST": config("DB_HOST", default="db"),
         "PORT": config("DB_PORT", default="5432"),
+        "OPTIONS": {
+            "sslmode": config("DB_SSLMODE", default="disable"),
+        },
     }
 }
 

@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // URL base por defecto para emulador Android.
-  // Si ejecutas en un dispositivo físico, usa la IP local de tu PC.
+  // URL base por defecto para el entorno de desarrollo local.
+  // Si ejecutas en un dispositivo físico, usa la IP local de tu PC en la red.
   // Ejemplo de uso:
   // flutter run -d <device> --dart-define=API_BASE_URL=http://192.168.101.18:8000/api/paciente
   static final String baseUrl = const String.fromEnvironment(
